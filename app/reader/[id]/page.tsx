@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -35,11 +35,70 @@ export default function ReaderPage() {
   const [selectedWord, setSelectedWord] = useState<{
     word: Word
     position: { x: number; y: number }
+    panelId: number
   } | null>(null)
+  
   const [selectedSentence, setSelectedSentence] = useState<{
     translation: string
     position: { x: number; y: number }
+    panelId: number
   } | null>(null)
+
+  const handleWordClick = (word: Word, panelId: number, event: React.MouseEvent) => {
+    const target = event.currentTarget;
+    const rect = target.getBoundingClientRect();
+    
+    // Get the panel element
+    const panel = target.closest('.panel-container') as HTMLElement;
+    if (!panel) return;
+    
+    // Get panel's position
+    const panelRect = panel.getBoundingClientRect();
+    
+    // Calculate position relative to the panel
+    const relativeX = rect.left + rect.width/2 - panelRect.left;
+    // Only add a small offset (5px) to position right below the text
+    const relativeY = rect.bottom - panelRect.top + 5;
+    
+    setSelectedWord({
+      word,
+      position: {
+        x: relativeX,
+        y: relativeY
+      },
+      panelId
+    });
+    
+    setSelectedSentence(null);
+  }
+
+  const handleSentenceClick = (translation: string, panelId: number, event: React.MouseEvent) => {
+    const target = event.currentTarget;
+    const rect = target.getBoundingClientRect();
+    
+    // Get the panel element
+    const panel = target.closest('.panel-container') as HTMLElement;
+    if (!panel) return;
+    
+    // Get panel's position
+    const panelRect = panel.getBoundingClientRect();
+    
+    // Calculate position relative to the panel
+    const relativeX = rect.left + rect.width/2 - panelRect.left;
+    // Only add a small offset (5px) to position right below the text
+    const relativeY = rect.bottom - panelRect.top + 5;
+    
+    setSelectedSentence({
+      translation,
+      position: {
+        x: relativeX,
+        y: relativeY
+      },
+      panelId
+    });
+    
+    setSelectedWord(null);
+  }
 
   // Sample data
   const panels: Panel[] = [
@@ -131,35 +190,44 @@ export default function ReaderPage() {
       ],
       image: "/placeholder.svg?height=400&width=600",
     },
+    {
+      id: 2,
+      sentences: [
+        {
+          id: 3,
+          words: [
+            {
+              japanese: "空",
+              furigana: "そら",
+              english: "sky",
+              grammarNote: "Noun (自然/nature)",
+              additionalNote: "Often used in poetry and literature",
+            },
+            {
+              japanese: "は",
+              furigana: "は",
+              english: "topic marker",
+              grammarNote: "Particle marking the topic",
+              additionalNote: "Indicates what is being discussed",
+            },
+            {
+              japanese: "青い",
+              furigana: "あおい",
+              english: "blue",
+              grammarNote: "い-adjective (色/color)",
+              additionalNote: "Basic color adjective",
+            },
+          ],
+          translation: "The sky is blue",
+        }
+      ],
+      image: "/placeholder.svg?height=400&width=600",
+    }
   ]
 
-  const handleWordClick = (word: Word, event: React.MouseEvent) => {
-    const rect = event.currentTarget.getBoundingClientRect()
-    setSelectedWord({
-      word,
-      position: {
-        x: event.clientX - rect.left,
-        y: event.clientY - rect.top,
-      },
-    })
-    setSelectedSentence(null)
-  }
-
-  const handleSentenceClick = (translation: string, event: React.MouseEvent) => {
-    const rect = event.currentTarget.getBoundingClientRect()
-    setSelectedSentence({
-      translation,
-      position: {
-        x: event.clientX - rect.left,
-        y: event.clientY - rect.top,
-      },
-    })
-    setSelectedWord(null)
-  }
-
   return (
-    <div className="container py-6">
-      <div className="max-w-4xl mx-auto space-y-8">
+    <div className="py-6">
+      <div className="space-y-8">
         {/* Navigation */}
         <div className="flex items-center">
           <Button variant="ghost" size="sm" asChild>
@@ -173,7 +241,7 @@ export default function ReaderPage() {
         {/* Story content */}
         <div className="space-y-12">
           {panels.map((panel) => (
-            <Card key={panel.id} className="p-6 space-y-8">
+            <Card key={panel.id} className="p-6 space-y-8 w-full panel-container relative">
               {/* Text content */}
               <div className="space-y-6">
                 {panel.sentences.map((sentence) => (
@@ -183,7 +251,7 @@ export default function ReaderPage() {
                         <span
                           key={index}
                           className="relative cursor-pointer hover:bg-primary/10 rounded px-0.5"
-                          onClick={(e) => handleWordClick(word, e)}
+                          onClick={(e) => handleWordClick(word, panel.id, e)}
                         >
                           <ruby className="group-hover:text-primary transition-colors">
                             {word.japanese}
@@ -197,7 +265,7 @@ export default function ReaderPage() {
                         variant="ghost"
                         size="icon"
                         className="h-6 w-6 ml-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={(e) => handleSentenceClick(sentence.translation, e)}
+                        onClick={(e) => handleSentenceClick(sentence.translation, panel.id, e)}
                       >
                         <MessageCircle className="h-4 w-4" />
                       </Button>
@@ -207,30 +275,52 @@ export default function ReaderPage() {
               </div>
 
               {/* Panel image */}
-              <div className="relative aspect-video">
-                <Image src={panel.image || "/placeholder.svg"} alt="Story panel" fill className="object-contain" />
+              <div className="relative w-full aspect-[4/3]">
+                <Image 
+                  src={panel.image || "/placeholder.svg"} 
+                  alt="Story panel" 
+                  fill 
+                  className="object-cover w-full h-full"
+                  sizes="(max-width: 1280px) 100vw, 1280px"
+                  priority
+                />
               </div>
+              
+              {/* Popovers - positioned INSIDE each panel */}
+              {selectedWord && selectedWord.panelId === panel.id && (
+                <WordPopover
+                  word={selectedWord.word}
+                  position={selectedWord.position}
+                  onClose={() => setSelectedWord(null)}
+                />
+              )}
+              {selectedSentence && selectedSentence.panelId === panel.id && (
+                <SentencePopover
+                  translation={selectedSentence.translation}
+                  position={selectedSentence.position}
+                  onClose={() => setSelectedSentence(null)}
+                />
+              )}
             </Card>
           ))}
         </div>
 
-        {/* Popovers */}
-        {selectedWord && (
-          <WordPopover
-            word={selectedWord.word}
-            position={selectedWord.position}
-            onClose={() => setSelectedWord(null)}
-          />
-        )}
-        {selectedSentence && (
-          <SentencePopover
-            translation={selectedSentence.translation}
-            position={selectedSentence.position}
-            onClose={() => setSelectedSentence(null)}
-          />
-        )}
+        {/* Chapter Navigation */}
+        <div className="flex justify-between items-center pt-8">
+          <Button variant="outline" size="lg" asChild>
+            <Link href="/reader/0" className="flex items-center gap-2">
+              <ChevronLeft className="h-4 w-4" />
+              Previous Chapter
+            </Link>
+          </Button>
+          <Button variant="outline" size="lg" asChild>
+            <Link href="/reader/2" className="flex items-center gap-2">
+              Next Chapter
+              <ChevronLeft className="h-4 w-4 rotate-180" />
+            </Link>
+          </Button>
+        </div>
       </div>
     </div>
   )
 }
-
