@@ -52,9 +52,9 @@ export async function middleware(req: NextRequest) {
       }
     }
     
-    // If we have a token, use it
+    // If we have a token, verify it
     if (accessToken) {
-      console.log('Using token-based authentication');
+      console.log('Verifying token...');
       supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -71,30 +71,40 @@ export async function middleware(req: NextRequest) {
         }
       );
       
-      // For admin routes, verify the user and admin status
+      // Verify the token by getting user data
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      
+      if (userError) {
+        console.error('Token verification failed:', userError);
+        // Clear invalid token
+        res.cookies.delete('sb-access-token');
+        const redirectUrl = new URL('/login', req.url);
+        redirectUrl.searchParams.set('redirect', req.nextUrl.pathname);
+        return NextResponse.redirect(redirectUrl);
+      }
+      
+      if (!userData?.user) {
+        console.log('No valid user found for token');
+        // Clear invalid token
+        res.cookies.delete('sb-access-token');
+        const redirectUrl = new URL('/login', req.url);
+        redirectUrl.searchParams.set('redirect', req.nextUrl.pathname);
+        return NextResponse.redirect(redirectUrl);
+      }
+      
+      // For admin routes, verify admin status
       if (isAdminRoute) {
-        console.log('Checking admin access for path:', req.nextUrl.pathname)
+        console.log('Checking admin access for path:', req.nextUrl.pathname);
         
-        // Get the user directly
-        const { data: userData, error: userError } = await supabase.auth.getUser()
-        
-        if (userError || !userData?.user) {
-          console.log('No valid user found, redirecting to login')
-          const redirectUrl = new URL('/login', req.url)
-          redirectUrl.searchParams.set('redirect', req.nextUrl.pathname)
-          return NextResponse.redirect(redirectUrl)
-        }
-        
-        // Check if user is admin
-        const isAdmin = userData.user.user_metadata?.role === 'admin'
-        console.log('User:', userData.user.email, 'Is admin:', isAdmin)
+        const isAdmin = userData.user.user_metadata?.role === 'admin';
+        console.log('User:', userData.user.email, 'Is admin:', isAdmin);
         
         if (!isAdmin) {
-          console.log('User is not an admin, redirecting to home')
-          return NextResponse.redirect(new URL('/', req.url))
+          console.log('User is not an admin, redirecting to home');
+          return NextResponse.redirect(new URL('/', req.url));
         }
         
-        // Set the token in a cookie for future requests
+        // Update the token in cookies to keep it fresh
         res.cookies.set({
           name: 'sb-access-token',
           value: accessToken,
@@ -102,42 +112,30 @@ export async function middleware(req: NextRequest) {
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'lax',
           maxAge: 60 * 60 // 1 hour
-        })
+        });
         
-        console.log('User is admin, allowing access')
-        return res
+        console.log('User is admin, allowing access');
       }
       
-      // For other protected routes
+      // For protected routes, we've already verified the user above
       if (isProtectedRoute) {
-        // Get the user directly
-        const { data: userData, error: userError } = await supabase.auth.getUser()
-        
-        if (userError) {
-          console.error('Error getting user:', userError)
-        }
-        
-        const isAuthenticated = !!userData?.user
-        console.log('Is authenticated:', isAuthenticated)
-        
-        if (!isAuthenticated) {
-          console.log('Redirecting to login: Not authenticated')
-          const redirectUrl = new URL('/login', req.url)
-          redirectUrl.searchParams.set('redirect', req.nextUrl.pathname)
-          return NextResponse.redirect(redirectUrl)
-        }
+        console.log('User is authenticated, allowing access to protected route');
       }
+      
+      return res;
     } else if (isProtectedRoute || isAdminRoute) {
-      console.log('No token found, redirecting to login')
-      const redirectUrl = new URL('/login', req.url)
-      redirectUrl.searchParams.set('redirect', req.nextUrl.pathname)
-      return NextResponse.redirect(redirectUrl)
+      console.log('No token found, redirecting to login');
+      const redirectUrl = new URL('/login', req.url);
+      redirectUrl.searchParams.set('redirect', req.nextUrl.pathname);
+      return NextResponse.redirect(redirectUrl);
     }
-
-    return res
+    
+    return res;
   } catch (error) {
-    console.error('Middleware error:', error)
-    return res
+    console.error('Middleware error:', error);
+    // Clear any invalid tokens on error
+    res.cookies.delete('sb-access-token');
+    return res;
   }
 }
 
