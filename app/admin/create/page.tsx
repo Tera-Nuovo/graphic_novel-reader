@@ -45,17 +45,27 @@ export default function CreateStoryPage() {
       })
       return
     }
+
+    // Validate required fields
+    if (!storyData.japanese_title || !storyData.english_title || !storyData.description || !storyData.difficulty_level) {
+      toast({
+        title: "Missing required fields",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      })
+      return
+    }
     
     try {
       setIsLoading(true)
       
       // Process tags from comma-separated string to array
       const tagsArray = storyData.tags 
-        ? storyData.tags.split(',').map(tag => tag.trim()) 
+        ? storyData.tags.split(',').map(tag => tag.trim()).filter(Boolean)
         : []
       
       // Create the story in Supabase
-      await createStory({
+      const story = await createStory({
         japanese_title: storyData.japanese_title,
         english_title: storyData.english_title,
         description: storyData.description,
@@ -64,6 +74,10 @@ export default function CreateStoryPage() {
         cover_image: storyData.cover_image,
         status: 'draft'
       })
+      
+      if (!story) {
+        throw new Error('Failed to create story')
+      }
       
       toast({
         title: "Story created",
@@ -75,7 +89,7 @@ export default function CreateStoryPage() {
       console.error("Error creating story:", error)
       toast({
         title: "Error",
-        description: "Failed to create story. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to create story. Please try again.",
         variant: "destructive",
       })
     } finally {
