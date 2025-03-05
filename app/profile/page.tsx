@@ -1,280 +1,181 @@
-import Link from "next/link"
-import Image from "next/image"
+"use client"
+
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Progress } from "@/components/ui/progress"
-import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { useAuth } from "@/lib/auth"
+import { toast } from "@/components/ui/use-toast"
+import { supabase } from "@/lib/supabase"
+import { AlertTriangle } from "lucide-react"
 
 export default function ProfilePage() {
-  // Mock user data
-  const user = {
-    name: "John Doe",
-    email: "john@example.com",
-    joinDate: "January 2023",
-    readingStreak: 7,
-    wordsLearned: 342,
-    level: "Intermediate",
+  const router = useRouter()
+  const { user, signOut, isAdmin } = useAuth()
+  const [isLoading, setIsLoading] = useState(false)
+  const [userProfile, setUserProfile] = useState({
+    email: "",
+    username: "",
+  })
+
+  useEffect(() => {
+    if (user) {
+      setUserProfile({
+        email: user.email || "",
+        username: user.user_metadata?.username || "",
+      })
+    }
+  }, [user])
+
+  // If no user is logged in, show a message
+  if (!user) {
+    return (
+      <div className="container flex items-center justify-center min-h-[80vh]">
+        <Card className="w-full max-w-md border-yellow-200 dark:border-yellow-800">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-yellow-500" />
+              <CardTitle>Authentication Required</CardTitle>
+            </div>
+            <CardDescription>
+              You need to be logged in to view your profile.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p>Please log in to access your profile and account settings.</p>
+          </CardContent>
+          <CardFooter>
+            <Button className="w-full" onClick={() => router.push('/login')}>
+              Go to Login
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+    )
   }
 
-  // Mock reading history
-  const readingHistory = [
-    {
-      id: 1,
-      title: "よつばと!",
-      englishTitle: "Yotsuba&!",
-      cover: "/placeholder.svg?height=400&width=300",
-      progress: 60,
-      lastRead: "2 days ago",
-    },
-    {
-      id: 3,
-      title: "ワンピース",
-      englishTitle: "One Piece",
-      cover: "/placeholder.svg?height=400&width=300",
-      progress: 25,
-      lastRead: "1 week ago",
-    },
-    {
-      id: 4,
-      title: "鬼滅の刃",
-      englishTitle: "Demon Slayer",
-      cover: "/placeholder.svg?height=400&width=300",
-      progress: 10,
-      lastRead: "2 weeks ago",
-    },
-  ]
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!user) return
+    
+    try {
+      setIsLoading(true)
+      
+      const { error } = await supabase.auth.updateUser({
+        data: { username: userProfile.username }
+      })
+      
+      if (error) throw error
+      
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been updated successfully",
+      })
+    } catch (error: any) {
+      console.error("Update profile error:", error)
+      toast({
+        title: "Update failed",
+        description: error.message || "Failed to update profile",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
-  // Mock bookmarks
-  const bookmarks = [
-    {
-      id: 1,
-      title: "よつばと!",
-      englishTitle: "Yotsuba&!",
-      cover: "/placeholder.svg?height=400&width=300",
-      chapter: 3,
-      page: 12,
-      addedDate: "3 days ago",
-    },
-    {
-      id: 2,
-      title: "ドラえもん",
-      englishTitle: "Doraemon",
-      cover: "/placeholder.svg?height=400&width=300",
-      chapter: 5,
-      page: 7,
-      addedDate: "1 week ago",
-    },
-  ]
-
-  // Mock vocabulary list
-  const vocabulary = [
-    {
-      word: "元気",
-      reading: "genki",
-      translation: "energy, vitality, vigor, health",
-      lastReviewed: "2 days ago",
-      mastery: 80,
-    },
-    {
-      word: "名前",
-      reading: "namae",
-      translation: "name",
-      lastReviewed: "3 days ago",
-      mastery: 90,
-    },
-    {
-      word: "学校",
-      reading: "gakkou",
-      translation: "school",
-      lastReviewed: "1 week ago",
-      mastery: 70,
-    },
-    {
-      word: "友達",
-      reading: "tomodachi",
-      translation: "friend",
-      lastReviewed: "5 days ago",
-      mastery: 85,
-    },
-    {
-      word: "家族",
-      reading: "kazoku",
-      translation: "family",
-      lastReviewed: "2 weeks ago",
-      mastery: 60,
-    },
-  ]
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+      toast({
+        title: "Signed out",
+        description: "You have been signed out successfully",
+      })
+      router.push("/")
+    } catch (error: any) {
+      console.error("Sign out error:", error)
+      toast({
+        title: "Error",
+        description: "Failed to sign out",
+        variant: "destructive",
+      })
+    }
+  }
 
   return (
-    <div className="container py-10">
-      <div className="flex flex-col space-y-8">
-        {/* User Profile Header */}
-        <div className="flex flex-col md:flex-row gap-6 md:items-center">
-          <div className="relative w-24 h-24">
-            <Image
-              src="/placeholder.svg?height=100&width=100&text=JD"
-              alt="Profile"
-              fill
-              className="rounded-full object-cover"
-            />
-          </div>
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold">{user.name}</h1>
-            <p className="text-muted-foreground">{user.email}</p>
-            <div className="flex flex-wrap gap-2 mt-2">
-              <Badge>Member since {user.joinDate}</Badge>
-              <Badge variant="outline">{user.level} Level</Badge>
+    <div className="container flex items-center justify-center min-h-[80vh]">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold">Your Profile</CardTitle>
+          <CardDescription>
+            View and update your account information
+          </CardDescription>
+        </CardHeader>
+        <form onSubmit={handleUpdateProfile}>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input 
+                id="email" 
+                type="email" 
+                value={userProfile.email}
+                disabled
+              />
+              <p className="text-xs text-muted-foreground">
+                Email cannot be changed
+              </p>
             </div>
-          </div>
-          <div className="flex flex-col gap-2 md:items-end">
-            <Button asChild>
-              <Link href="/settings">Edit Profile</Link>
-            </Button>
-          </div>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Reading Streak</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{user.readingStreak} days</div>
-              <p className="text-xs text-muted-foreground">Keep it up!</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Words Learned</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{user.wordsLearned}</div>
-              <p className="text-xs text-muted-foreground">Vocabulary mastered</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Reading Level</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{user.level}</div>
-              <p className="text-xs text-muted-foreground">Based on your activity</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Tabs for different sections */}
-        <Tabs defaultValue="reading-history" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="reading-history">Reading History</TabsTrigger>
-            <TabsTrigger value="bookmarks">Bookmarks</TabsTrigger>
-            <TabsTrigger value="vocabulary">Vocabulary</TabsTrigger>
-          </TabsList>
-
-          {/* Reading History Tab */}
-          <TabsContent value="reading-history" className="mt-6">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {readingHistory.map((item) => (
-                <Card key={item.id} className="overflow-hidden">
-                  <div className="flex">
-                    <div className="relative w-24 h-32">
-                      <Image
-                        src={item.cover || "/placeholder.svg"}
-                        alt={item.englishTitle}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="flex-1 p-4">
-                      <h3 className="font-bold">{item.title}</h3>
-                      <p className="text-sm text-muted-foreground">{item.englishTitle}</p>
-                      <div className="mt-2">
-                        <div className="flex justify-between text-sm">
-                          <span>Progress</span>
-                          <span>{item.progress}%</span>
-                        </div>
-                        <Progress value={item.progress} className="h-2 mt-1" />
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-2">Last read: {item.lastRead}</p>
-                      <Button size="sm" className="mt-2" asChild>
-                        <Link href={`/reader/${item.id}`}>Continue</Link>
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              ))}
+            <div className="space-y-2">
+              <Label htmlFor="username">Username</Label>
+              <Input 
+                id="username" 
+                value={userProfile.username}
+                onChange={(e) => setUserProfile({...userProfile, username: e.target.value})}
+              />
             </div>
-          </TabsContent>
-
-          {/* Bookmarks Tab */}
-          <TabsContent value="bookmarks" className="mt-6">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {bookmarks.map((bookmark) => (
-                <Card key={bookmark.id} className="overflow-hidden">
-                  <div className="flex">
-                    <div className="relative w-24 h-32">
-                      <Image
-                        src={bookmark.cover || "/placeholder.svg"}
-                        alt={bookmark.englishTitle}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="flex-1 p-4">
-                      <h3 className="font-bold">{bookmark.title}</h3>
-                      <p className="text-sm text-muted-foreground">{bookmark.englishTitle}</p>
-                      <p className="text-sm mt-2">
-                        Chapter {bookmark.chapter}, Page {bookmark.page}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">Bookmarked: {bookmark.addedDate}</p>
-                      <Button size="sm" className="mt-2" asChild>
-                        <Link href={`/reader/${bookmark.id}?chapter=${bookmark.chapter}&page=${bookmark.page}`}>
-                          Go to Bookmark
-                        </Link>
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              ))}
+            {isAdmin && (
+              <div className="mt-2 p-2 bg-green-50 dark:bg-green-900/20 rounded-md">
+                <p className="text-sm text-green-700 dark:text-green-400">
+                  You have admin privileges
+                </p>
+              </div>
+            )}
+          </CardContent>
+          <CardFooter className="flex flex-col space-y-4">
+            <div className="flex w-full gap-4">
+              <Button 
+                type="button" 
+                variant="outline" 
+                className="flex-1"
+                onClick={handleSignOut}
+              >
+                Sign Out
+              </Button>
+              <Button 
+                type="submit" 
+                className="flex-1" 
+                disabled={isLoading}
+              >
+                {isLoading ? "Updating..." : "Update Profile"}
+              </Button>
             </div>
-          </TabsContent>
-
-          {/* Vocabulary Tab */}
-          <TabsContent value="vocabulary" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Vocabulary List</CardTitle>
-                <CardDescription>Words you've learned while reading</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {vocabulary.map((word, index) => (
-                    <div key={index} className="flex items-center justify-between pb-4 border-b last:border-0">
-                      <div>
-                        <div className="flex items-baseline gap-2">
-                          <h4 className="font-bold">{word.word}</h4>
-                          <span className="text-sm text-muted-foreground">[{word.reading}]</span>
-                        </div>
-                        <p className="text-sm">{word.translation}</p>
-                        <p className="text-xs text-muted-foreground">Last reviewed: {word.lastReviewed}</p>
-                      </div>
-                      <div className="flex flex-col items-end">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm">Mastery:</span>
-                          <span className="text-sm font-medium">{word.mastery}%</span>
-                        </div>
-                        <Progress value={word.mastery} className="w-24 h-2 mt-1" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
+            {isAdmin && (
+              <div className="flex w-full gap-4">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => router.push("/admin")}
+                >
+                  Go to Admin Dashboard
+                </Button>
+              </div>
+            )}
+          </CardFooter>
+        </form>
+      </Card>
     </div>
   )
 }

@@ -10,16 +10,21 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ChevronLeft, Upload } from "lucide-react"
+import { createStory } from "@/lib/db"
+import { useAuth } from "@/lib/auth"
+import { toast } from "@/components/ui/use-toast"
 
 export default function CreateStoryPage() {
   const router = useRouter()
+  const { user } = useAuth()
+  const [isLoading, setIsLoading] = useState(false)
   const [storyData, setStoryData] = useState({
-    japaneseTitle: "",
-    englishTitle: "",
+    japanese_title: "",
+    english_title: "",
     description: "",
-    difficulty: "",
+    difficulty_level: "",
     tags: "",
-    coverImage: null,
+    cover_image: null,
   })
 
   const handleInputChange = (field: string, value: string) => {
@@ -29,13 +34,53 @@ export default function CreateStoryPage() {
     })
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Here you would typically save the story to your database
-    console.log("Story data:", storyData)
     
-    // For now, we'll just simulate a successful save and redirect
-    router.push("/admin")
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "You must be logged in to create a story",
+        variant: "destructive",
+      })
+      return
+    }
+    
+    try {
+      setIsLoading(true)
+      
+      // Process tags from comma-separated string to array
+      const tagsArray = storyData.tags 
+        ? storyData.tags.split(',').map(tag => tag.trim()) 
+        : []
+      
+      // Create the story in Supabase
+      await createStory({
+        japanese_title: storyData.japanese_title,
+        english_title: storyData.english_title,
+        description: storyData.description,
+        difficulty_level: storyData.difficulty_level,
+        tags: tagsArray,
+        cover_image: storyData.cover_image,
+        status: 'draft'
+      })
+      
+      toast({
+        title: "Story created",
+        description: "Your story has been created successfully",
+      })
+      
+      router.push("/admin")
+    } catch (error) {
+      console.error("Error creating story:", error)
+      toast({
+        title: "Error",
+        description: "Failed to create story. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -62,8 +107,8 @@ export default function CreateStoryPage() {
                     <Input 
                       id="title-jp" 
                       placeholder="Enter Japanese title" 
-                      value={storyData.japaneseTitle}
-                      onChange={(e) => handleInputChange("japaneseTitle", e.target.value)}
+                      value={storyData.japanese_title}
+                      onChange={(e) => handleInputChange("japanese_title", e.target.value)}
                       required
                     />
                   </div>
@@ -72,8 +117,8 @@ export default function CreateStoryPage() {
                     <Input 
                       id="title-en" 
                       placeholder="Enter English title" 
-                      value={storyData.englishTitle}
-                      onChange={(e) => handleInputChange("englishTitle", e.target.value)}
+                      value={storyData.english_title}
+                      onChange={(e) => handleInputChange("english_title", e.target.value)}
                       required
                     />
                   </div>
@@ -93,8 +138,8 @@ export default function CreateStoryPage() {
                   <div className="space-y-2">
                     <Label htmlFor="difficulty">Difficulty Level</Label>
                     <Select 
-                      value={storyData.difficulty}
-                      onValueChange={(value) => handleInputChange("difficulty", value)}
+                      value={storyData.difficulty_level}
+                      onValueChange={(value) => handleInputChange("difficulty_level", value)}
                     >
                       <SelectTrigger id="difficulty">
                         <SelectValue placeholder="Select difficulty" />
@@ -131,8 +176,8 @@ export default function CreateStoryPage() {
             <Button variant="outline" type="button" onClick={() => router.push("/admin")}>
               Cancel
             </Button>
-            <Button type="submit">
-              Create Story
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "Creating..." : "Create Story"}
             </Button>
           </div>
         </form>
