@@ -13,31 +13,29 @@ import { useEnsureBuckets } from "@/lib/hooks/use-ensure-buckets"
  */
 const uploadWithServiceRole = async (file: File, bucket: string, path: string) => {
   try {
-    console.log('Attempting upload with service role...')
-    
     // Call our API endpoint to handle the upload with service role key
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('bucket', bucket)
-    formData.append('path', path)
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('bucket', bucket);
+    formData.append('path', path);
     
     const response = await fetch('/api/storage/upload-with-service-role', {
       method: 'POST',
       body: formData,
-    })
+    });
     
     if (!response.ok) {
-      const errorData = await response.json()
-      throw new Error(errorData.error || 'Failed to upload with service role')
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to upload with service role');
     }
     
-    const data = await response.json()
-    return data.publicUrl
+    const data = await response.json();
+    return data.publicUrl;
   } catch (error) {
-    console.error('Error uploading with service role:', error)
-    throw error
+    console.error('Error uploading with service role:', error);
+    throw error;
   }
-}
+};
 
 /**
  * Generate a unique ID for filenames based on timestamp and random string
@@ -155,7 +153,7 @@ export function ImageUpload({
       
       if (bucketStatus.exists) {
         try {
-          console.log('Attempting normal client upload first...');
+          // Attempt normal client upload first
           const { data, error } = await supabase.storage
             .from(bucketName)
             .upload(filePath, resizedImage, {
@@ -166,7 +164,7 @@ export function ImageUpload({
           if (error) {
             // Check if error is RLS related
             if (error.message?.includes('row-level security') || error.message?.includes('policy')) {
-              console.log('RLS error detected, will try service role upload');
+              console.warn('RLS error detected, will try service role upload');
             } else {
               throw error;
             }
@@ -194,7 +192,6 @@ export function ImageUpload({
       
       // If normal upload didn't succeed, try service role
       if (!uploadSuccess) {
-        console.log('Attempting upload with service role...');
         const publicUrl = await uploadWithServiceRole(resizedImage, bucketName, filePath);
         setImage(publicUrl);
         onImageUploaded(publicUrl);

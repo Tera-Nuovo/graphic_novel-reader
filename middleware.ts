@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
 import { createClient } from '@supabase/supabase-js'
 
 export async function middleware(req: NextRequest) {
@@ -24,12 +23,6 @@ export async function middleware(req: NextRequest) {
   // Allow access to admin-setup page
   if (req.nextUrl.pathname === '/admin-setup') {
     console.log('Allowing access to admin-setup page')
-    return res
-  }
-  
-  // Allow access to check-admin page
-  if (req.nextUrl.pathname === '/check-admin') {
-    console.log('Allowing access to check-admin page')
     return res
   }
   
@@ -141,5 +134,5 @@ export async function middleware(req: NextRequest) {
 
 // Specify which routes this middleware should run on
 export const config = {
-  matcher: ['/admin/:path*', '/profile/:path*', '/admin-setup', '/check-admin'],
+  matcher: ['/admin/:path*', '/profile/:path*', '/admin-setup'],
 } 

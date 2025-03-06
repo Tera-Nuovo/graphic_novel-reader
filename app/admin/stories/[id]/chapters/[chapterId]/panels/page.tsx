@@ -19,7 +19,6 @@ import { ChevronLeft, Plus } from "lucide-react"
 import { SortablePanel } from "@/components/sortable-panel"
 import { toast } from "@/components/ui/use-toast"
 import { savePanelsData, getChapterById, getPanelsByChapterId, getSentencesByPanelId, getWordsBySentenceId } from "@/lib/db"
-import { CreateBucketsButton } from '@/components/create-buckets-button'
 import { useEnsureBuckets } from '@/lib/hooks/use-ensure-buckets'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"

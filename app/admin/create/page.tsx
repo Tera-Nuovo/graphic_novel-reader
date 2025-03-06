@@ -9,15 +9,14 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ChevronLeft, Upload } from "lucide-react"
+import { ChevronLeft } from "lucide-react"
+import { AlertCircle } from "lucide-react"
 import { createStory } from "@/lib/db"
 import { useAuth } from "@/lib/auth"
 import { useToast } from '@/components/ui/use-toast'
 import { ImageUpload } from "@/components/image-upload"
 import { useEnsureBuckets } from "@/lib/hooks/use-ensure-buckets"
-import { CreateBucketsButton } from '@/components/create-buckets-button'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { AlertCircle } from "lucide-react"
 
 export default function CreateStoryPage() {
   const router = useRouter()

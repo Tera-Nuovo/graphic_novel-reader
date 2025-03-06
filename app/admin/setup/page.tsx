@@ -111,39 +111,49 @@ export default function SetupPage() {
   // Configure RLS policies
   const handleConfigurePolicies = async () => {
     try {
-      setIsBusy(true)
+      setIsBusy(true);
       
-      // Call our API endpoint
-      const response = await fetch('/api/storage/configure-policies')
+      // Call our API endpoint for direct setup
+      const response = await fetch('/api/storage/direct-policy-setup');
       
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || response.statusText)
+        const errorData = await response.json();
+        throw new Error(errorData.error || response.statusText);
       }
       
-      const data = await response.json()
+      const data = await response.json();
       
       if (data.success) {
         toast({
           title: "Policies Configured",
-          description: "Storage policies have been configured successfully",
-        })
+          description: data.message || "Storage policies have been configured successfully",
+        });
         
-        setPolicyStatus(true)
+        // Update policy status based on response
+        setPolicyStatus(!data.manualInstructions);
+        
+        // If manual instructions are needed, show a hint
+        if (data.manualInstructions) {
+          toast({
+            title: "Manual Steps Required",
+            description: "Some policies need to be configured manually. See instructions below.",
+            duration: 8000,
+          });
+        }
       } else {
-        throw new Error(data.error || "Failed to configure policies")
+        throw new Error(data.error || "Failed to configure policies");
       }
     } catch (error) {
-      console.error("Error configuring policies:", error)
+      console.error("Error configuring policies:", error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to configure policies",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsBusy(false)
+      setIsBusy(false);
     }
-  }
+  };
   
   // Apply SQL script directly
   const handleApplySql = async () => {

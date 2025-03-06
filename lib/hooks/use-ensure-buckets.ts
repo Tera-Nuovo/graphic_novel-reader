@@ -35,18 +35,19 @@ export function useEnsureBuckets() {
       const response = await fetch('/api/storage/ensure-buckets');
       const data = await response.json();
       
-      // Step 2: Configure bucket policies
-      console.log('Configuring bucket policies...');
-      const policiesResponse = await fetch('/api/storage/configure-policies');
+      // Step 2: Configure bucket policies using the more comprehensive direct approach
+      console.log('Configuring bucket policies using direct approach...');
+      const policiesResponse = await fetch('/api/storage/direct-policy-setup');
       const policiesData = await policiesResponse.json();
       
       // Set our status based on the responses
-      const success = response.ok && data.success && policiesResponse.ok && policiesData.success;
+      const success = response.ok && data.success && policiesResponse.ok && 
+        (policiesData.success || policiesData.manualInstructions);
       
       setBucketStatus({
         initialized: true,
         exists: response.ok && data.success,
-        policiesConfigured: policiesResponse.ok && policiesData.success,
+        policiesConfigured: policiesResponse.ok && policiesData.success && !policiesData.manualInstructions,
         error: success ? undefined : 
           (!response.ok || !data.success ? 
             (data.error || 'Unknown error creating buckets') : 
@@ -64,7 +65,9 @@ export function useEnsureBuckets() {
       } else if (!silent) {
         toast({
           title: 'Storage Ready',
-          description: 'Storage is configured and ready for image uploads.',
+          description: policiesData.manualInstructions ? 
+            'Storage is partially configured. Some manual setup may be required.' :
+            'Storage is configured and ready for image uploads.',
         });
       }
       

@@ -15,7 +15,6 @@ import { useAuth } from "@/lib/auth"
 import { toast } from "@/components/ui/use-toast"
 import { Story } from "@/lib/types"
 import { ImageUpload } from "@/components/image-upload"
-import { CreateBucketsButton } from '@/components/create-buckets-button'
 import { useEnsureBuckets } from '@/lib/hooks/use-ensure-buckets'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
