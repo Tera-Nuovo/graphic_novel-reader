@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   DndContext,
   closestCenter,
@@ -18,6 +18,7 @@ import { Accordion } from "@/components/ui/accordion"
 import { ChevronLeft, Plus } from "lucide-react"
 import { SortablePanel } from "@/components/sortable-panel"
 import { toast } from "@/components/ui/use-toast"
+import { savePanelsData, getChapterById, getPanelsByChapterId, getSentencesByPanelId, getWordsBySentenceId } from "@/lib/db"
 
 interface Word {
   id: number
@@ -49,21 +50,14 @@ export default function ChapterPanelsPage() {
   const storyId = params.id
   const chapterId = params.chapterId
   const [isSaving, setIsSaving] = useState(false)
-
-  // Sample chapter data
-  const chapter = {
+  const [isLoading, setIsLoading] = useState(true)
+  const [chapter, setChapter] = useState<any>({
     id: chapterId,
-    title: "Chapter 1: The Beginning",
+    title: "Loading...",
     order: 1,
-  }
+  })
 
-  const [panels, setPanels] = useState<Panel[]>([
-    {
-      id: 1,
-      image: null,
-      sentences: [],
-    },
-  ])
+  const [panels, setPanels] = useState<Panel[]>([])
   const [selectedWord, setSelectedWord] = useState<{ panelId: number; sentenceId: number; word: Word } | null>(null)
   const [selectedSentence, setSelectedSentence] = useState<{ panelId: number; sentence: Sentence } | null>(null)
 
@@ -73,6 +67,104 @@ export default function ChapterPanelsPage() {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
   )
+
+  // Load the chapter and panels data
+  useEffect(() => {
+    async function loadData() {
+      if (!chapterId) return;
+      
+      setIsLoading(true);
+      try {
+        // Load chapter data
+        const chapterData = await getChapterById(chapterId as string);
+        setChapter(chapterData);
+        
+        // Load panels data
+        const panelsData = await getPanelsByChapterId(chapterId as string);
+        
+        // If we have panels, load sentences and words for each panel
+        if (panelsData && panelsData.length > 0) {
+          const panelsWithContent: Panel[] = [];
+          
+          for (const panel of panelsData) {
+            // Convert DB panel to our local format
+            const newPanel: Panel = {
+              id: parseInt(panel.id.substring(0, 8), 16), // Generate a numeric ID from the UUID
+              image: panel.image,
+              sentences: [],
+            };
+            
+            // Load sentences for this panel
+            const sentencesData = await getSentencesByPanelId(panel.id);
+            
+            if (sentencesData && sentencesData.length > 0) {
+              for (const sentence of sentencesData) {
+                // Convert DB sentence to our local format
+                const newSentence: Sentence = {
+                  id: parseInt(sentence.id.substring(0, 8), 16), // Generate a numeric ID from the UUID
+                  japanese: sentence.japanese,
+                  english: sentence.english,
+                  notes: sentence.notes || '',
+                  words: [],
+                };
+                
+                // Load words for this sentence
+                const wordsData = await getWordsBySentenceId(sentence.id);
+                
+                if (wordsData && wordsData.length > 0) {
+                  for (const word of wordsData) {
+                    // Convert DB word to our local format
+                    const newWord: Word = {
+                      id: parseInt(word.id.substring(0, 8), 16), // Generate a numeric ID from the UUID
+                      japanese: word.japanese,
+                      reading: word.reading,
+                      english: word.english,
+                      partOfSpeech: word.part_of_speech || '',
+                      grammarNotes: word.grammar_notes || '',
+                      additionalNotes: word.additional_notes || '',
+                    };
+                    
+                    newSentence.words.push(newWord);
+                  }
+                }
+                
+                newPanel.sentences.push(newSentence);
+              }
+            }
+            
+            panelsWithContent.push(newPanel);
+          }
+          
+          setPanels(panelsWithContent);
+        } else {
+          // If no panels exist, create an empty one
+          setPanels([{
+            id: 1,
+            image: null,
+            sentences: [],
+          }]);
+        }
+      } catch (error) {
+        console.error("Error loading panels data:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load panels data",
+          variant: "destructive",
+        });
+        
+        // Set default empty panel
+        setPanels([{
+          id: 1,
+          image: null,
+          sentences: [],
+        }]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    loadData();
+  }, [chapterId]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
@@ -219,12 +311,8 @@ export default function ChapterPanelsPage() {
     try {
       setIsSaving(true);
       
-      // Here you would implement the actual API call to save the panels
-      // Example:
-      // await savePanels(chapterId, panels);
-      
-      // For now, let's just simulate a save with a timeout
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Save the panels data to the database
+      await savePanelsData(chapterId as string, panels);
       
       toast({
         title: "Success",
@@ -271,30 +359,36 @@ export default function ChapterPanelsPage() {
             </Button>
           </div>
 
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <Accordion type="multiple" className="w-full">
-              <SortableContext items={panels.map((panel) => panel.id)} strategy={verticalListSortingStrategy}>
-                {panels.map((panel) => (
-                  <SortablePanel
-                    key={panel.id}
-                    panel={panel}
-                    selectedWord={selectedWord}
-                    selectedSentence={selectedSentence}
-                    onWordClick={handleWordClick}
-                    onSentenceClick={handleSentenceClick}
-                    onUpdateWord={updateWord}
-                    onUpdateSentence={updateSentence}
-                    onAddSentence={addSentence}
-                    onRemovePanel={(id) => {
-                      setPanels(panels.filter((p) => p.id !== id))
-                      setSelectedWord(null)
-                      setSelectedSentence(null)
-                    }}
-                  />
-                ))}
-              </SortableContext>
-            </Accordion>
-          </DndContext>
+          {isLoading ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">Loading panels data...</p>
+            </div>
+          ) : (
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <Accordion type="multiple" className="w-full">
+                <SortableContext items={panels.map((panel) => panel.id)} strategy={verticalListSortingStrategy}>
+                  {panels.map((panel) => (
+                    <SortablePanel
+                      key={panel.id}
+                      panel={panel}
+                      selectedWord={selectedWord}
+                      selectedSentence={selectedSentence}
+                      onWordClick={handleWordClick}
+                      onSentenceClick={handleSentenceClick}
+                      onUpdateWord={updateWord}
+                      onUpdateSentence={updateSentence}
+                      onAddSentence={addSentence}
+                      onRemovePanel={(id) => {
+                        setPanels(panels.filter((p) => p.id !== id))
+                        setSelectedWord(null)
+                        setSelectedSentence(null)
+                      }}
+                    />
+                  ))}
+                </SortableContext>
+              </Accordion>
+            </DndContext>
+          )}
         </div>
 
         {/* Save Controls */}
@@ -302,7 +396,7 @@ export default function ChapterPanelsPage() {
           <Button variant="outline" asChild>
             <Link href={`/admin/stories/${storyId}/chapters`}>Cancel</Link>
           </Button>
-          <Button onClick={handleSave} disabled={isSaving}>
+          <Button onClick={handleSave} disabled={isSaving || isLoading}>
             {isSaving ? "Saving..." : "Save Changes"}
           </Button>
         </div>
