@@ -130,7 +130,11 @@ export function SortablePanel({
                         <div className="space-y-2">
                           <Input
                             value={sentence.japanese}
-                            onChange={(e) => onUpdateSentence(panel.id, sentence.id, "japanese", e.target.value)}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              onUpdateSentence(panel.id, sentence.id, "japanese", e.target.value);
+                            }}
+                            onClick={(e) => e.stopPropagation()}
                             placeholder="Enter Japanese sentence..."
                             className="font-bold"
                           />
@@ -145,8 +149,8 @@ export function SortablePanel({
                                     selectedWord?.word.id === word.id ? "bg-primary text-primary-foreground" : ""
                                   }`}
                                   onClick={(e) => {
-                                    e.stopPropagation()
-                                    onWordClick(panel.id, sentence.id, word)
+                                    e.stopPropagation();
+                                    onWordClick(panel.id, sentence.id, word);
                                   }}
                                 >
                                   {word.japanese}
@@ -164,7 +168,7 @@ export function SortablePanel({
               {/* Right Side - Word/Sentence Details */}
               <div className="space-y-4">
                 {selectedWord && selectedWord.panelId === panel.id && (
-                  <div className="space-y-4">
+                  <div className="space-y-4" onClick={(e) => e.stopPropagation()}>
                     <h3 className="text-lg font-semibold">Word Details</h3>
                     <div className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
@@ -182,6 +186,7 @@ export function SortablePanel({
                                 e.target.value,
                               );
                             }}
+                            onClick={(e) => e.stopPropagation()}
                           />
                         </div>
                         <div className="space-y-2">
@@ -198,6 +203,7 @@ export function SortablePanel({
                                 e.target.value,
                               );
                             }}
+                            onClick={(e) => e.stopPropagation()}
                           />
                         </div>
                       </div>
@@ -215,6 +221,7 @@ export function SortablePanel({
                               e.target.value,
                             );
                           }}
+                          onClick={(e) => e.stopPropagation()}
                         />
                       </div>
                       <div className="space-y-2">
@@ -231,7 +238,7 @@ export function SortablePanel({
                             );
                           }}
                         >
-                          <SelectTrigger>
+                          <SelectTrigger onClick={(e) => e.stopPropagation()}>
                             <SelectValue placeholder="Select part of speech" />
                           </SelectTrigger>
                           <SelectContent>
@@ -258,6 +265,7 @@ export function SortablePanel({
                               e.target.value,
                             );
                           }}
+                          onClick={(e) => e.stopPropagation()}
                         />
                       </div>
                       <div className="space-y-2">
@@ -274,6 +282,7 @@ export function SortablePanel({
                               e.target.value,
                             );
                           }}
+                          onClick={(e) => e.stopPropagation()}
                         />
                       </div>
                     </div>
@@ -281,7 +290,7 @@ export function SortablePanel({
                 )}
 
                 {selectedSentence && selectedSentence.panelId === panel.id && !selectedWord && (
-                  <div className="space-y-4">
+                  <div className="space-y-4" onClick={(e) => e.stopPropagation()}>
                     <h3 className="text-lg font-semibold">Sentence Details</h3>
                     <div className="space-y-4">
                       <div className="space-y-2">
@@ -297,6 +306,7 @@ export function SortablePanel({
                               e.target.value,
                             );
                           }}
+                          onClick={(e) => e.stopPropagation()}
                         />
                       </div>
                       <div className="space-y-2">
@@ -312,6 +322,7 @@ export function SortablePanel({
                               e.target.value,
                             );
                           }}
+                          onClick={(e) => e.stopPropagation()}
                         />
                       </div>
                       <div className="space-y-2">
@@ -327,6 +338,7 @@ export function SortablePanel({
                               e.target.value,
                             );
                           }}
+                          onClick={(e) => e.stopPropagation()}
                         />
                       </div>
                     </div>

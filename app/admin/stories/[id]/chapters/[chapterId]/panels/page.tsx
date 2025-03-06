@@ -113,40 +113,61 @@ export default function ChapterPanelsPage() {
   }
 
   const updateSentence = (panelId: number, sentenceId: number, field: keyof Sentence, value: string) => {
-    setPanels(
-      panels.map((panel) => {
+    setPanels((prevPanels) => 
+      prevPanels.map((panel) => {
         if (panel.id === panelId) {
           return {
             ...panel,
             sentences: panel.sentences.map((sentence) => {
               if (sentence.id === sentenceId) {
-                if (field === "japanese") {
+                // Only update the Japanese field and words if we're changing the Japanese text
+                if (field === "japanese" && value !== sentence.japanese) {
                   // When Japanese text is updated, create word objects for each word
-                  const words = value.split(" ").map((word, index) => ({
-                    id: index + 1,
-                    japanese: word,
-                    reading: "",
-                    english: "",
-                    partOfSpeech: "",
-                    grammarNotes: "",
-                    additionalNotes: "",
-                  }))
-                  return { ...sentence, [field]: value, words }
+                  const words = value.split(" ").filter(Boolean).map((word, index) => {
+                    // Try to keep existing words when possible
+                    const existingWord = sentence.words.find(w => w.japanese === word);
+                    if (existingWord) {
+                      return existingWord;
+                    }
+                    return {
+                      id: sentence.words.length + index + 1,
+                      japanese: word,
+                      reading: "",
+                      english: "",
+                      partOfSpeech: "",
+                      grammarNotes: "",
+                      additionalNotes: "",
+                    };
+                  });
+                  return { ...sentence, [field]: value, words };
                 }
-                return { ...sentence, [field]: value }
+                // For other fields, just update the field value
+                return { ...sentence, [field]: value };
               }
-              return sentence
+              return sentence;
             }),
-          }
+          };
         }
-        return panel
-      }),
-    )
-  }
+        return panel;
+      })
+    );
+    
+    // Also update the selected sentence if it's the one being edited
+    if (selectedSentence && selectedSentence.panelId === panelId && 
+        selectedSentence.sentence.id === sentenceId) {
+      setSelectedSentence({
+        ...selectedSentence,
+        sentence: {
+          ...selectedSentence.sentence,
+          [field]: value,
+        }
+      });
+    }
+  };
 
   const updateWord = (panelId: number, sentenceId: number, wordId: number, field: keyof Word, value: string) => {
-    setPanels(
-      panels.map((panel) => {
+    setPanels((prevPanels) =>
+      prevPanels.map((panel) => {
         if (panel.id === panelId) {
           return {
             ...panel,
@@ -156,20 +177,33 @@ export default function ChapterPanelsPage() {
                   ...sentence,
                   words: sentence.words.map((word) => {
                     if (word.id === wordId) {
-                      return { ...word, [field]: value }
+                      return { ...word, [field]: value };
                     }
-                    return word
+                    return word;
                   }),
-                }
+                };
               }
-              return sentence
+              return sentence;
             }),
-          }
+          };
         }
-        return panel
-      }),
-    )
-  }
+        return panel;
+      })
+    );
+    
+    // Also update the selected word if it's the one being edited
+    if (selectedWord && selectedWord.panelId === panelId && 
+        selectedWord.sentenceId === sentenceId && 
+        selectedWord.word.id === wordId) {
+      setSelectedWord({
+        ...selectedWord,
+        word: {
+          ...selectedWord.word,
+          [field]: value,
+        }
+      });
+    }
+  };
 
   const handleWordClick = (panelId: number, sentenceId: number, word: Word) => {
     setSelectedWord({ panelId, sentenceId, word })
