@@ -119,15 +119,17 @@ export default function CreateStoryPage() {
         <Alert variant="destructive" className="mb-6">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Storage Error</AlertTitle>
-          <AlertDescription>
-            There was a problem setting up storage for image uploads. 
+          <AlertDescription className="flex items-center justify-between">
+            <span>There was a problem setting up storage for image uploads.</span>
             <Button 
-              variant="link" 
-              className="p-0 h-auto ml-1" 
-              onClick={() => ensureBuckets()}
-              disabled={isEnsuring}
+              variant="outline" 
+              size="sm"
+              asChild
+              className="ml-2"
             >
-              {isEnsuring ? "Trying again..." : "Try again"}
+              <Link href="/admin/setup">
+                Storage Setup
+              </Link>
             </Button>
           </AlertDescription>
         </Alert>

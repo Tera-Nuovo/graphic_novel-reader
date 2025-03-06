@@ -192,6 +192,62 @@ export default function SetupPage() {
     }
   }
   
+  // Apply direct policy setup
+  const handleDirectSetup = async () => {
+    try {
+      setIsBusy(true);
+      
+      // Call our API endpoint for direct setup without custom SQL functions
+      const response = await fetch('/api/storage/direct-policy-setup');
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || response.statusText);
+      }
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        toast({
+          title: "Storage Setup Completed",
+          description: data.message || "Storage has been configured successfully",
+        });
+        
+        // Update bucket status
+        if (data.buckets) {
+          const newBucketStatus = { ...bucketStatus };
+          data.buckets.forEach((bucket: string) => {
+            newBucketStatus[bucket] = true;
+          });
+          setBucketStatus(newBucketStatus);
+        }
+        
+        // Update policy status
+        setPolicyStatus(!data.manualInstructions);
+        
+        // If manual instructions are required, show a more specific toast
+        if (data.manualInstructions) {
+          toast({
+            title: "Manual Configuration Required",
+            description: "Some steps need to be completed manually in Supabase. See instructions below.",
+            duration: 8000,
+          });
+        }
+      } else {
+        throw new Error(data.error || "Failed to set up storage");
+      }
+    } catch (error) {
+      console.error("Error setting up storage:", error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to set up storage",
+        variant: "destructive",
+      });
+    } finally {
+      setIsBusy(false);
+    }
+  };
+  
   if (!user || !isAdmin) {
     return (
       <div className="container py-10">
@@ -301,6 +357,52 @@ export default function SetupPage() {
                   Storage → Buckets → Policy Editor
                 </AlertDescription>
               </Alert>
+              
+              {/* Manual configuration instructions */}
+              <div className="mt-6 p-4 border rounded-md bg-slate-50">
+                <h4 className="font-medium mb-2">Manual Configuration Steps:</h4>
+                <ol className="list-decimal list-inside space-y-2 text-sm">
+                  <li>Go to your <a href="https://supabase.com/dashboard/" target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">Supabase Dashboard</a></li>
+                  <li>Select your project</li>
+                  <li>Navigate to <strong>Storage</strong> in the left sidebar</li>
+                  <li>For each bucket (<code>stories</code> and <code>panels</code>):</li>
+                  <li className="ml-6">Click the bucket name</li>
+                  <li className="ml-6">Go to <strong>Policies</strong> tab</li>
+                  <li className="ml-6">Click <strong>Create Policy</strong> (do this 4 times):</li>
+                  <li className="ml-8">
+                    <strong>Policy 1:</strong> Allow public read access<br />
+                    <span className="text-xs text-gray-600">
+                      Name: <code>Public Read</code><br />
+                      Operation: <code>SELECT</code><br />
+                      Policy definition: <code>true</code> or <code>()</code>
+                    </span>
+                  </li>
+                  <li className="ml-8">
+                    <strong>Policy 2:</strong> Allow authenticated uploads<br />
+                    <span className="text-xs text-gray-600">
+                      Name: <code>Auth Insert</code><br />
+                      Operation: <code>INSERT</code><br />
+                      Policy definition: <code>auth.role() = 'authenticated'</code>
+                    </span>
+                  </li>
+                  <li className="ml-8">
+                    <strong>Policy 3:</strong> Allow authenticated updates<br />
+                    <span className="text-xs text-gray-600">
+                      Name: <code>Auth Update</code><br />
+                      Operation: <code>UPDATE</code><br />
+                      Policy definition: <code>auth.role() = 'authenticated'</code>
+                    </span>
+                  </li>
+                  <li className="ml-8">
+                    <strong>Policy 4:</strong> Allow authenticated deletes<br />
+                    <span className="text-xs text-gray-600">
+                      Name: <code>Auth Delete</code><br />
+                      Operation: <code>DELETE</code><br />
+                      Policy definition: <code>auth.role() = 'authenticated'</code>
+                    </span>
+                  </li>
+                </ol>
+              </div>
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-2">
@@ -311,6 +413,16 @@ export default function SetupPage() {
             >
               {isBusy && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
               Configure Policies
+            </Button>
+            
+            <Button 
+              onClick={handleDirectSetup}
+              disabled={isBusy}
+              variant="secondary"
+              className="w-full"
+            >
+              {isBusy && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+              One-Click Setup (Recommended)
             </Button>
             
             <Button 
