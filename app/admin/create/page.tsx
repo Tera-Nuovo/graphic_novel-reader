@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -15,6 +15,7 @@ import { useAuth } from "@/lib/auth"
 import { toast } from "@/components/ui/use-toast"
 import { ImageUpload } from "@/components/image-upload"
 import { ensureStorageBuckets } from "@/lib/storage-utils"
+import { CreateBucketsButton } from '@/components/create-buckets-button'
 
 export default function CreateStoryPage() {
   const router = useRouter()
@@ -30,16 +31,16 @@ export default function CreateStoryPage() {
   })
 
   useEffect(() => {
-    // Ensure buckets exist when component mounts
+    // When the component mounts, ensure storage buckets exist
     ensureStorageBuckets().catch(error => {
-      console.error("Error ensuring storage buckets:", error);
+      console.error('Failed to ensure storage buckets exist:', error)
       toast({
-        title: "Storage Error",
-        description: "There was an error setting up storage. Image uploads may not work.",
-        variant: "destructive",
-      });
-    });
-  }, []);
+        title: 'Storage Error',
+        description: 'Failed to check/create storage buckets. You may need to create them manually.',
+        variant: 'destructive'
+      })
+    })
+  }, [toast])
 
   const handleInputChange = (field: string, value: string) => {
     setStoryData({
@@ -112,7 +113,16 @@ export default function CreateStoryPage() {
   }
 
   return (
-    <div className="container py-10">
+    <div className="container mx-auto py-10">
+      <h1 className="text-3xl font-bold mb-8">Create New Story</h1>
+      
+      <div className="mb-6 flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">
+          Create storage buckets if image uploads fail with "Bucket not found" errors:
+        </p>
+        <CreateBucketsButton />
+      </div>
+      
       <div className="flex flex-col space-y-6">
         <div className="flex items-center mb-4">
           <Button variant="ghost" size="sm" asChild className="mr-4">
@@ -121,7 +131,6 @@ export default function CreateStoryPage() {
               Back to Dashboard
             </Link>
           </Button>
-          <h1 className="text-3xl font-bold">Create New Story</h1>
         </div>
 
         <form onSubmit={handleSubmit}>

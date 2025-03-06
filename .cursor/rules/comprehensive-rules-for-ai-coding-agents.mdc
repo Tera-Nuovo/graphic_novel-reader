@@ -1,0 +1,99 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+
+# Comprehensive Rules for AI Coding Agents
+
+## Code Quality & Structure
+1. **Always prefer simple solutions over complex ones**
+   - Prioritize readability over cleverness
+   - Write simple, clear code instead of complex one-liners
+   - Use descriptive variable and function names
+
+2. **Avoid duplication of code**
+   - Check for other areas of the codebase with similar functionality before writing new code
+   - Break complex operations into smaller, well-named helper functions
+   - Follow DRY (Don't Repeat Yourself) principles rigorously
+
+3. **Maintain clean organization**
+   - Keep files under 200-300 lines; refactor when approaching this limit
+   - Follow language-specific style guides (PEP 8 for Python, Google/Airbnb guides for JavaScript, etc.)
+   - Break complex systems into modular components
+
+4. **Document thoroughly**
+   - Include docstrings/comments for all functions explaining purpose, parameters, and return values
+   - Document why code works a certain way, not just what it does
+   - Keep documentation updated with code changes
+
+## Error Handling & Validation
+5. **Validate all inputs thoroughly**
+   - Never trust user input
+   - Implement proper type checking and validation before processing data
+   - Handle edge cases explicitly (empty arrays, null values, etc.)
+
+6. **Write comprehensive error handling**
+   - Use try/catch blocks appropriately
+   - Provide meaningful error messages
+   - Avoid swallowing exceptions with empty catch blocks
+   - Implement proper logging for debugging purposes
+
+## Security & Best Practices
+7. **Apply the principle of least privilege**
+   - Request only necessary permissions
+   - Minimize scope of variables and functions
+   - Use environment variables for sensitive information
+   - Never hardcode credentials
+
+8. **Implement proper authentication and authorization**
+   - Use proper encryption for sensitive data
+   - Implement timeout mechanisms for sessions
+   - Follow current security best practices
+
+9. **Ensure environment compatibility**
+   - Write code that works across different environments: dev, test, and prod
+   - Avoid mocking data outside of tests
+   - Never add stubbing or fake data patterns to code for dev or prod environments
+   - Use relative paths instead of absolute paths when appropriate
+
+## Testing & Quality Assurance
+10. **Implement proper testing**
+    - Write unit tests for all functions
+    - Include edge cases in test suites
+    - Test for failure conditions, not just happy paths
+    - Maintain high test coverage
+
+## AI-Specific Considerations
+11. **Avoid common AI-specific pitfalls**
+    - Don't generate incomplete code (no "..." or "and so on")
+    - Don't stop mid-function with vague comments like "rest of implementation"
+    - Fully implement error handling rather than just mentioning it
+    - Avoid unnecessary dependencies or imports
+    - Check all API references against current documentation
+
+12. **Respect scope limitations**
+    - Focus on well-defined, simple tasks
+    - Avoid attempting complex multi-step refactoring without sufficient context
+    - Be transparent about limitations when faced with ambiguous requirements
+
+13. **Prioritize performance awareness**
+    - Be cautious of potential performance bottlenecks
+    - Optimize resource usage (close connections, avoid memory leaks)
+    - Use appropriate data structures for operations
+
+14. **Practice change discipline**
+    - Only make changes that are explicitly requested or clearly understood
+    - Never overwrite .env files without first asking and confirming
+    - When fixing issues, exhaust existing implementation options before introducing new patterns
+
+## Collaboration & Human Oversight
+15. **Ensure transparency and explainability**
+    - Provide clear explanations for implementation choices
+    - Document assumptions and design decisions
+    - Make code intuitive for human reviewers
+
+16. **Support human collaboration**
+    - Generate code that integrates with existing workflows and standards
+    - Respect established coding conventions in the project
+    - Produce code that facilitates effective teamwork

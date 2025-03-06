@@ -19,6 +19,7 @@ import { ChevronLeft, Plus } from "lucide-react"
 import { SortablePanel } from "@/components/sortable-panel"
 import { toast } from "@/components/ui/use-toast"
 import { savePanelsData, getChapterById, getPanelsByChapterId, getSentencesByPanelId, getWordsBySentenceId } from "@/lib/db"
+import { CreateBucketsButton } from '@/components/create-buckets-button'
 
 interface Word {
   id: number
@@ -383,28 +384,25 @@ export default function ChapterPanelsPage() {
 
   return (
     <div className="container py-10">
-      <div className="flex flex-col space-y-6">
-        <div className="flex items-center mb-4">
-          <Button variant="ghost" size="sm" asChild className="mr-4">
-            <Link href={`/admin/stories/${storyId}/chapters`} className="flex items-center gap-2">
-              <ChevronLeft className="h-4 w-4" />
-              Back to Chapters
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold">{chapter.title}</h1>
-            <p className="text-muted-foreground">Manage panels for this chapter</p>
-          </div>
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold">Edit Panels</h1>
+          <p className="text-muted-foreground">
+            <span className="font-semibold">{chapter?.title}</span> - Chapter ID: {chapterId}
+          </p>
         </div>
+        
+        <div className="flex items-center gap-4">
+          <CreateBucketsButton />
+          <Button onClick={addPanel}>Add Panel</Button>
+        </div>
+      </div>
 
+      <div className="flex flex-col space-y-6">
         {/* Panels Editor */}
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-bold">Panels</h2>
-            <Button onClick={addPanel}>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Panel
-            </Button>
           </div>
 
           {isLoading ? (

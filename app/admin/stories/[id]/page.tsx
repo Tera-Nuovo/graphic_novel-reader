@@ -15,6 +15,7 @@ import { useAuth } from "@/lib/auth"
 import { toast } from "@/components/ui/use-toast"
 import { Story } from "@/lib/types"
 import { ImageUpload } from "@/components/image-upload"
+import { CreateBucketsButton } from '@/components/create-buckets-button'
 
 export default function EditStoryPage() {
   const router = useRouter()
@@ -146,17 +147,21 @@ export default function EditStoryPage() {
 
   return (
     <div className="container py-10">
-      <div className="flex flex-col space-y-6">
-        <div className="flex items-center mb-4">
-          <Button variant="ghost" size="sm" asChild className="mr-4">
-            <Link href="/admin" className="flex items-center gap-2">
-              <ChevronLeft className="h-4 w-4" />
-              Back to Dashboard
-            </Link>
-          </Button>
+      <div className="flex justify-between items-center mb-8">
+        <div>
           <h1 className="text-3xl font-bold">Edit Story</h1>
+          <p className="text-muted-foreground">Make changes to {storyData?.english_title || storyData?.japanese_title || 'this story'}</p>
         </div>
+        
+        <div className="flex items-center gap-4">
+          <CreateBucketsButton />
+          <Button asChild variant="outline">
+            <Link href="/admin">Back to Admin</Link>
+          </Button>
+        </div>
+      </div>
 
+      <div className="flex flex-col space-y-6">
         <form onSubmit={handleSubmit}>
           {/* Story Details */}
           <Card className="mb-6">
