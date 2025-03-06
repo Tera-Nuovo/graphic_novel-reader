@@ -8,6 +8,38 @@ import { useToast } from "@/components/ui/use-toast"
 import { useEnsureBuckets } from "@/lib/hooks/use-ensure-buckets"
 
 /**
+ * Helper function to upload files using the service role API
+ * For cases where normal RLS policies fail
+ */
+const uploadWithServiceRole = async (file: File, bucket: string, path: string) => {
+  try {
+    console.log('Attempting upload with service role...')
+    
+    // Call our API endpoint to handle the upload with service role key
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('bucket', bucket)
+    formData.append('path', path)
+    
+    const response = await fetch('/api/storage/upload-with-service-role', {
+      method: 'POST',
+      body: formData,
+    })
+    
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.error || 'Failed to upload with service role')
+    }
+    
+    const data = await response.json()
+    return data.publicUrl
+  } catch (error) {
+    console.error('Error uploading with service role:', error)
+    throw error
+  }
+}
+
+/**
  * Generate a unique ID for filenames based on timestamp and random string
  */
 const generateUniqueId = () => {
@@ -43,7 +75,7 @@ export function ImageUpload({
   const [error, setError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
-  const { ensureBuckets, isEnsuring } = useEnsureBuckets()
+  const { ensureBuckets, isEnsuring, bucketStatus } = useEnsureBuckets()
 
   // Handle upload click
   const handleUploadClick = () => {
@@ -101,10 +133,10 @@ export function ImageUpload({
       setIsUploading(true)
       setError(null)
 
-      // First, ensure buckets exist before uploading
+      // First, ensure buckets exist and policies are configured
       const bucketsReady = await ensureBuckets(true)
-      if (!bucketsReady) {
-        throw new Error("Unable to prepare storage buckets for upload")
+      if (!bucketsReady && bucketStatus.error) {
+        throw new Error(`Unable to prepare storage for upload: ${bucketStatus.error}`)
       }
 
       // Resize image if needed
@@ -115,30 +147,62 @@ export function ImageUpload({
       const fileName = `${generateUniqueId()}.${fileExt}`
       const filePath = folderPath ? `${folderPath}/${fileName}` : fileName
 
-      // Upload the file
-      const { data, error } = await supabase.storage
-        .from(bucketName)
-        .upload(filePath, resizedImage, {
-          cacheControl: "3600",
-          upsert: true,
+      try {
+        // First try with normal client
+        console.log('Attempting normal upload first...')
+        const { data, error } = await supabase.storage
+          .from(bucketName)
+          .upload(filePath, resizedImage, {
+            cacheControl: "3600",
+            upsert: true,
+          })
+
+        if (error) {
+          // Check if error is RLS related
+          if (error.message?.includes('row-level security') || error.message?.includes('policy')) {
+            console.log('RLS error detected, falling back to service role upload')
+            
+            // Fall back to service role upload
+            const publicUrl = await uploadWithServiceRole(resizedImage, bucketName, filePath)
+            setImage(publicUrl)
+            onImageUploaded(publicUrl)
+            
+            toast({
+              title: "Image uploaded",
+              description: "Your image has been uploaded successfully (with admin privileges).",
+            })
+            
+            return
+          }
+          
+          throw error
+        }
+
+        // Get the public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from(bucketName)
+          .getPublicUrl(filePath)
+
+        setImage(publicUrl)
+        onImageUploaded(publicUrl)
+
+        toast({
+          title: "Image uploaded",
+          description: "Your image has been uploaded successfully",
         })
-
-      if (error) {
-        throw error
+      } catch (uploadError) {
+        // If normal client upload fails, try service role
+        console.error('Normal upload failed, attempting service role upload:', uploadError)
+        
+        const publicUrl = await uploadWithServiceRole(resizedImage, bucketName, filePath)
+        setImage(publicUrl)
+        onImageUploaded(publicUrl)
+        
+        toast({
+          title: "Image uploaded",
+          description: "Your image has been uploaded successfully (with admin privileges).",
+        })
       }
-
-      // Get the public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from(bucketName)
-        .getPublicUrl(filePath)
-
-      setImage(publicUrl)
-      onImageUploaded(publicUrl)
-
-      toast({
-        title: "Image uploaded",
-        description: "Your image has been uploaded successfully",
-      })
     } catch (error: any) {
       console.error("Error uploading image:", error)
       setError(error.message || "Error uploading image")

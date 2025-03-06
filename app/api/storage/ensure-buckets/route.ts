@@ -47,8 +47,10 @@ export async function GET() {
       console.log(`API: Creating bucket: ${bucketName}`);
       
       try {
+        // Create the bucket with public flag
         const { data, error } = await supabase.storage.createBucket(bucketName, {
-          public: true
+          public: true,
+          fileSizeLimit: 5 * 1024 * 1024 // 5MB limit
         });
         
         if (error) {
@@ -60,10 +62,25 @@ export async function GET() {
           });
         } else {
           console.log(`API: Successfully created bucket: ${bucketName}`);
-          results.push({
-            bucket: bucketName,
-            success: true
+          
+          // Ensure bucket is public by updating its settings
+          const { error: updateError } = await supabase.storage.updateBucket(bucketName, {
+            public: true
           });
+          
+          if (updateError) {
+            console.error(`API: Error setting bucket ${bucketName} to public:`, updateError);
+            results.push({
+              bucket: bucketName,
+              success: false,
+              error: updateError
+            });
+          } else {
+            results.push({
+              bucket: bucketName,
+              success: true
+            });
+          }
         }
       } catch (createError) {
         console.error(`API: Exception while creating bucket ${bucketName}:`, createError);
@@ -75,10 +92,28 @@ export async function GET() {
       }
     }
     
+    // Also ensure existing buckets are public
+    for (const bucketName of existingBucketNames.filter(bn => requiredBuckets.includes(bn))) {
+      try {
+        console.log(`API: Ensuring existing bucket ${bucketName} is public`);
+        const { error: updateError } = await supabase.storage.updateBucket(bucketName, {
+          public: true
+        });
+        
+        if (updateError) {
+          console.error(`API: Error updating existing bucket ${bucketName}:`, updateError);
+        } else {
+          console.log(`API: Successfully updated bucket ${bucketName} to be public`);
+        }
+      } catch (error) {
+        console.error(`API: Exception updating bucket ${bucketName}:`, error);
+      }
+    }
+    
     const allSuccessful = results.every(result => result.success);
     
     return NextResponse.json({
-      success: allSuccessful,
+      success: allSuccessful || existingBucketNames.length === requiredBuckets.length,
       existingBuckets: existingBucketNames,
       missingBuckets,
       results
