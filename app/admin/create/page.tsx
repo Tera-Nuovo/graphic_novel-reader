@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -14,6 +14,7 @@ import { createStory } from "@/lib/db"
 import { useAuth } from "@/lib/auth"
 import { toast } from "@/components/ui/use-toast"
 import { ImageUpload } from "@/components/image-upload"
+import { ensureStorageBuckets } from "@/lib/storage-utils"
 
 export default function CreateStoryPage() {
   const router = useRouter()
@@ -27,6 +28,18 @@ export default function CreateStoryPage() {
     tags: "",
     cover_image: null,
   })
+
+  useEffect(() => {
+    // Ensure buckets exist when component mounts
+    ensureStorageBuckets().catch(error => {
+      console.error("Error ensuring storage buckets:", error);
+      toast({
+        title: "Storage Error",
+        description: "There was an error setting up storage. Image uploads may not work.",
+        variant: "destructive",
+      });
+    });
+  }, []);
 
   const handleInputChange = (field: string, value: string) => {
     setStoryData({

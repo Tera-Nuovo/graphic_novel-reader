@@ -6,6 +6,7 @@ import { Upload, Trash2, Image as ImageIcon } from "lucide-react"
 import Image from "next/image"
 import { supabase } from "@/lib/supabase"
 import { toast } from "./ui/use-toast"
+import { ensureStorageBuckets } from "@/lib/storage-utils"
 
 // Simple function to generate a unique filename
 const generateUniqueId = () => {
@@ -39,6 +40,11 @@ export function ImageUpload({
     if (initialImage) {
       setImageUrl(initialImage)
     }
+    
+    // Ensure buckets exist when component mounts
+    ensureStorageBuckets().catch(error => {
+      console.error("Error ensuring storage buckets:", error);
+    });
   }, [initialImage])
 
   const handleUploadClick = () => {
@@ -163,73 +169,85 @@ export function ImageUpload({
     }
   }
 
-  // Function to resize image
-  const resizeImage = (file: File, maxWidth: number, maxHeight: number): Promise<File> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.onload = (readerEvent) => {
-        const image = new Image()
-        image.onload = () => {
-          // Calculate new dimensions
-          let width = image.width
-          let height = image.height
-          
-          if (width > maxWidth) {
-            height = (height * maxWidth) / width
-            width = maxWidth
-          }
-          
-          if (height > maxHeight) {
-            width = (width * maxHeight) / height
-            height = maxHeight
-          }
-          
-          // Create canvas and resize
-          const canvas = document.createElement('canvas')
-          canvas.width = width
-          canvas.height = height
-          
-          const ctx = canvas.getContext('2d')
-          if (ctx) {
-            ctx.drawImage(image, 0, 0, width, height)
-            
-            // Convert to blob/file
-            canvas.toBlob((blob) => {
-              if (!blob) {
-                reject(new Error('Canvas to Blob conversion failed'))
-                return
-              }
-              
-              // Use a type assertion to create the File object
-              const newFile = new File([blob] as BlobPart[], file.name, {
-                type: file.type,
-                lastModified: Date.now(),
-              })
-              
-              resolve(newFile)
-            }, file.type, 0.85) // Quality parameter (0.85 = 85% quality)
+  // Function to resize image using a different approach that avoids File constructor issues
+  const resizeImage = async (file: File, maxWidth: number, maxHeight: number): Promise<File> => {
+    // Create an image element
+    const createImage = (url: string): Promise<HTMLImageElement> =>
+      new Promise((resolve, reject) => {
+        const img = new Image();
+        img.addEventListener('load', () => resolve(img));
+        img.addEventListener('error', error => reject(error));
+        img.src = url;
+      });
+      
+    // Create a canvas with the desired dimensions
+    const resize = async (img: HTMLImageElement, width: number, height: number): Promise<Blob> => {
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      
+      if (!ctx) {
+        throw new Error('Could not get canvas context');
+      }
+      
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      return new Promise((resolve, reject) => {
+        canvas.toBlob(blob => {
+          if (blob) {
+            resolve(blob);
           } else {
-            reject(new Error('Could not get canvas context'))
+            reject(new Error('Canvas to Blob conversion failed'));
           }
-        }
-        
-        image.onerror = () => {
-          reject(new Error('Failed to load image'))
-        }
-        
-        if (readerEvent.target?.result) {
-          image.src = readerEvent.target.result as string
-        } else {
-          reject(new Error('Failed to read file data'))
-        }
+        }, file.type, 0.85);
+      });
+    };
+    
+    // Calculate new dimensions
+    const calculateDimensions = (originalWidth: number, originalHeight: number): { width: number; height: number } => {
+      let width = originalWidth;
+      let height = originalHeight;
+      
+      if (width > maxWidth) {
+        height = (height * maxWidth) / width;
+        width = maxWidth;
       }
       
-      reader.onerror = () => {
-        reject(new Error('Failed to read file'))
+      if (height > maxHeight) {
+        width = (width * maxHeight) / height;
+        height = maxHeight;
       }
       
-      reader.readAsDataURL(file)
-    })
+      return { width, height };
+    };
+    
+    try {
+      // Create URL for the file
+      const url = URL.createObjectURL(file);
+      
+      // Load image
+      const img = await createImage(url);
+      
+      // Calculate dimensions
+      const { width, height } = calculateDimensions(img.width, img.height);
+      
+      // Resize image
+      const blob = await resize(img, width, height);
+      
+      // Release object URL
+      URL.revokeObjectURL(url);
+      
+      // Create a new file from the blob
+      const resizedFile = new Blob([blob], { type: file.type }) as any;
+      resizedFile.name = file.name;
+      resizedFile.lastModified = Date.now();
+      
+      return resizedFile as File;
+    } catch (error) {
+      console.error('Error resizing image:', error);
+      throw error;
+    }
   }
 
   return (
