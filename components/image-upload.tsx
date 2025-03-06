@@ -2,15 +2,16 @@
 
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Upload, Trash2, Image as ImageIcon } from "lucide-react"
-import Image from "next/image"
+import { Upload, X, Loader2 } from "lucide-react"
 import { supabase } from "@/lib/supabase"
-import { toast } from "./ui/use-toast"
-import { ensureStorageBuckets } from "@/lib/storage-utils"
+import { useToast } from "@/components/ui/use-toast"
+import { useEnsureBuckets } from "@/lib/hooks/use-ensure-buckets"
 
-// Simple function to generate a unique filename
+/**
+ * Generate a unique ID for filenames based on timestamp and random string
+ */
 const generateUniqueId = () => {
-  return Date.now().toString() + Math.random().toString(36).substring(2, 9);
+  return `${Date.now()}_${Math.random().toString(36).substring(2, 15)}`
 }
 
 interface ImageUploadProps {
@@ -23,6 +24,10 @@ interface ImageUploadProps {
   maxHeight?: number
 }
 
+/**
+ * A reusable image upload component that handles file validation,
+ * image preview, and upload to Supabase storage
+ */
 export function ImageUpload({
   initialImage,
   bucketName,
@@ -32,292 +37,280 @@ export function ImageUpload({
   maxWidth = 800,
   maxHeight = 800,
 }: ImageUploadProps) {
-  const [imageUrl, setImageUrl] = useState<string | null>(initialImage || null)
-  const [uploading, setUploading] = useState(false)
+  const [image, setImage] = useState<string | null>(initialImage || null)
+  const [file, setFile] = useState<File | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const { toast } = useToast()
+  const { ensureBuckets, isEnsuring } = useEnsureBuckets()
 
-  useEffect(() => {
-    if (initialImage) {
-      setImageUrl(initialImage)
-    }
-    
-    // Ensure buckets exist when component mounts
-    ensureStorageBuckets().catch(error => {
-      console.error("Error ensuring storage buckets:", error);
-    });
-  }, [initialImage])
-
+  // Handle upload click
   const handleUploadClick = () => {
-    fileInputRef.current?.click()
+    if (fileInputRef.current) {
+      fileInputRef.current.click()
+    }
   }
 
+  // Handle file selection
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files
+    const selectedFile = e.target.files?.[0]
+    if (!selectedFile) return
 
-    if (!files || files.length === 0) {
-      return
-    }
-
-    const file = files[0]
-    const fileExt = file.name.split('.').pop()
-    const fileName = `${folderPath}/${generateUniqueId()}.${fileExt}`
-    const filePath = `${bucketName}/${fileName}`
-
-    // Check file size
-    if (file.size > 5 * 1024 * 1024) { // 5MB limit
-      toast({
-        title: "File too large",
-        description: "Please upload an image smaller than 5MB",
-        variant: "destructive",
-      })
-      return
-    }
-
-    // Check file type
-    if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type)) {
+    // Validate file type
+    const validTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"]
+    if (!validTypes.includes(selectedFile.type)) {
+      setError("Please select a valid image file (JPEG, PNG, GIF, or WEBP)")
       toast({
         title: "Invalid file type",
-        description: "Please upload a valid image (JPEG, PNG, WebP, or GIF)",
+        description: "Please select a valid image file (JPEG, PNG, GIF, or WEBP)",
         variant: "destructive",
       })
       return
     }
 
-    try {
-      setUploading(true)
+    // Validate file size (max 5MB)
+    if (selectedFile.size > 5 * 1024 * 1024) {
+      setError("File size must be less than 5MB")
+      toast({
+        title: "File too large",
+        description: "File size must be less than 5MB",
+        variant: "destructive",
+      })
+      return
+    }
 
-      // Resize image before upload if it's too large
-      let fileToUpload = file
-      if (file.size > 1 * 1024 * 1024) { // Resize if larger than 1MB
-        fileToUpload = await resizeImage(file, maxWidth, maxHeight)
+    setFile(selectedFile)
+    const imageUrl = URL.createObjectURL(selectedFile)
+    setImage(imageUrl)
+    setError(null)
+
+    // Auto-upload when file is selected
+    try {
+      await uploadImage(selectedFile)
+    } catch (error) {
+      console.error("Error auto-uploading image:", error)
+    }
+  }
+
+  // Upload image to Supabase storage
+  const uploadImage = async (imageFile: File) => {
+    if (!imageFile) return
+
+    try {
+      setIsUploading(true)
+      setError(null)
+
+      // First, ensure buckets exist before uploading
+      const bucketsReady = await ensureBuckets(true)
+      if (!bucketsReady) {
+        throw new Error("Unable to prepare storage buckets for upload")
       }
 
-      // Upload file to Supabase storage
-      const { error: uploadError } = await supabase.storage
+      // Resize image if needed
+      const resizedImage = await resizeImage(imageFile, maxWidth, maxHeight)
+      
+      // Generate a unique filename
+      const fileExt = imageFile.name.split(".").pop()
+      const fileName = `${generateUniqueId()}.${fileExt}`
+      const filePath = folderPath ? `${folderPath}/${fileName}` : fileName
+
+      // Upload the file
+      const { data, error } = await supabase.storage
         .from(bucketName)
-        .upload(fileName, fileToUpload, {
-          cacheControl: '3600',
-          upsert: true
+        .upload(filePath, resizedImage, {
+          cacheControl: "3600",
+          upsert: true,
         })
 
-      if (uploadError) {
-        throw uploadError
+      if (error) {
+        throw error
       }
 
       // Get the public URL
-      const { data } = supabase.storage
+      const { data: { publicUrl } } = supabase.storage
         .from(bucketName)
-        .getPublicUrl(fileName)
+        .getPublicUrl(filePath)
 
-      const publicUrl = data.publicUrl
-      
-      setImageUrl(publicUrl)
+      setImage(publicUrl)
       onImageUploaded(publicUrl)
-      
+
       toast({
         title: "Image uploaded",
         description: "Your image has been uploaded successfully",
       })
-    } catch (error) {
-      console.error('Error uploading image:', error)
+    } catch (error: any) {
+      console.error("Error uploading image:", error)
+      setError(error.message || "Error uploading image")
       toast({
         title: "Upload failed",
-        description: "There was an error uploading your image",
+        description: error.message || "Failed to upload image. Please try again.",
         variant: "destructive",
       })
     } finally {
-      setUploading(false)
-      // Clear the input so the same file can be uploaded again if needed
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ''
-      }
+      setIsUploading(false)
     }
   }
 
+  // Handle image removal
   const handleRemove = async () => {
-    if (!imageUrl) return
-    
-    // Extract filename from URL
-    const parts = imageUrl.split('/')
-    const fileName = parts[parts.length - 1]
-    const fullPath = `${folderPath}/${fileName}`
-    
     try {
-      // Delete from Supabase storage
-      const { error } = await supabase.storage
-        .from(bucketName)
-        .remove([fullPath])
+      setIsUploading(true)
       
-      if (error) {
-        throw error
+      // If there's an image URL, try to delete the file from storage
+      if (image && image.includes(bucketName)) {
+        // Extract the path from the URL
+        const path = image.split(`${bucketName}/`)[1]
+        if (path) {
+          await supabase.storage.from(bucketName).remove([path])
+        }
       }
       
-      setImageUrl(null)
-      onImageUploaded('')
+      setImage(null)
+      setFile(null)
+      onImageUploaded("")
       
-      toast({
-        title: "Image removed",
-        description: "The image has been removed",
-      })
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""
+      }
     } catch (error) {
-      console.error('Error removing image:', error)
-      toast({
-        title: "Remove failed",
-        description: "There was an error removing the image",
-        variant: "destructive",
-      })
+      console.error("Error removing image:", error)
+    } finally {
+      setIsUploading(false)
     }
   }
 
-  // Function to resize image using a different approach that avoids File constructor issues
+  /**
+   * Resize an image file to specified dimensions while maintaining aspect ratio
+   */
   const resizeImage = async (file: File, maxWidth: number, maxHeight: number): Promise<File> => {
-    // Create an image element
     const createImage = (url: string): Promise<HTMLImageElement> =>
       new Promise((resolve, reject) => {
-        const img = new Image();
-        img.addEventListener('load', () => resolve(img));
-        img.addEventListener('error', error => reject(error));
-        img.src = url;
-      });
-      
-    // Create a canvas with the desired dimensions
+        const img = new Image()
+        img.onload = () => resolve(img)
+        img.onerror = reject
+        img.src = url
+      })
+
     const resize = async (img: HTMLImageElement, width: number, height: number): Promise<Blob> => {
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+      const ctx = canvas.getContext('2d')
+      if (!ctx) throw new Error('Could not create canvas context')
       
-      if (!ctx) {
-        throw new Error('Could not get canvas context');
-      }
-      
-      ctx.drawImage(img, 0, 0, width, height);
+      ctx.drawImage(img, 0, 0, width, height)
       
       return new Promise((resolve, reject) => {
-        canvas.toBlob(blob => {
-          if (blob) {
-            resolve(blob);
-          } else {
-            reject(new Error('Canvas to Blob conversion failed'));
-          }
-        }, file.type, 0.85);
-      });
-    };
-    
-    // Calculate new dimensions
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              reject(new Error('Canvas to Blob conversion failed'))
+              return
+            }
+            resolve(blob)
+          },
+          file.type,
+          0.9 // Quality
+        )
+      })
+    }
+
     const calculateDimensions = (originalWidth: number, originalHeight: number): { width: number; height: number } => {
-      let width = originalWidth;
-      let height = originalHeight;
+      let width = originalWidth
+      let height = originalHeight
       
       if (width > maxWidth) {
-        height = (height * maxWidth) / width;
-        width = maxWidth;
+        height = (height * maxWidth) / width
+        width = maxWidth
       }
       
       if (height > maxHeight) {
-        width = (width * maxHeight) / height;
-        height = maxHeight;
+        width = (width * maxHeight) / height
+        height = maxHeight
       }
       
-      return { width, height };
-    };
-    
+      return { width: Math.round(width), height: Math.round(height) }
+    }
+
     try {
-      // Create URL for the file
-      const url = URL.createObjectURL(file);
+      const img = await createImage(URL.createObjectURL(file))
+      const dimensions = calculateDimensions(img.width, img.height)
+      const blob = await resize(img, dimensions.width, dimensions.height)
       
-      // Load image
-      const img = await createImage(url);
-      
-      // Calculate dimensions
-      const { width, height } = calculateDimensions(img.width, img.height);
-      
-      // Resize image
-      const blob = await resize(img, width, height);
-      
-      // Release object URL
-      URL.revokeObjectURL(url);
-      
-      // Create a new file from the blob
-      const resizedFile = new Blob([blob], { type: file.type }) as any;
-      resizedFile.name = file.name;
-      resizedFile.lastModified = Date.now();
-      
-      return resizedFile as File;
+      // Create a new File with explicit type
+      return new File(
+        [blob], 
+        file.name, 
+        { type: file.type, lastModified: Date.now() }
+      ) as File
     } catch (error) {
-      console.error('Error resizing image:', error);
-      throw error;
+      console.error('Error resizing image:', error)
+      return file
     }
   }
 
   return (
     <div>
-      <input
-        type="file"
-        ref={fileInputRef}
-        onChange={handleFileChange}
-        className="hidden"
-        accept="image/*"
-      />
-      
-      <div 
-        className={`border-2 border-dashed rounded-md p-4 ${
-          uploading ? 'opacity-50' : ''
-        }`}
-        style={{ aspectRatio }}
+      <div
+        className="relative mt-2 overflow-hidden rounded-md border border-input bg-background"
+        style={{ aspectRatio: aspectRatio }}
       >
-        {imageUrl ? (
-          <div className="relative w-full h-full">
-            <Image
-              src={imageUrl}
-              alt="Uploaded image"
-              fill
-              className="object-cover rounded-md"
+        {/* Image Preview */}
+        {image ? (
+          <div className="relative h-full w-full">
+            <img
+              src={image}
+              alt="Upload preview"
+              className="h-full w-full object-cover"
             />
-            <div className="absolute bottom-2 right-2 flex gap-2">
+            {!isUploading && (
               <Button
                 type="button"
-                size="icon"
-                variant="secondary"
-                className="bg-background/80 backdrop-blur-sm"
-                onClick={handleUploadClick}
-                disabled={uploading}
-              >
-                <Upload className="h-4 w-4" />
-                <span className="sr-only">Change image</span>
-              </Button>
-              <Button
-                type="button"
-                size="icon"
                 variant="destructive"
-                className="bg-destructive/80 backdrop-blur-sm"
+                size="icon"
+                className="absolute right-2 top-2 h-6 w-6 rounded-full"
                 onClick={handleRemove}
-                disabled={uploading}
               >
-                <Trash2 className="h-4 w-4" />
-                <span className="sr-only">Remove image</span>
+                <X className="h-4 w-4" />
               </Button>
-            </div>
+            )}
           </div>
         ) : (
-          <div 
-            className="flex flex-col items-center justify-center h-full cursor-pointer"
+          // Upload Placeholder
+          <div
+            className="flex h-full w-full cursor-pointer flex-col items-center justify-center border-2 border-dashed"
             onClick={handleUploadClick}
           >
-            {uploading ? (
-              <div className="flex flex-col items-center justify-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-2"></div>
-                <p className="text-sm text-muted-foreground">Uploading...</p>
+            {isUploading || isEnsuring ? (
+              <div className="flex flex-col items-center justify-center space-y-2">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">
+                  {isEnsuring ? "Preparing storage..." : "Uploading..."}
+                </p>
               </div>
             ) : (
               <>
-                <ImageIcon className="h-8 w-8 text-muted-foreground mb-2" />
-                <p className="text-sm text-muted-foreground">Drag & drop or click to upload</p>
+                <Upload className="mb-2 h-8 w-8 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">Click to upload</p>
               </>
             )}
           </div>
         )}
       </div>
+
+      {/* Error Message */}
+      {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
+
+      {/* Hidden File Input */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        className="hidden"
+        accept="image/*"
+        onChange={handleFileChange}
+        disabled={isUploading || isEnsuring}
+      />
     </div>
   )
 } 

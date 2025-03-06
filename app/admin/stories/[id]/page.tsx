@@ -16,6 +16,9 @@ import { toast } from "@/components/ui/use-toast"
 import { Story } from "@/lib/types"
 import { ImageUpload } from "@/components/image-upload"
 import { CreateBucketsButton } from '@/components/create-buckets-button'
+import { useEnsureBuckets } from '@/lib/hooks/use-ensure-buckets'
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { AlertCircle } from "lucide-react"
 
 export default function EditStoryPage() {
   const router = useRouter()
@@ -33,6 +36,7 @@ export default function EditStoryPage() {
     cover_image: null,
     status: 'draft'
   })
+  const { ensureBuckets, bucketStatus, isEnsuring } = useEnsureBuckets()
 
   useEffect(() => {
     async function fetchStory() {
@@ -154,12 +158,29 @@ export default function EditStoryPage() {
         </div>
         
         <div className="flex items-center gap-4">
-          <CreateBucketsButton />
           <Button asChild variant="outline">
             <Link href="/admin">Back to Admin</Link>
           </Button>
         </div>
       </div>
+      
+      {bucketStatus.error && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Storage Error</AlertTitle>
+          <AlertDescription>
+            There was a problem setting up storage for image uploads. 
+            <Button 
+              variant="link" 
+              className="p-0 h-auto ml-1" 
+              onClick={() => ensureBuckets()}
+              disabled={isEnsuring}
+            >
+              {isEnsuring ? "Trying again..." : "Try again"}
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
 
       <div className="flex flex-col space-y-6">
         <form onSubmit={handleSubmit}>

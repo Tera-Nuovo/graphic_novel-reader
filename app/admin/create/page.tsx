@@ -12,14 +12,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ChevronLeft, Upload } from "lucide-react"
 import { createStory } from "@/lib/db"
 import { useAuth } from "@/lib/auth"
-import { toast } from "@/components/ui/use-toast"
+import { useToast } from '@/components/ui/use-toast'
 import { ImageUpload } from "@/components/image-upload"
-import { ensureStorageBuckets } from "@/lib/storage-utils"
+import { useEnsureBuckets } from "@/lib/hooks/use-ensure-buckets"
 import { CreateBucketsButton } from '@/components/create-buckets-button'
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { AlertCircle } from "lucide-react"
 
 export default function CreateStoryPage() {
   const router = useRouter()
-  const { user } = useAuth()
+  const { user, isAdmin } = useAuth()
+  const { toast } = useToast()
+  const { ensureBuckets, bucketStatus, isEnsuring } = useEnsureBuckets()
   const [isLoading, setIsLoading] = useState(false)
   const [storyData, setStoryData] = useState({
     japanese_title: "",
@@ -27,20 +31,15 @@ export default function CreateStoryPage() {
     description: "",
     difficulty_level: "",
     tags: "",
-    cover_image: null,
+    cover_image: "",
   })
 
+  // Ensure storage is ready when the page loads
   useEffect(() => {
-    // When the component mounts, ensure storage buckets exist
-    ensureStorageBuckets().catch(error => {
-      console.error('Failed to ensure storage buckets exist:', error)
-      toast({
-        title: 'Storage Error',
-        description: 'Failed to check/create storage buckets. You may need to create them manually.',
-        variant: 'destructive'
-      })
-    })
-  }, [toast])
+    // This will automatically run once when the component mounts
+    // due to the implementation of useEnsureBuckets
+    console.log("Storage buckets status:", bucketStatus);
+  }, [bucketStatus]);
 
   const handleInputChange = (field: string, value: string) => {
     setStoryData({
@@ -116,12 +115,23 @@ export default function CreateStoryPage() {
     <div className="container mx-auto py-10">
       <h1 className="text-3xl font-bold mb-8">Create New Story</h1>
       
-      <div className="mb-6 flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          Create storage buckets if image uploads fail with "Bucket not found" errors:
-        </p>
-        <CreateBucketsButton />
-      </div>
+      {bucketStatus.error && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Storage Error</AlertTitle>
+          <AlertDescription>
+            There was a problem setting up storage for image uploads. 
+            <Button 
+              variant="link" 
+              className="p-0 h-auto ml-1" 
+              onClick={() => ensureBuckets()}
+              disabled={isEnsuring}
+            >
+              {isEnsuring ? "Trying again..." : "Try again"}
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
       
       <div className="flex flex-col space-y-6">
         <div className="flex items-center mb-4">

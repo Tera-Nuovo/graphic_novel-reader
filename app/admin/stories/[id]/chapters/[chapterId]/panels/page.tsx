@@ -20,6 +20,9 @@ import { SortablePanel } from "@/components/sortable-panel"
 import { toast } from "@/components/ui/use-toast"
 import { savePanelsData, getChapterById, getPanelsByChapterId, getSentencesByPanelId, getWordsBySentenceId } from "@/lib/db"
 import { CreateBucketsButton } from '@/components/create-buckets-button'
+import { useEnsureBuckets } from '@/lib/hooks/use-ensure-buckets'
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { AlertCircle } from "lucide-react"
 
 interface Word {
   id: number
@@ -68,6 +71,8 @@ export default function ChapterPanelsPage() {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
   )
+
+  const { ensureBuckets, bucketStatus, isEnsuring } = useEnsureBuckets()
 
   // Load the chapter and panels data
   useEffect(() => {
@@ -393,10 +398,27 @@ export default function ChapterPanelsPage() {
         </div>
         
         <div className="flex items-center gap-4">
-          <CreateBucketsButton />
           <Button onClick={addPanel}>Add Panel</Button>
         </div>
       </div>
+      
+      {bucketStatus.error && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Storage Error</AlertTitle>
+          <AlertDescription>
+            There was a problem setting up storage for image uploads. 
+            <Button 
+              variant="link" 
+              className="p-0 h-auto ml-1" 
+              onClick={() => ensureBuckets()}
+              disabled={isEnsuring}
+            >
+              {isEnsuring ? "Trying again..." : "Try again"}
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
 
       <div className="flex flex-col space-y-6">
         {/* Panels Editor */}
