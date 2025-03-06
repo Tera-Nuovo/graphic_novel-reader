@@ -134,9 +134,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
-      // Clear any existing tokens first
-      document.cookie = 'sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
-      localStorage.removeItem('sb-access-token');
+      setIsLoading(true);
+      
+      // Clear any existing tokens first - using a more thorough approach
+      document.cookie.split(';').forEach(cookie => {
+        const [name] = cookie.trim().split('=');
+        if (name.includes('sb-')) {
+          document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT; domain=${window.location.hostname}`;
+        }
+      });
+      
+      // Clear any Supabase-specific items from localStorage
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('sb-')) {
+          localStorage.removeItem(key);
+        }
+      });
+      
+      // Wait a moment for cookies to be cleared
+      await new Promise(resolve => setTimeout(resolve, 300));
       
       // Sign in with Supabase
       const { error, data } = await supabase.auth.signInWithPassword({ email, password });
@@ -146,11 +162,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (data?.session) {
         console.log('Sign in successful, storing token');
         
-        // Store token in cookie with proper attributes
-        document.cookie = `sb-access-token=${data.session.access_token}; path=/; max-age=3600; SameSite=Lax; secure=${process.env.NODE_ENV === 'production'}`;
-        
-        // Store in localStorage as backup
-        localStorage.setItem('sb-access-token', data.session.access_token);
+        // Store token in cookie with proper attributes - using session cookie approach
+        const maxAge = 60 * 60 * 24 * 7; // 7 days
+        document.cookie = `sb-access-token=${data.session.access_token}; path=/; max-age=${maxAge}; SameSite=Lax`;
         
         // Refresh user data to ensure we have the latest metadata
         await refreshUser();
@@ -163,6 +177,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error('Sign in error:', error);
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -173,9 +189,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     try {
-      // First, clear all tokens and cookies
-      document.cookie = 'sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
-      localStorage.removeItem('sb-access-token');
+      setIsLoading(true);
+      
+      // First, clear all tokens and cookies - using a more thorough approach
+      document.cookie.split(';').forEach(cookie => {
+        const [name] = cookie.trim().split('=');
+        if (name.includes('sb-')) {
+          document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT; domain=${window.location.hostname}`;
+        }
+      });
       
       // Clear any Supabase-specific items from localStorage
       Object.keys(localStorage).forEach(key => {
@@ -185,21 +207,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       
       // Sign out from Supabase
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      await supabase.auth.signOut({ scope: 'global' });
       
       // Clear user and admin status
       setUser(null);
       setIsAdmin(false);
+      setSession(null);
       
       // Force a router refresh to update the UI
       router.refresh();
       
-      // Force reload the page to ensure a clean slate
+      // Navigate to home page
       window.location.href = '/';
     } catch (error) {
       console.error('Error during sign out:', error);
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 

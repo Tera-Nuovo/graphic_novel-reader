@@ -220,55 +220,13 @@ export default function ChapterPanelsPage() {
               if (sentence.id === sentenceId) {
                 // Only update the Japanese field and words if we're changing the Japanese text
                 if (field === "japanese" && value !== sentence.japanese) {
-                  // When Japanese text is updated, create word objects for each word
-                  // Split by both western spaces and Japanese full-width spaces (ideographic space U+3000)
-                  // Also consider sequences of characters without spaces as individual words
                   let words: Word[];
                   
                   if (value.trim() === '') {
                     words = [];
                   } else {
-                    // First split by spaces (both western and Japanese)
-                    const segments = value.split(/[ \u3000]+/).filter(Boolean);
-                    
-                    // If no spaces were found but there's text, treat each character as a word
-                    // This is a simplistic approach - ideally we'd use a proper Japanese tokenizer
-                    if (segments.length === 1 && segments[0].length > 1) {
-                      words = Array.from(segments[0]).map((char, index) => {
-                        // Try to keep existing words when possible
-                        const existingWord = sentence.words.find(w => w.japanese === char);
-                        if (existingWord) {
-                          return existingWord;
-                        }
-                        return {
-                          id: sentence.words.length + index + 1,
-                          japanese: char,
-                          reading: "",
-                          english: "",
-                          partOfSpeech: "",
-                          grammarNotes: "",
-                          additionalNotes: "",
-                        };
-                      });
-                    } else {
-                      // Process each space-separated segment
-                      words = segments.map((word, index) => {
-                        // Try to keep existing words when possible
-                        const existingWord = sentence.words.find(w => w.japanese === word);
-                        if (existingWord) {
-                          return existingWord;
-                        }
-                        return {
-                          id: sentence.words.length + index + 1,
-                          japanese: word,
-                          reading: "",
-                          english: "",
-                          partOfSpeech: "",
-                          grammarNotes: "",
-                          additionalNotes: "",
-                        };
-                      });
-                    }
+                    // Smarter Japanese text parsing
+                    words = parseJapaneseText(value, sentence.words);
                   }
                   
                   return { ...sentence, [field]: value, words };
@@ -295,6 +253,98 @@ export default function ChapterPanelsPage() {
         }
       });
     }
+  };
+
+  // Improved Japanese text parsing function
+  const parseJapaneseText = (text: string, existingWords: Word[]): Word[] => {
+    // Helper function to check if a character is Japanese (kanji or kana)
+    const isJapaneseChar = (char: string): boolean => {
+      const code = char.charCodeAt(0);
+      // Hiragana: U+3040-309F, Katakana: U+30A0-30FF, Kanji: U+4E00-9FFF
+      return (
+        (code >= 0x3040 && code <= 0x309F) || // Hiragana
+        (code >= 0x30A0 && code <= 0x30FF) || // Katakana
+        (code >= 0x4E00 && code <= 0x9FFF)    // Kanji
+      );
+    };
+
+    // Helper function to check if a character is a symbol or punctuation
+    const isSymbolOrPunctuation = (char: string): boolean => {
+      const symbols = "、。！？…・「」『』（）｛｝［］【】〈〉〔〕—～：；＠＃＄％＾＆＊＋＝｜＜＞";
+      return symbols.includes(char) || /[!-\/:-@\[-`{-~]/.test(char);
+    };
+
+    // First split by spaces (both western and Japanese)
+    const spaceSplit = text.split(/[ \u3000]+/).filter(Boolean);
+    let segments: string[] = [];
+    
+    // For each space-separated segment, further process
+    spaceSplit.forEach(segment => {
+      if (segment.length === 1) {
+        // Keep single characters as is
+        segments.push(segment);
+        return;
+      }
+      
+      let currentWord = '';
+      let currentType: 'japanese' | 'other' | null = null;
+      
+      // Process character by character
+      for (let i = 0; i < segment.length; i++) {
+        const char = segment[i];
+        const isJapanese = isJapaneseChar(char);
+        const isSymbol = isSymbolOrPunctuation(char);
+        
+        if (isSymbol) {
+          // Save current word if any
+          if (currentWord) {
+            segments.push(currentWord);
+            currentWord = '';
+            currentType = null;
+          }
+          // Add symbol as separate word if needed
+          segments.push(char);
+        } else if (currentType === null) {
+          // Start a new word
+          currentWord = char;
+          currentType = isJapanese ? 'japanese' : 'other';
+        } else if ((isJapanese && currentType === 'japanese') || 
+                  (!isJapanese && currentType === 'other')) {
+          // Continue current word
+          currentWord += char;
+        } else {
+          // Type changed, save current word and start a new one
+          segments.push(currentWord);
+          currentWord = char;
+          currentType = isJapanese ? 'japanese' : 'other';
+        }
+      }
+      
+      // Don't forget to add the last word
+      if (currentWord) {
+        segments.push(currentWord);
+      }
+    });
+    
+    // Convert segments to Word objects
+    return segments.map((segment, index) => {
+      // Try to find matching existing word
+      const existingWord = existingWords.find(w => w.japanese === segment);
+      if (existingWord) {
+        return existingWord;
+      }
+      
+      // Create new word
+      return {
+        id: existingWords.length + index + 1,
+        japanese: segment,
+        reading: "",
+        english: "",
+        partOfSpeech: "",
+        grammarNotes: "",
+        additionalNotes: "",
+      };
+    });
   };
 
   const updateWord = (panelId: number, sentenceId: number, wordId: number, field: keyof Word, value: string) => {
