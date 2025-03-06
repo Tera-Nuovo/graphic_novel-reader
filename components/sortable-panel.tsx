@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Trash2, Upload, Plus } from "lucide-react"
 import Image from "next/image"
+import { ImageUpload } from "@/components/image-upload"
 
 interface Panel {
   id: number
@@ -47,6 +48,7 @@ interface SortablePanelProps {
   onUpdateSentence: (panelId: number, sentenceId: number, field: keyof Sentence, value: string) => void
   onAddSentence: (panelId: number) => void
   onRemovePanel: (id: number) => void
+  onUpdatePanelImage: (panelId: number, imageUrl: string) => void
 }
 
 export function SortablePanel({
@@ -59,6 +61,7 @@ export function SortablePanel({
   onUpdateSentence,
   onAddSentence,
   onRemovePanel,
+  onUpdatePanelImage,
 }: SortablePanelProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: panel.id })
 
@@ -88,23 +91,13 @@ export function SortablePanel({
           <CardContent className="p-6 space-y-6">
             {/* Panel Image */}
             <div className="space-y-4">
-              <div className="border-2 border-dashed rounded-md aspect-[16/9] flex flex-col items-center justify-center">
-                {panel.image ? (
-                  <div className="relative w-full h-full">
-                    <Image
-                      src={panel.image || "/placeholder.svg"}
-                      alt={`Panel ${panel.id}`}
-                      fill
-                      className="object-contain"
-                    />
-                  </div>
-                ) : (
-                  <>
-                    <Upload className="h-8 w-8 text-muted-foreground mb-2" />
-                    <p className="text-sm text-muted-foreground">Drag & drop or click to upload</p>
-                  </>
-                )}
-              </div>
+              <ImageUpload
+                initialImage={panel.image}
+                bucketName="panels"
+                folderPath={`panel-${panel.id}`}
+                onImageUploaded={(url) => onUpdatePanelImage(panel.id, url)}
+                aspectRatio="16/9"
+              />
             </div>
 
             {/* Content Editor */}

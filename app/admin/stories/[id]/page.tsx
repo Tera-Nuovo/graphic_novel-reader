@@ -14,6 +14,7 @@ import { getStoryById, updateStory } from "@/lib/db"
 import { useAuth } from "@/lib/auth"
 import { toast } from "@/components/ui/use-toast"
 import { Story } from "@/lib/types"
+import { ImageUpload } from "@/components/image-upload"
 
 export default function EditStoryPage() {
   const router = useRouter()
@@ -237,10 +238,13 @@ export default function EditStoryPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="cover">Cover Image</Label>
-                    <div className="border-2 border-dashed rounded-md p-6 flex flex-col items-center justify-center">
-                      <Upload className="h-8 w-8 text-muted-foreground mb-2" />
-                      <p className="text-sm text-muted-foreground">Drag & drop or click to upload</p>
-                    </div>
+                    <ImageUpload 
+                      initialImage={storyData.cover_image}
+                      bucketName="stories"
+                      folderPath="covers"
+                      onImageUploaded={(url) => handleInputChange("cover_image", url)}
+                      aspectRatio="3/4"
+                    />
                   </div>
                 </div>
               </div>

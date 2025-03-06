@@ -215,22 +215,56 @@ export default function ChapterPanelsPage() {
                 // Only update the Japanese field and words if we're changing the Japanese text
                 if (field === "japanese" && value !== sentence.japanese) {
                   // When Japanese text is updated, create word objects for each word
-                  const words = value.split(" ").filter(Boolean).map((word, index) => {
-                    // Try to keep existing words when possible
-                    const existingWord = sentence.words.find(w => w.japanese === word);
-                    if (existingWord) {
-                      return existingWord;
+                  // Split by both western spaces and Japanese full-width spaces (ideographic space U+3000)
+                  // Also consider sequences of characters without spaces as individual words
+                  let words: Word[];
+                  
+                  if (value.trim() === '') {
+                    words = [];
+                  } else {
+                    // First split by spaces (both western and Japanese)
+                    const segments = value.split(/[ \u3000]+/).filter(Boolean);
+                    
+                    // If no spaces were found but there's text, treat each character as a word
+                    // This is a simplistic approach - ideally we'd use a proper Japanese tokenizer
+                    if (segments.length === 1 && segments[0].length > 1) {
+                      words = Array.from(segments[0]).map((char, index) => {
+                        // Try to keep existing words when possible
+                        const existingWord = sentence.words.find(w => w.japanese === char);
+                        if (existingWord) {
+                          return existingWord;
+                        }
+                        return {
+                          id: sentence.words.length + index + 1,
+                          japanese: char,
+                          reading: "",
+                          english: "",
+                          partOfSpeech: "",
+                          grammarNotes: "",
+                          additionalNotes: "",
+                        };
+                      });
+                    } else {
+                      // Process each space-separated segment
+                      words = segments.map((word, index) => {
+                        // Try to keep existing words when possible
+                        const existingWord = sentence.words.find(w => w.japanese === word);
+                        if (existingWord) {
+                          return existingWord;
+                        }
+                        return {
+                          id: sentence.words.length + index + 1,
+                          japanese: word,
+                          reading: "",
+                          english: "",
+                          partOfSpeech: "",
+                          grammarNotes: "",
+                          additionalNotes: "",
+                        };
+                      });
                     }
-                    return {
-                      id: sentence.words.length + index + 1,
-                      japanese: word,
-                      reading: "",
-                      english: "",
-                      partOfSpeech: "",
-                      grammarNotes: "",
-                      additionalNotes: "",
-                    };
-                  });
+                  }
+                  
                   return { ...sentence, [field]: value, words };
                 }
                 // For other fields, just update the field value
@@ -296,6 +330,20 @@ export default function ChapterPanelsPage() {
       });
     }
   };
+
+  const updatePanelImage = (panelId: number, imageUrl: string) => {
+    setPanels((prevPanels) => 
+      prevPanels.map((panel) => {
+        if (panel.id === panelId) {
+          return {
+            ...panel,
+            image: imageUrl
+          };
+        }
+        return panel;
+      })
+    );
+  }
 
   const handleWordClick = (panelId: number, sentenceId: number, word: Word) => {
     setSelectedWord({ panelId, sentenceId, word })
@@ -383,6 +431,7 @@ export default function ChapterPanelsPage() {
                         setSelectedWord(null)
                         setSelectedSentence(null)
                       }}
+                      onUpdatePanelImage={updatePanelImage}
                     />
                   ))}
                 </SortableContext>

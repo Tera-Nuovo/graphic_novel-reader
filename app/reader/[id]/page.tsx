@@ -252,16 +252,14 @@ export default function ReaderPage() {
                           </div>
                         </div>
                       ))}
-                    </div>
-                    <div className="mt-1">
                       <Button
                         variant="ghost"
-                        size="sm"
-                        className="text-muted-foreground hover:text-primary text-xs p-0 h-auto font-normal opacity-0 group-hover:opacity-100 transition-opacity"
+                        size="icon"
+                        className="h-6 w-6 ml-1 opacity-0 group-hover:opacity-100 transition-opacity"
                         onClick={(e) => handleSentenceClick(sentence.translation, panel.id, e)}
                       >
-                        <MessageCircle className="h-3 w-3 mr-1" />
-                        Show Translation
+                        <MessageCircle className="h-4 w-4" />
+                        <span className="sr-only">Show translation</span>
                       </Button>
                     </div>
                   </div>
