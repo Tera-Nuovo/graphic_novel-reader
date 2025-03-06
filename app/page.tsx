@@ -1,39 +1,36 @@
+"use client"
+
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { getPublishedStories } from "@/lib/db"
+import { Story } from "@/lib/types" 
 
 export default function Home() {
-  // Sample featured stories
-  const featuredStories = [
-    {
-      id: 1,
-      title: "よつばと!",
-      englishTitle: "Yotsuba&!",
-      cover: "/placeholder.svg?height=400&width=300",
-      difficulty: "Beginner",
-      description:
-        "Follow the daily life of an energetic young girl named Yotsuba as she explores her new neighborhood.",
-    },
-    {
-      id: 2,
-      title: "ドラえもん",
-      englishTitle: "Doraemon",
-      cover: "/placeholder.svg?height=400&width=300",
-      difficulty: "Beginner-Intermediate",
-      description: "The adventures of a robotic cat from the future who helps a young boy with various gadgets.",
-    },
-    {
-      id: 3,
-      title: "ワンピース",
-      englishTitle: "One Piece",
-      cover: "/placeholder.svg?height=400&width=300",
-      difficulty: "Intermediate",
-      description:
-        "Follow Monkey D. Luffy and his crew as they search for the world's ultimate treasure, the One Piece.",
-    },
-  ]
+  const [featuredStories, setFeaturedStories] = useState<Story[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadStories() {
+      try {
+        setIsLoading(true);
+        const data = await getPublishedStories();
+        // Get only the first 3 published stories to feature
+        setFeaturedStories(data.slice(0, 3));
+      } catch (error) {
+        console.error("Error loading featured stories:", error);
+        // Use fallback data if there's an error
+        setFeaturedStories([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadStories();
+  }, []);
 
   return (
     <div className="flex flex-col">
@@ -87,35 +84,45 @@ export default function Home() {
             </div>
           </div>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mt-8">
-            {featuredStories.map((story) => (
-              <Card key={story.id} className="overflow-hidden">
-                <div className="aspect-[3/4] relative">
-                  <Image
-                    src={story.cover || "/placeholder.svg"}
-                    alt={story.englishTitle}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="text-xl">{story.title}</CardTitle>
-                      <CardDescription>{story.englishTitle}</CardDescription>
-                    </div>
-                    <Badge>{story.difficulty}</Badge>
+            {isLoading ? (
+              <div className="col-span-3 text-center py-12">
+                <p>Loading featured stories...</p>
+              </div>
+            ) : featuredStories.length === 0 ? (
+              <div className="col-span-3 text-center py-12">
+                <p>No stories available yet. Check back soon!</p>
+              </div>
+            ) : (
+              featuredStories.map((story) => (
+                <Card key={story.id} className="overflow-hidden">
+                  <div className="aspect-[3/4] relative">
+                    <Image
+                      src={story.cover_image || "/placeholder.svg?height=400&width=300"}
+                      alt={story.english_title}
+                      fill
+                      className="object-cover"
+                    />
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">{story.description}</p>
-                </CardContent>
-                <CardFooter>
-                  <Button asChild className="w-full">
-                    <Link href={`/reader/${story.id}`}>Start Reading</Link>
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <CardTitle className="text-xl">{story.japanese_title}</CardTitle>
+                        <CardDescription>{story.english_title}</CardDescription>
+                      </div>
+                      <Badge>{story.difficulty_level}</Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">{story.description}</p>
+                  </CardContent>
+                  <CardFooter>
+                    <Button asChild className="w-full">
+                      <Link href={`/reader/${story.id}`}>Start Reading</Link>
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))
+            )}
           </div>
           <div className="flex justify-center mt-8">
             <Button variant="outline" asChild>

@@ -418,4 +418,62 @@ export async function savePanelsData(chapterId: string, panels: any[]) {
     console.error('Error saving panels data:', error);
     throw error;
   }
+}
+
+// Get complete story data including chapters, panels, sentences, and words
+export async function getCompleteStoryData(storyId: string) {
+  try {
+    // Get story data
+    const story = await getStoryById(storyId);
+    
+    // Get chapters for this story
+    const chapters = await getChaptersByStoryId(storyId);
+    
+    // For each chapter, get panels, sentences, and words
+    const chaptersWithPanels = await Promise.all(
+      chapters.map(async (chapter) => {
+        // Get panels for this chapter
+        const panels = await getPanelsByChapterId(chapter.id);
+        
+        // For each panel, get sentences and words
+        const panelsWithSentences = await Promise.all(
+          panels.map(async (panel) => {
+            // Get sentences for this panel
+            const sentences = await getSentencesByPanelId(panel.id);
+            
+            // For each sentence, get words
+            const sentencesWithWords = await Promise.all(
+              sentences.map(async (sentence) => {
+                // Get words for this sentence
+                const words = await getWordsBySentenceId(sentence.id);
+                
+                return {
+                  ...sentence,
+                  words
+                };
+              })
+            );
+            
+            return {
+              ...panel,
+              sentences: sentencesWithWords
+            };
+          })
+        );
+        
+        return {
+          ...chapter,
+          panels: panelsWithSentences
+        };
+      })
+    );
+    
+    return {
+      ...story,
+      chapters: chaptersWithPanels
+    };
+  } catch (error) {
+    console.error("Error getting complete story data:", error);
+    throw error;
+  }
 } 
