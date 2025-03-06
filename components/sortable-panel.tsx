@@ -15,7 +15,7 @@ import Image from "next/image"
 
 interface Panel {
   id: number
-  image?: string
+  image?: string | null
   sentences: Sentence[]
 }
 
@@ -172,30 +172,32 @@ export function SortablePanel({
                           <Label>Japanese</Label>
                           <Input
                             value={selectedWord.word.japanese}
-                            onChange={(e) =>
+                            onChange={(e) => {
+                              e.stopPropagation();
                               onUpdateWord(
                                 selectedWord.panelId,
                                 selectedWord.sentenceId,
                                 selectedWord.word.id,
                                 "japanese",
                                 e.target.value,
-                              )
-                            }
+                              );
+                            }}
                           />
                         </div>
                         <div className="space-y-2">
                           <Label>Reading (Furigana)</Label>
                           <Input
                             value={selectedWord.word.reading}
-                            onChange={(e) =>
+                            onChange={(e) => {
+                              e.stopPropagation();
                               onUpdateWord(
                                 selectedWord.panelId,
                                 selectedWord.sentenceId,
                                 selectedWord.word.id,
                                 "reading",
                                 e.target.value,
-                              )
-                            }
+                              );
+                            }}
                           />
                         </div>
                       </div>
@@ -203,30 +205,31 @@ export function SortablePanel({
                         <Label>English Translation</Label>
                         <Input
                           value={selectedWord.word.english}
-                          onChange={(e) =>
+                          onChange={(e) => {
+                            e.stopPropagation();
                             onUpdateWord(
                               selectedWord.panelId,
                               selectedWord.sentenceId,
                               selectedWord.word.id,
                               "english",
                               e.target.value,
-                            )
-                          }
+                            );
+                          }}
                         />
                       </div>
                       <div className="space-y-2">
                         <Label>Part of Speech</Label>
                         <Select
                           value={selectedWord.word.partOfSpeech}
-                          onValueChange={(value) =>
+                          onValueChange={(value) => {
                             onUpdateWord(
                               selectedWord.panelId,
                               selectedWord.sentenceId,
                               selectedWord.word.id,
                               "partOfSpeech",
                               value,
-                            )
-                          }
+                            );
+                          }}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Select part of speech" />
@@ -245,32 +248,32 @@ export function SortablePanel({
                         <Label>Grammar Notes</Label>
                         <Textarea
                           value={selectedWord.word.grammarNotes}
-                          onChange={(e) =>
+                          onChange={(e) => {
+                            e.stopPropagation();
                             onUpdateWord(
                               selectedWord.panelId,
                               selectedWord.sentenceId,
                               selectedWord.word.id,
                               "grammarNotes",
                               e.target.value,
-                            )
-                          }
-                          rows={3}
+                            );
+                          }}
                         />
                       </div>
                       <div className="space-y-2">
                         <Label>Additional Notes</Label>
                         <Textarea
                           value={selectedWord.word.additionalNotes}
-                          onChange={(e) =>
+                          onChange={(e) => {
+                            e.stopPropagation();
                             onUpdateWord(
                               selectedWord.panelId,
                               selectedWord.sentenceId,
                               selectedWord.word.id,
                               "additionalNotes",
                               e.target.value,
-                            )
-                          }
-                          rows={3}
+                            );
+                          }}
                         />
                       </div>
                     </div>
@@ -282,33 +285,48 @@ export function SortablePanel({
                     <h3 className="text-lg font-semibold">Sentence Details</h3>
                     <div className="space-y-4">
                       <div className="space-y-2">
+                        <Label>Japanese</Label>
+                        <Input
+                          value={selectedSentence.sentence.japanese}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            onUpdateSentence(
+                              selectedSentence.panelId,
+                              selectedSentence.sentence.id,
+                              "japanese",
+                              e.target.value,
+                            );
+                          }}
+                        />
+                      </div>
+                      <div className="space-y-2">
                         <Label>English Translation</Label>
-                        <Textarea
+                        <Input
                           value={selectedSentence.sentence.english}
-                          onChange={(e) =>
+                          onChange={(e) => {
+                            e.stopPropagation();
                             onUpdateSentence(
                               selectedSentence.panelId,
                               selectedSentence.sentence.id,
                               "english",
                               e.target.value,
-                            )
-                          }
-                          rows={2}
+                            );
+                          }}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Translation Notes</Label>
+                        <Label>Notes</Label>
                         <Textarea
                           value={selectedSentence.sentence.notes}
-                          onChange={(e) =>
+                          onChange={(e) => {
+                            e.stopPropagation();
                             onUpdateSentence(
                               selectedSentence.panelId,
                               selectedSentence.sentence.id,
                               "notes",
                               e.target.value,
-                            )
-                          }
-                          rows={4}
+                            );
+                          }}
                         />
                       </div>
                     </div>

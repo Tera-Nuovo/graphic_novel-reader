@@ -12,11 +12,12 @@ import {
 } from "@dnd-kit/core"
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import Link from "next/link"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Accordion } from "@/components/ui/accordion"
 import { ChevronLeft, Plus } from "lucide-react"
 import { SortablePanel } from "@/components/sortable-panel"
+import { toast } from "@/components/ui/use-toast"
 
 interface Word {
   id: number
@@ -38,14 +39,16 @@ interface Sentence {
 
 interface Panel {
   id: number
-  image: string | null
+  image?: string | null
   sentences: Sentence[]
 }
 
 export default function ChapterPanelsPage() {
+  const router = useRouter()
   const params = useParams()
   const storyId = params.id
   const chapterId = params.chapterId
+  const [isSaving, setIsSaving] = useState(false)
 
   // Sample chapter data
   const chapter = {
@@ -178,6 +181,36 @@ export default function ChapterPanelsPage() {
     setSelectedWord(null)
   }
 
+  const handleSave = async () => {
+    try {
+      setIsSaving(true);
+      
+      // Here you would implement the actual API call to save the panels
+      // Example:
+      // await savePanels(chapterId, panels);
+      
+      // For now, let's just simulate a save with a timeout
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      toast({
+        title: "Success",
+        description: "Panels saved successfully",
+      });
+      
+      // Navigate back to the chapters page
+      router.push(`/admin/stories/${storyId}/chapters`);
+    } catch (error) {
+      console.error("Error saving panels:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save panels. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="container py-10">
       <div className="flex flex-col space-y-6">
@@ -235,7 +268,9 @@ export default function ChapterPanelsPage() {
           <Button variant="outline" asChild>
             <Link href={`/admin/stories/${storyId}/chapters`}>Cancel</Link>
           </Button>
-          <Button>Save Changes</Button>
+          <Button onClick={handleSave} disabled={isSaving}>
+            {isSaving ? "Saving..." : "Save Changes"}
+          </Button>
         </div>
       </div>
     </div>
