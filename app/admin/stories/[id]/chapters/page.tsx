@@ -1,40 +1,114 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChevronLeft, Plus, Pencil, Trash2 } from "lucide-react"
-
-interface Chapter {
-  id: number
-  title: string
-  order: number
-  panelCount: number
-  status: "draft" | "published"
-}
+import { getStoryById, getChaptersByStoryId, deleteChapter } from "@/lib/db"
+import { useAuth } from "@/lib/auth"
+import { toast } from "@/components/ui/use-toast"
+import { Story, Chapter } from "@/lib/types"
 
 export default function StoryChaptersPage() {
   const params = useParams()
-  const storyId = params.id
+  const router = useRouter()
+  const storyId = params.id as string
+  const { user, isAdmin } = useAuth()
+  const [isFetching, setIsFetching] = useState(true)
+  const [story, setStory] = useState<Story | null>(null)
+  const [chapters, setChapters] = useState<Chapter[]>([])
 
-  // Sample story data
-  const story = {
-    id: storyId,
-    title: "春の物語",
-    englishTitle: "Spring Story",
+  useEffect(() => {
+    async function fetchData() {
+      if (!storyId || !user) return
+      
+      try {
+        setIsFetching(true)
+        
+        // Fetch story data
+        const storyData = await getStoryById(storyId)
+        setStory(storyData)
+        
+        // Fetch chapters data
+        const chaptersData = await getChaptersByStoryId(storyId)
+        setChapters(chaptersData)
+      } catch (error) {
+        console.error("Error fetching data:", error)
+        toast({
+          title: "Error",
+          description: "Failed to load story and chapters",
+          variant: "destructive",
+        })
+      } finally {
+        setIsFetching(false)
+      }
+    }
+
+    fetchData()
+  }, [storyId, user])
+
+  const handleDeleteChapter = async (chapterId: string) => {
+    if (!confirm("Are you sure you want to delete this chapter? This action cannot be undone.")) {
+      return
+    }
+    
+    try {
+      await deleteChapter(chapterId)
+      setChapters(chapters.filter(chapter => chapter.id !== chapterId))
+      toast({
+        title: "Chapter deleted",
+        description: "Chapter has been deleted successfully",
+      })
+    } catch (error) {
+      console.error("Error deleting chapter:", error)
+      toast({
+        title: "Error",
+        description: "Failed to delete chapter",
+        variant: "destructive",
+      })
+    }
   }
 
-  // Sample chapters data
-  const [chapters, setChapters] = useState<Chapter[]>([
-    { id: 1, title: "Chapter 1: The Beginning", order: 1, panelCount: 8, status: "published" },
-    { id: 2, title: "Chapter 2: The Journey", order: 2, panelCount: 12, status: "published" },
-    { id: 3, title: "Chapter 3: The Challenge", order: 3, panelCount: 10, status: "draft" },
-  ])
+  if (isFetching) {
+    return (
+      <div className="container py-10">
+        <div className="flex flex-col space-y-6">
+          <div className="flex items-center mb-4">
+            <Button variant="ghost" size="sm" asChild className="mr-4">
+              <Link href="/admin" className="flex items-center gap-2">
+                <ChevronLeft className="h-4 w-4" />
+                Back to Dashboard
+              </Link>
+            </Button>
+            <h1 className="text-3xl font-bold">Loading...</h1>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
-  const handleDeleteChapter = (chapterId: number) => {
-    setChapters(chapters.filter(chapter => chapter.id !== chapterId))
+  if (!story) {
+    return (
+      <div className="container py-10">
+        <div className="flex flex-col space-y-6">
+          <div className="flex items-center mb-4">
+            <Button variant="ghost" size="sm" asChild className="mr-4">
+              <Link href="/admin" className="flex items-center gap-2">
+                <ChevronLeft className="h-4 w-4" />
+                Back to Dashboard
+              </Link>
+            </Button>
+            <h1 className="text-3xl font-bold">Story not found</h1>
+          </div>
+          <p>The story you are looking for does not exist or you don't have permission to view it.</p>
+          <Button asChild>
+            <Link href="/admin">Return to Dashboard</Link>
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -48,8 +122,8 @@ export default function StoryChaptersPage() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">{story.title}</h1>
-            <p className="text-muted-foreground">{story.englishTitle}</p>
+            <h1 className="text-3xl font-bold">{story.japanese_title}</h1>
+            <p className="text-muted-foreground">{story.english_title}</p>
           </div>
         </div>
 
@@ -84,7 +158,7 @@ export default function StoryChaptersPage() {
                     <div>
                       <CardTitle>{chapter.title}</CardTitle>
                       <CardDescription>
-                        {chapter.panelCount} panels • Order: {chapter.order}
+                        Order: {chapter.order} • Created: {new Date(chapter.created_at).toLocaleDateString()}
                       </CardDescription>
                     </div>
                     <span
@@ -101,7 +175,7 @@ export default function StoryChaptersPage() {
                 <CardContent>
                   <div className="flex justify-end gap-2">
                     <Button variant="outline" size="sm" asChild>
-                      <Link href={`/admin/stories/${storyId}/chapters/${chapter.id}/edit`}>
+                      <Link href={`/admin/stories/${storyId}/chapters/${chapter.id}`}>
                         <Pencil className="h-4 w-4 mr-2" />
                         Edit Chapter
                       </Link>
