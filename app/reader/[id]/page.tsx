@@ -5,12 +5,12 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { ChevronLeft, MessageCircle, Loader2 } from "lucide-react"
+import { ChevronLeft, ChevronRight, MessageCircle, Loader2 } from "lucide-react"
 import { WordPopover } from "@/components/word-popover"
 import { SentencePopover } from "@/components/sentence-popover"
 import { getStoryById, getChaptersByStoryId, getPanelsByChapterId, getSentencesByPanelId, getWordsBySentenceId } from "@/lib/db"
 import { toast } from "@/components/ui/use-toast"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 
 interface ReaderWord {
   japanese: string
@@ -32,8 +32,15 @@ interface ReaderPanel {
   image: string
 }
 
+interface Chapter {
+  id: string
+  title: string
+  order: number
+}
+
 export default function ReaderPage() {
   const params = useParams();
+  const router = useRouter();
   const storyId = params.id as string;
   
   const [loading, setLoading] = useState(true);
@@ -42,6 +49,10 @@ export default function ReaderPage() {
   const [storyTitle, setStoryTitle] = useState("");
   const [englishTitle, setEnglishTitle] = useState("");
   const [panels, setPanels] = useState<ReaderPanel[]>([]);
+  
+  const [chapters, setChapters] = useState<Chapter[]>([]);
+  const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
+  const [currentChapter, setCurrentChapter] = useState<Chapter | null>(null);
   
   const [selectedWord, setSelectedWord] = useState<{
     word: ReaderWord
@@ -55,32 +66,57 @@ export default function ReaderPage() {
     panelId: number
   } | null>(null);
 
+  // Load all chapters for the story
   useEffect(() => {
-    async function loadStoryData() {
+    async function loadChapters() {
       try {
-        setLoading(true);
-        
         // Get the story details
         const story = await getStoryById(storyId);
         setStoryTitle(story.japanese_title);
         setEnglishTitle(story.english_title);
         
         // Get chapters for this story
-        const chapters = await getChaptersByStoryId(storyId);
+        const chaptersList = await getChaptersByStoryId(storyId);
         
-        if (chapters.length === 0) {
+        if (chaptersList.length === 0) {
           setError("No chapters found for this story");
           return;
         }
         
-        // Get the first chapter (for now, we'll just show the first chapter)
-        const firstChapter = chapters[0];
+        // Sort chapters by order
+        const sortedChapters = chaptersList.sort((a, b) => a.order - b.order);
+        setChapters(sortedChapters);
+        
+        // Set the first chapter as current
+        setCurrentChapter(sortedChapters[0]);
+        setCurrentChapterIndex(0);
+      } catch (err) {
+        console.error("Error loading chapters:", err);
+        setError("Failed to load chapters. Please try again later.");
+        toast({
+          title: "Error",
+          description: "Failed to load chapters",
+          variant: "destructive",
+        });
+      }
+    }
+    
+    loadChapters();
+  }, [storyId]);
+
+  // Load panels for the current chapter
+  useEffect(() => {
+    async function loadChapterContent() {
+      if (!currentChapter) return;
+      
+      try {
+        setLoading(true);
         
         // Get panels for this chapter
-        const panelsData = await getPanelsByChapterId(firstChapter.id);
+        const panelsData = await getPanelsByChapterId(currentChapter.id);
         
         if (panelsData.length === 0) {
-          setError("No panels found for this chapter");
+          setError(`No panels found for chapter "${currentChapter.title}"`);
           return;
         }
         
@@ -121,11 +157,11 @@ export default function ReaderPage() {
         
         setPanels(readerPanels);
       } catch (err) {
-        console.error("Error loading story data:", err);
-        setError("Failed to load story data. Please try again later.");
+        console.error("Error loading chapter content:", err);
+        setError("Failed to load chapter content. Please try again later.");
         toast({
           title: "Error",
-          description: "Failed to load story data",
+          description: "Failed to load chapter content",
           variant: "destructive",
         });
       } finally {
@@ -133,8 +169,24 @@ export default function ReaderPage() {
       }
     }
     
-    loadStoryData();
-  }, [storyId]);
+    loadChapterContent();
+  }, [currentChapter]);
+
+  const navigateToPreviousChapter = () => {
+    if (currentChapterIndex > 0) {
+      setCurrentChapter(chapters[currentChapterIndex - 1]);
+      setCurrentChapterIndex(currentChapterIndex - 1);
+      window.scrollTo(0, 0);
+    }
+  };
+
+  const navigateToNextChapter = () => {
+    if (currentChapterIndex < chapters.length - 1) {
+      setCurrentChapter(chapters[currentChapterIndex + 1]);
+      setCurrentChapterIndex(currentChapterIndex + 1);
+      window.scrollTo(0, 0);
+    }
+  };
 
   const handleWordClick = (word: ReaderWord, panelId: number, event: React.MouseEvent) => {
     const target = event.currentTarget;
@@ -223,10 +275,39 @@ export default function ReaderPage() {
               Back to stories
             </Link>
           </Button>
-          <div className="text-right">
+          <div className="text-center">
             <h1 className="text-xl font-bold">{storyTitle}</h1>
             <p className="text-sm text-muted-foreground">{englishTitle}</p>
+            {currentChapter && (
+              <p className="text-sm mt-1">{currentChapter.title}</p>
+            )}
           </div>
+          <div className="w-[100px]"></div> {/* Spacer to keep title centered */}
+        </div>
+
+        {/* Chapter Navigation */}
+        <div className="flex justify-between items-center">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={navigateToPreviousChapter}
+            disabled={currentChapterIndex === 0}
+            className={currentChapterIndex === 0 ? "invisible" : ""}
+          >
+            <ChevronLeft className="h-4 w-4 mr-2" />
+            Previous Chapter
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={navigateToNextChapter}
+            disabled={currentChapterIndex === chapters.length - 1}
+            className={currentChapterIndex === chapters.length - 1 ? "invisible" : ""}
+          >
+            Next Chapter
+            <ChevronRight className="h-4 w-4 ml-2" />
+          </Button>
         </div>
 
         {/* Story content */}
@@ -297,7 +378,30 @@ export default function ReaderPage() {
             </Card>
           ))}
         </div>
+        
+        {/* Bottom Chapter Navigation */}
+        <div className="flex justify-between items-center mt-8">
+          <Button 
+            variant="outline" 
+            onClick={navigateToPreviousChapter}
+            disabled={currentChapterIndex === 0}
+            className={currentChapterIndex === 0 ? "invisible" : ""}
+          >
+            <ChevronLeft className="h-4 w-4 mr-2" />
+            Previous Chapter
+          </Button>
+          
+          <Button 
+            variant="outline"
+            onClick={navigateToNextChapter}
+            disabled={currentChapterIndex === chapters.length - 1}
+            className={currentChapterIndex === chapters.length - 1 ? "invisible" : ""}
+          >
+            Next Chapter
+            <ChevronRight className="h-4 w-4 ml-2" />
+          </Button>
+        </div>
       </div>
     </div>
-  )
+  );
 }
