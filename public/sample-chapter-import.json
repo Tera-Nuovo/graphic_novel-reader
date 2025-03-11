@@ -1,0 +1,200 @@
+{
+  "title": "Sample Story",
+  "chapters": [
+    {
+      "title": "Chapter 1",
+      "panels": [
+        {
+          "order": 1,
+          "sentences": [
+            {
+              "text": "こんにちは、世界！",
+              "translation": "Hello, world!",
+              "words": [
+                {
+                  "text": "こんにちは",
+                  "translation": "hello",
+                  "position": 0
+                },
+                {
+                  "text": "世界",
+                  "translation": "world",
+                  "position": 1
+                }
+              ]
+            },
+            {
+              "text": "これは日本語の例文です。",
+              "translation": "This is an example Japanese sentence.",
+              "words": [
+                {
+                  "text": "これ",
+                  "translation": "this",
+                  "position": 0
+                },
+                {
+                  "text": "は",
+                  "translation": "is (topic marker)",
+                  "position": 1
+                },
+                {
+                  "text": "日本語",
+                  "translation": "Japanese language",
+                  "position": 2
+                },
+                {
+                  "text": "の",
+                  "translation": "of",
+                  "position": 3
+                },
+                {
+                  "text": "例文",
+                  "translation": "example sentence",
+                  "position": 4
+                },
+                {
+                  "text": "です",
+                  "translation": "is",
+                  "position": 5
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "order": 2,
+          "sentences": [
+            {
+              "text": "私は日本語を勉強しています。",
+              "translation": "I am studying Japanese.",
+              "words": [
+                {
+                  "text": "私",
+                  "translation": "I",
+                  "position": 0
+                },
+                {
+                  "text": "は",
+                  "translation": "is (topic marker)",
+                  "position": 1
+                },
+                {
+                  "text": "日本語",
+                  "translation": "Japanese language",
+                  "position": 2
+                },
+                {
+                  "text": "を",
+                  "translation": "object marker",
+                  "position": 3
+                },
+                {
+                  "text": "勉強",
+                  "translation": "study",
+                  "position": 4
+                },
+                {
+                  "text": "して",
+                  "translation": "doing",
+                  "position": 5
+                },
+                {
+                  "text": "います",
+                  "translation": "am (present continuous)",
+                  "position": 6
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "order": 3,
+          "sentences": [
+            {
+              "text": "漫画を読むのは楽しいです。",
+              "translation": "Reading manga is fun.",
+              "words": [
+                {
+                  "text": "漫画",
+                  "translation": "manga",
+                  "position": 0
+                },
+                {
+                  "text": "を",
+                  "translation": "object marker",
+                  "position": 1
+                },
+                {
+                  "text": "読む",
+                  "translation": "to read",
+                  "position": 2
+                },
+                {
+                  "text": "の",
+                  "translation": "nominalizer",
+                  "position": 3
+                },
+                {
+                  "text": "は",
+                  "translation": "is (topic marker)",
+                  "position": 4
+                },
+                {
+                  "text": "楽しい",
+                  "translation": "fun",
+                  "position": 5
+                },
+                {
+                  "text": "です",
+                  "translation": "is",
+                  "position": 6
+                }
+              ]
+            },
+            {
+              "text": "毎日練習することが大切です。",
+              "translation": "It's important to practice every day.",
+              "words": [
+                {
+                  "text": "毎日",
+                  "translation": "every day",
+                  "position": 0
+                },
+                {
+                  "text": "練習",
+                  "translation": "practice",
+                  "position": 1
+                },
+                {
+                  "text": "する",
+                  "translation": "to do",
+                  "position": 2
+                },
+                {
+                  "text": "こと",
+                  "translation": "thing (nominalizer)",
+                  "position": 3
+                },
+                {
+                  "text": "が",
+                  "translation": "subject marker",
+                  "position": 4
+                },
+                {
+                  "text": "大切",
+                  "translation": "important",
+                  "position": 5
+                },
+                {
+                  "text": "です",
+                  "translation": "is",
+                  "position": 6
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+} 

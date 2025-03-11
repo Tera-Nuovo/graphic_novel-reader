@@ -1,0 +1,133 @@
+{
+  "title": "Test Import Story",
+  "chapters": [
+    {
+      "title": "Chapter 1: Test Chapter",
+      "panels": [
+        {
+          "order": 0,
+          "sentences": [
+            {
+              "text": "これは日本語のテスト文章です。",
+              "translation": "This is a Japanese test sentence.",
+              "words": [
+                {
+                  "text": "これは",
+                  "translation": "this is",
+                  "position": 0
+                },
+                {
+                  "text": "日本語",
+                  "translation": "Japanese language",
+                  "position": 1
+                },
+                {
+                  "text": "の",
+                  "translation": "of",
+                  "position": 2
+                },
+                {
+                  "text": "テスト",
+                  "translation": "test",
+                  "position": 3
+                },
+                {
+                  "text": "文章",
+                  "translation": "sentence",
+                  "position": 4
+                },
+                {
+                  "text": "です",
+                  "translation": "is",
+                  "position": 5
+                }
+              ]
+            },
+            {
+              "text": "このインポート機能は便利ですね。",
+              "translation": "This import feature is convenient, isn't it?",
+              "words": [
+                {
+                  "text": "この",
+                  "translation": "this",
+                  "position": 0
+                },
+                {
+                  "text": "インポート",
+                  "translation": "import",
+                  "position": 1
+                },
+                {
+                  "text": "機能",
+                  "translation": "feature",
+                  "position": 2
+                },
+                {
+                  "text": "は",
+                  "translation": "is",
+                  "position": 3
+                },
+                {
+                  "text": "便利",
+                  "translation": "convenient",
+                  "position": 4
+                },
+                {
+                  "text": "ですね",
+                  "translation": "isn't it?",
+                  "position": 5
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "order": 1,
+          "sentences": [
+            {
+              "text": "二つ目のパネルにも文章が入ります。",
+              "translation": "Sentences are also included in the second panel.",
+              "words": [
+                {
+                  "text": "二つ目",
+                  "translation": "second",
+                  "position": 0
+                },
+                {
+                  "text": "の",
+                  "translation": "of",
+                  "position": 1
+                },
+                {
+                  "text": "パネル",
+                  "translation": "panel",
+                  "position": 2
+                },
+                {
+                  "text": "にも",
+                  "translation": "also",
+                  "position": 3
+                },
+                {
+                  "text": "文章",
+                  "translation": "sentences",
+                  "position": 4
+                },
+                {
+                  "text": "が",
+                  "translation": "subject marker",
+                  "position": 5
+                },
+                {
+                  "text": "入ります",
+                  "translation": "are included",
+                  "position": 6
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+} 

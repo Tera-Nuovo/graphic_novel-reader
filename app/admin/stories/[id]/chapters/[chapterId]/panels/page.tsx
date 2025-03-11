@@ -22,6 +22,15 @@ import { savePanelsData, getChapterById, getPanelsByChapterId, getSentencesByPan
 import { useEnsureBuckets } from '@/lib/hooks/use-ensure-buckets'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
+import { ChapterImporter } from "@/components/chapter-importer"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 interface Word {
   id: number
@@ -63,6 +72,7 @@ export default function ChapterPanelsPage() {
   const [panels, setPanels] = useState<Panel[]>([])
   const [selectedWord, setSelectedWord] = useState<{ panelId: number; sentenceId: number; word: Word } | null>(null)
   const [selectedSentence, setSelectedSentence] = useState<{ panelId: number; sentence: Sentence } | null>(null)
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false)
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -436,6 +446,17 @@ export default function ChapterPanelsPage() {
     }
   };
 
+  const handleImportComplete = (importedPanels: Panel[]) => {
+    // Replace existing panels with imported ones
+    setPanels(importedPanels);
+    setIsImportDialogOpen(false);
+    
+    toast({
+      title: "Import Successful",
+      description: `Imported ${importedPanels.length} panels with content`,
+    });
+  };
+
   return (
     <div className="container py-10">
       <div className="flex justify-between items-center mb-8">
@@ -447,6 +468,26 @@ export default function ChapterPanelsPage() {
         </div>
         
         <div className="flex items-center gap-4">
+          <Dialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">Import from File</Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[600px]">
+              <DialogHeader>
+                <DialogTitle>Import Chapter Data</DialogTitle>
+                <DialogDescription>
+                  Upload a JSON file with panels, sentences, and words data to import into this chapter.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-4">
+                <ChapterImporter 
+                  storyId={storyId as string} 
+                  chapterId={chapterId as string}
+                  onImportComplete={handleImportComplete}
+                />
+              </div>
+            </DialogContent>
+          </Dialog>
           <Button onClick={addPanel}>Add Panel</Button>
         </div>
       </div>
