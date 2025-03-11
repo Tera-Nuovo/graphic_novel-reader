@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card"
 import { ChevronLeft, ChevronRight, MessageCircle, Loader2 } from "lucide-react"
 import { WordPopover } from "@/components/word-popover"
 import { SentencePopover } from "@/components/sentence-popover"
-import { getStoryById, getChaptersByStoryId, getPanelsByChapterId, getSentencesByPanelId, getWordsBySentenceId } from "@/lib/db"
+import { getStoryById, getPublishedChaptersByStoryId, getPanelsByChapterId, getSentencesByPanelId, getWordsBySentenceId } from "@/lib/db"
 import { toast } from "@/components/ui/use-toast"
 import { useParams, useRouter } from "next/navigation"
 
@@ -36,6 +36,7 @@ interface Chapter {
   id: string
   title: string
   order: number
+  status: 'draft' | 'published'
 }
 
 export default function ReaderPage() {
@@ -75,11 +76,11 @@ export default function ReaderPage() {
         setStoryTitle(story.japanese_title);
         setEnglishTitle(story.english_title);
         
-        // Get chapters for this story
-        const chaptersList = await getChaptersByStoryId(storyId);
+        // Get published chapters for this story
+        const chaptersList = await getPublishedChaptersByStoryId(storyId);
         
         if (chaptersList.length === 0) {
-          setError("No chapters found for this story");
+          setError("No published chapters found for this story");
           return;
         }
         
@@ -111,6 +112,12 @@ export default function ReaderPage() {
       
       try {
         setLoading(true);
+        
+        // Verify the chapter is published
+        if (currentChapter.status !== 'published') {
+          setError(`Chapter "${currentChapter.title}" is not published yet`);
+          return;
+        }
         
         // Get panels for this chapter
         const panelsData = await getPanelsByChapterId(currentChapter.id);

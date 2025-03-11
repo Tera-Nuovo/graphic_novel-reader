@@ -69,6 +69,18 @@ export async function getChaptersByStoryId(storyId: string) {
   return data as Chapter[];
 }
 
+export async function getPublishedChaptersByStoryId(storyId: string) {
+  const { data, error } = await supabase
+    .from('chapters')
+    .select('*')
+    .eq('story_id', storyId)
+    .eq('status', 'published')
+    .order('order', { ascending: true });
+  
+  if (error) throw error;
+  return data as Chapter[];
+}
+
 export async function getChapterById(id: string) {
   const { data, error } = await supabase
     .from('chapters')
