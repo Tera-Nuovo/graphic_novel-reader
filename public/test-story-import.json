@@ -1,0 +1,1082 @@
+{
+  "japanese_title": "森の中の冒険",
+  "english_title": "Adventure in the Forest",
+  "description": "A heartwarming story about a young girl who discovers a magical forest and the creatures who live there. This beginner-friendly manga introduces basic Japanese vocabulary and simple sentence structures.",
+  "difficulty_level": "beginner",
+  "tags": ["fantasy", "slice of life", "nature", "friendship"],
+  "cover_image": null,
+  "status": "published",
+  "chapters": [
+    {
+      "title": "第一章: 不思議な出会い",
+      "order": 1,
+      "status": "published",
+      "panels": [
+        {
+          "order": 1,
+          "image": null,
+          "sentences": [
+            {
+              "japanese": "朝、さくらは森に入りました。",
+              "english": "In the morning, Sakura entered the forest.",
+              "notes": "Basic past tense sentence",
+              "order": 1,
+              "words": [
+                {
+                  "japanese": "朝",
+                  "reading": "あさ",
+                  "english": "morning",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": "Common time reference",
+                  "order": 1
+                },
+                {
+                  "japanese": "、",
+                  "reading": "",
+                  "english": ",",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 2
+                },
+                {
+                  "japanese": "さくら",
+                  "reading": "さくら",
+                  "english": "Sakura (name)",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": "Character name",
+                  "order": 3
+                },
+                {
+                  "japanese": "は",
+                  "reading": "は",
+                  "english": "topic marker",
+                  "part_of_speech": "particle",
+                  "grammar_notes": "Marks the topic of the sentence",
+                  "additional_notes": null,
+                  "order": 4
+                },
+                {
+                  "japanese": "森",
+                  "reading": "もり",
+                  "english": "forest",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 5
+                },
+                {
+                  "japanese": "に",
+                  "reading": "に",
+                  "english": "to, into",
+                  "part_of_speech": "particle",
+                  "grammar_notes": "Indicates direction",
+                  "additional_notes": null,
+                  "order": 6
+                },
+                {
+                  "japanese": "入りました",
+                  "reading": "はいりました",
+                  "english": "entered",
+                  "part_of_speech": "verb",
+                  "grammar_notes": "Past polite form of 入る (hairu)",
+                  "additional_notes": null,
+                  "order": 7
+                },
+                {
+                  "japanese": "。",
+                  "reading": "",
+                  "english": ".",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 8
+                }
+              ]
+            },
+            {
+              "japanese": "「わあ、きれいな花！」",
+              "english": "\"Wow, beautiful flowers!\"",
+              "notes": "Expression of amazement",
+              "order": 2,
+              "words": [
+                {
+                  "japanese": "「",
+                  "reading": "",
+                  "english": "\"",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 1
+                },
+                {
+                  "japanese": "わあ",
+                  "reading": "わあ",
+                  "english": "wow",
+                  "part_of_speech": "interjection",
+                  "grammar_notes": null,
+                  "additional_notes": "Expression of wonder",
+                  "order": 2
+                },
+                {
+                  "japanese": "、",
+                  "reading": "",
+                  "english": ",",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 3
+                },
+                {
+                  "japanese": "きれいな",
+                  "reading": "きれいな",
+                  "english": "beautiful",
+                  "part_of_speech": "adjective",
+                  "grammar_notes": "な-adjective",
+                  "additional_notes": null,
+                  "order": 4
+                },
+                {
+                  "japanese": "花",
+                  "reading": "はな",
+                  "english": "flower",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 5
+                },
+                {
+                  "japanese": "！",
+                  "reading": "",
+                  "english": "!",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 6
+                },
+                {
+                  "japanese": "」",
+                  "reading": "",
+                  "english": "\"",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 7
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "order": 2,
+          "image": null,
+          "sentences": [
+            {
+              "japanese": "突然、小さな声が聞こえました。",
+              "english": "Suddenly, she heard a small voice.",
+              "notes": "Introduces the element of mystery",
+              "order": 1,
+              "words": [
+                {
+                  "japanese": "突然",
+                  "reading": "とつぜん",
+                  "english": "suddenly",
+                  "part_of_speech": "adverb",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 1
+                },
+                {
+                  "japanese": "、",
+                  "reading": "",
+                  "english": ",",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 2
+                },
+                {
+                  "japanese": "小さな",
+                  "reading": "ちいさな",
+                  "english": "small",
+                  "part_of_speech": "adjective",
+                  "grammar_notes": "な-adjective",
+                  "additional_notes": null,
+                  "order": 3
+                },
+                {
+                  "japanese": "声",
+                  "reading": "こえ",
+                  "english": "voice",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 4
+                },
+                {
+                  "japanese": "が",
+                  "reading": "が",
+                  "english": "subject marker",
+                  "part_of_speech": "particle",
+                  "grammar_notes": "Marks the subject of the sentence",
+                  "additional_notes": null,
+                  "order": 5
+                },
+                {
+                  "japanese": "聞こえました",
+                  "reading": "きこえました",
+                  "english": "was heard",
+                  "part_of_speech": "verb",
+                  "grammar_notes": "Passive form of 聞く (kiku)",
+                  "additional_notes": null,
+                  "order": 6
+                },
+                {
+                  "japanese": "。",
+                  "reading": "",
+                  "english": ".",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 7
+                }
+              ]
+            },
+            {
+              "japanese": "「こんにちは、人間の子」",
+              "english": "\"Hello, human child\"",
+              "notes": "Introduction of the forest creature",
+              "order": 2,
+              "words": [
+                {
+                  "japanese": "「",
+                  "reading": "",
+                  "english": "\"",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 1
+                },
+                {
+                  "japanese": "こんにちは",
+                  "reading": "こんにちは",
+                  "english": "hello",
+                  "part_of_speech": "greeting",
+                  "grammar_notes": null,
+                  "additional_notes": "Common greeting",
+                  "order": 2
+                },
+                {
+                  "japanese": "、",
+                  "reading": "",
+                  "english": ",",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 3
+                },
+                {
+                  "japanese": "人間",
+                  "reading": "にんげん",
+                  "english": "human",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 4
+                },
+                {
+                  "japanese": "の",
+                  "reading": "の",
+                  "english": "possessive particle",
+                  "part_of_speech": "particle",
+                  "grammar_notes": "Links nouns",
+                  "additional_notes": null,
+                  "order": 5
+                },
+                {
+                  "japanese": "子",
+                  "reading": "こ",
+                  "english": "child",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 6
+                },
+                {
+                  "japanese": "」",
+                  "reading": "",
+                  "english": "\"",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 7
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "第二章: 森の妖精",
+      "order": 2,
+      "status": "published",
+      "panels": [
+        {
+          "order": 1,
+          "image": null,
+          "sentences": [
+            {
+              "japanese": "さくらは驚いて立ち止まりました。",
+              "english": "Sakura stopped in surprise.",
+              "notes": "Reaction to the voice",
+              "order": 1,
+              "words": [
+                {
+                  "japanese": "さくら",
+                  "reading": "さくら",
+                  "english": "Sakura",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": "Character name",
+                  "order": 1
+                },
+                {
+                  "japanese": "は",
+                  "reading": "は",
+                  "english": "topic marker",
+                  "part_of_speech": "particle",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 2
+                },
+                {
+                  "japanese": "驚いて",
+                  "reading": "おどろいて",
+                  "english": "surprised",
+                  "part_of_speech": "verb",
+                  "grammar_notes": "Te-form of 驚く (odoroku)",
+                  "additional_notes": "Indicates sequential action",
+                  "order": 3
+                },
+                {
+                  "japanese": "立ち止まりました",
+                  "reading": "たちどまりました",
+                  "english": "stopped",
+                  "part_of_speech": "verb",
+                  "grammar_notes": "Past polite form of 立ち止まる (tachidomaru)",
+                  "additional_notes": null,
+                  "order": 4
+                },
+                {
+                  "japanese": "。",
+                  "reading": "",
+                  "english": ".",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 5
+                }
+              ]
+            },
+            {
+              "japanese": "「誰ですか？どこにいるんですか？」",
+              "english": "\"Who are you? Where are you?\"",
+              "notes": "Asking questions",
+              "order": 2,
+              "words": [
+                {
+                  "japanese": "「",
+                  "reading": "",
+                  "english": "\"",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 1
+                },
+                {
+                  "japanese": "誰",
+                  "reading": "だれ",
+                  "english": "who",
+                  "part_of_speech": "pronoun",
+                  "grammar_notes": "Question word",
+                  "additional_notes": null,
+                  "order": 2
+                },
+                {
+                  "japanese": "ですか",
+                  "reading": "ですか",
+                  "english": "are (polite question)",
+                  "part_of_speech": "copula",
+                  "grammar_notes": "Polite question form",
+                  "additional_notes": null,
+                  "order": 3
+                },
+                {
+                  "japanese": "？",
+                  "reading": "",
+                  "english": "?",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 4
+                },
+                {
+                  "japanese": "どこ",
+                  "reading": "どこ",
+                  "english": "where",
+                  "part_of_speech": "pronoun",
+                  "grammar_notes": "Question word",
+                  "additional_notes": null,
+                  "order": 5
+                },
+                {
+                  "japanese": "に",
+                  "reading": "に",
+                  "english": "in, at",
+                  "part_of_speech": "particle",
+                  "grammar_notes": "Indicates location",
+                  "additional_notes": null,
+                  "order": 6
+                },
+                {
+                  "japanese": "いる",
+                  "reading": "いる",
+                  "english": "to be (animate objects)",
+                  "part_of_speech": "verb",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 7
+                },
+                {
+                  "japanese": "んですか",
+                  "reading": "んですか",
+                  "english": "is it that (explanatory question)",
+                  "part_of_speech": "grammar pattern",
+                  "grammar_notes": "Explanatory の + です + か",
+                  "additional_notes": "Seeking explanation",
+                  "order": 8
+                },
+                {
+                  "japanese": "？",
+                  "reading": "",
+                  "english": "?",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 9
+                },
+                {
+                  "japanese": "」",
+                  "reading": "",
+                  "english": "\"",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 10
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "order": 2,
+          "image": null,
+          "sentences": [
+            {
+              "japanese": "花の後ろから小さな妖精が現れました。",
+              "english": "A small fairy appeared from behind the flower.",
+              "notes": "Introduction of the fairy character",
+              "order": 1,
+              "words": [
+                {
+                  "japanese": "花",
+                  "reading": "はな",
+                  "english": "flower",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 1
+                },
+                {
+                  "japanese": "の",
+                  "reading": "の",
+                  "english": "of",
+                  "part_of_speech": "particle",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 2
+                },
+                {
+                  "japanese": "後ろ",
+                  "reading": "うしろ",
+                  "english": "behind",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": "Spatial position",
+                  "order": 3
+                },
+                {
+                  "japanese": "から",
+                  "reading": "から",
+                  "english": "from",
+                  "part_of_speech": "particle",
+                  "grammar_notes": "Indicates origin",
+                  "additional_notes": null,
+                  "order": 4
+                },
+                {
+                  "japanese": "小さな",
+                  "reading": "ちいさな",
+                  "english": "small",
+                  "part_of_speech": "adjective",
+                  "grammar_notes": "な-adjective",
+                  "additional_notes": null,
+                  "order": 5
+                },
+                {
+                  "japanese": "妖精",
+                  "reading": "ようせい",
+                  "english": "fairy",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 6
+                },
+                {
+                  "japanese": "が",
+                  "reading": "が",
+                  "english": "subject marker",
+                  "part_of_speech": "particle",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 7
+                },
+                {
+                  "japanese": "現れました",
+                  "reading": "あらわれました",
+                  "english": "appeared",
+                  "part_of_speech": "verb",
+                  "grammar_notes": "Past polite form of 現れる (arawareru)",
+                  "additional_notes": null,
+                  "order": 8
+                },
+                {
+                  "japanese": "。",
+                  "reading": "",
+                  "english": ".",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 9
+                }
+              ]
+            },
+            {
+              "japanese": "「私は森の妖精、レイナです。」",
+              "english": "\"I am Reina, a fairy of the forest.\"",
+              "notes": "Self-introduction",
+              "order": 2,
+              "words": [
+                {
+                  "japanese": "「",
+                  "reading": "",
+                  "english": "\"",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 1
+                },
+                {
+                  "japanese": "私",
+                  "reading": "わたし",
+                  "english": "I",
+                  "part_of_speech": "pronoun",
+                  "grammar_notes": null,
+                  "additional_notes": "First-person pronoun",
+                  "order": 2
+                },
+                {
+                  "japanese": "は",
+                  "reading": "は",
+                  "english": "topic marker",
+                  "part_of_speech": "particle",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 3
+                },
+                {
+                  "japanese": "森",
+                  "reading": "もり",
+                  "english": "forest",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 4
+                },
+                {
+                  "japanese": "の",
+                  "reading": "の",
+                  "english": "of",
+                  "part_of_speech": "particle",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 5
+                },
+                {
+                  "japanese": "妖精",
+                  "reading": "ようせい",
+                  "english": "fairy",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 6
+                },
+                {
+                  "japanese": "、",
+                  "reading": "",
+                  "english": ",",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 7
+                },
+                {
+                  "japanese": "レイナ",
+                  "reading": "れいな",
+                  "english": "Reina",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": "Character name",
+                  "order": 8
+                },
+                {
+                  "japanese": "です",
+                  "reading": "です",
+                  "english": "am, is",
+                  "part_of_speech": "copula",
+                  "grammar_notes": "Polite copula",
+                  "additional_notes": null,
+                  "order": 9
+                },
+                {
+                  "japanese": "。",
+                  "reading": "",
+                  "english": ".",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 10
+                },
+                {
+                  "japanese": "」",
+                  "reading": "",
+                  "english": "\"",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 11
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "第三章: 森の秘密",
+      "order": 3,
+      "status": "published",
+      "panels": [
+        {
+          "order": 1,
+          "image": null,
+          "sentences": [
+            {
+              "japanese": "レイナは空中に浮かびながら言いました。",
+              "english": "Reina said as she floated in the air.",
+              "notes": "Using ながら to show simultaneous actions",
+              "order": 1,
+              "words": [
+                {
+                  "japanese": "レイナ",
+                  "reading": "れいな",
+                  "english": "Reina",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": "Character name",
+                  "order": 1
+                },
+                {
+                  "japanese": "は",
+                  "reading": "は",
+                  "english": "topic marker",
+                  "part_of_speech": "particle",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 2
+                },
+                {
+                  "japanese": "空中",
+                  "reading": "くうちゅう",
+                  "english": "air, midair",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 3
+                },
+                {
+                  "japanese": "に",
+                  "reading": "に",
+                  "english": "in",
+                  "part_of_speech": "particle",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 4
+                },
+                {
+                  "japanese": "浮かび",
+                  "reading": "うかび",
+                  "english": "float",
+                  "part_of_speech": "verb",
+                  "grammar_notes": "Stem form of 浮かぶ (ukabu)",
+                  "additional_notes": null,
+                  "order": 5
+                },
+                {
+                  "japanese": "ながら",
+                  "reading": "ながら",
+                  "english": "while",
+                  "part_of_speech": "conjunction",
+                  "grammar_notes": "Indicates simultaneous actions",
+                  "additional_notes": null,
+                  "order": 6
+                },
+                {
+                  "japanese": "言いました",
+                  "reading": "いいました",
+                  "english": "said",
+                  "part_of_speech": "verb",
+                  "grammar_notes": "Past polite form of 言う (iu)",
+                  "additional_notes": null,
+                  "order": 7
+                },
+                {
+                  "japanese": "。",
+                  "reading": "",
+                  "english": ".",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 8
+                }
+              ]
+            },
+            {
+              "japanese": "「この森には不思議な力があるの」",
+              "english": "\"This forest has a mysterious power\"",
+              "notes": "Introduction to the plot point",
+              "order": 2,
+              "words": [
+                {
+                  "japanese": "「",
+                  "reading": "",
+                  "english": "\"",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 1
+                },
+                {
+                  "japanese": "この",
+                  "reading": "この",
+                  "english": "this",
+                  "part_of_speech": "demonstrative",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 2
+                },
+                {
+                  "japanese": "森",
+                  "reading": "もり",
+                  "english": "forest",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 3
+                },
+                {
+                  "japanese": "には",
+                  "reading": "には",
+                  "english": "in, to",
+                  "part_of_speech": "particle",
+                  "grammar_notes": "Combination of に and は",
+                  "additional_notes": "Emphasizes location",
+                  "order": 4
+                },
+                {
+                  "japanese": "不思議な",
+                  "reading": "ふしぎな",
+                  "english": "mysterious",
+                  "part_of_speech": "adjective",
+                  "grammar_notes": "な-adjective",
+                  "additional_notes": null,
+                  "order": 5
+                },
+                {
+                  "japanese": "力",
+                  "reading": "ちから",
+                  "english": "power",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 6
+                },
+                {
+                  "japanese": "が",
+                  "reading": "が",
+                  "english": "subject marker",
+                  "part_of_speech": "particle",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 7
+                },
+                {
+                  "japanese": "ある",
+                  "reading": "ある",
+                  "english": "to exist",
+                  "part_of_speech": "verb",
+                  "grammar_notes": "Existence verb for inanimate objects",
+                  "additional_notes": null,
+                  "order": 8
+                },
+                {
+                  "japanese": "の",
+                  "reading": "の",
+                  "english": "explanatory particle",
+                  "part_of_speech": "particle",
+                  "grammar_notes": "Used at end of sentence for soft assertion",
+                  "additional_notes": "Often used by female speakers",
+                  "order": 9
+                },
+                {
+                  "japanese": "」",
+                  "reading": "",
+                  "english": "\"",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 10
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "order": 2,
+          "image": null,
+          "sentences": [
+            {
+              "japanese": "「力？どんな力ですか？」と、さくらは尋ねました。",
+              "english": "\"Power? What kind of power?\" Sakura asked.",
+              "notes": "Using quotative と to mark what was said",
+              "order": 1,
+              "words": [
+                {
+                  "japanese": "「",
+                  "reading": "",
+                  "english": "\"",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 1
+                },
+                {
+                  "japanese": "力",
+                  "reading": "ちから",
+                  "english": "power",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 2
+                },
+                {
+                  "japanese": "？",
+                  "reading": "",
+                  "english": "?",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 3
+                },
+                {
+                  "japanese": "どんな",
+                  "reading": "どんな",
+                  "english": "what kind of",
+                  "part_of_speech": "interrogative",
+                  "grammar_notes": null,
+                  "additional_notes": "Question word",
+                  "order": 4
+                },
+                {
+                  "japanese": "力",
+                  "reading": "ちから",
+                  "english": "power",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 5
+                },
+                {
+                  "japanese": "ですか",
+                  "reading": "ですか",
+                  "english": "is it",
+                  "part_of_speech": "copula",
+                  "grammar_notes": "Polite question form",
+                  "additional_notes": null,
+                  "order": 6
+                },
+                {
+                  "japanese": "？",
+                  "reading": "",
+                  "english": "?",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 7
+                },
+                {
+                  "japanese": "」",
+                  "reading": "",
+                  "english": "\"",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 8
+                },
+                {
+                  "japanese": "と",
+                  "reading": "と",
+                  "english": "quotative particle",
+                  "part_of_speech": "particle",
+                  "grammar_notes": "Marks quoted speech",
+                  "additional_notes": null,
+                  "order": 9
+                },
+                {
+                  "japanese": "、",
+                  "reading": "",
+                  "english": ",",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 10
+                },
+                {
+                  "japanese": "さくら",
+                  "reading": "さくら",
+                  "english": "Sakura",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": "Character name",
+                  "order": 11
+                },
+                {
+                  "japanese": "は",
+                  "reading": "は",
+                  "english": "topic marker",
+                  "part_of_speech": "particle",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 12
+                },
+                {
+                  "japanese": "尋ねました",
+                  "reading": "たずねました",
+                  "english": "asked",
+                  "part_of_speech": "verb",
+                  "grammar_notes": "Past polite form of 尋ねる (tazuneru)",
+                  "additional_notes": null,
+                  "order": 13
+                },
+                {
+                  "japanese": "。",
+                  "reading": "",
+                  "english": ".",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 14
+                }
+              ]
+            },
+            {
+              "japanese": "レイナは笑顔で答えました。",
+              "english": "Reina answered with a smile.",
+              "notes": "Using で to indicate manner",
+              "order": 2,
+              "words": [
+                {
+                  "japanese": "レイナ",
+                  "reading": "れいな",
+                  "english": "Reina",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": "Character name",
+                  "order": 1
+                },
+                {
+                  "japanese": "は",
+                  "reading": "は",
+                  "english": "topic marker",
+                  "part_of_speech": "particle",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 2
+                },
+                {
+                  "japanese": "笑顔",
+                  "reading": "えがお",
+                  "english": "smile",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 3
+                },
+                {
+                  "japanese": "で",
+                  "reading": "で",
+                  "english": "with",
+                  "part_of_speech": "particle",
+                  "grammar_notes": "Indicates manner or means",
+                  "additional_notes": null,
+                  "order": 4
+                },
+                {
+                  "japanese": "答えました",
+                  "reading": "こたえました",
+                  "english": "answered",
+                  "part_of_speech": "verb",
+                  "grammar_notes": "Past polite form of 答える (kotaeru)",
+                  "additional_notes": null,
+                  "order": 5
+                },
+                {
+                  "japanese": "。",
+                  "reading": "",
+                  "english": ".",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null,
+                  "order": 6
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+} 

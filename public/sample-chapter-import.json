@@ -2,60 +2,150 @@
   "title": "Sample Story",
   "chapters": [
     {
-      "title": "Chapter 1",
+      "title": "森の出会い - Meeting in the Forest",
       "panels": [
         {
           "order": 1,
           "sentences": [
             {
-              "text": "こんにちは、世界！",
-              "translation": "Hello, world!",
+              "japanese": "昨日、新しい本を買いました。",
+              "english": "Yesterday, I bought a new book.",
+              "notes": "Past tense sentence",
               "words": [
                 {
-                  "text": "こんにちは",
-                  "translation": "hello",
-                  "position": 0
+                  "japanese": "昨日",
+                  "reading": "きのう",
+                  "english": "yesterday",
+                  "part_of_speech": "noun",
+                  "grammar_notes": "Time reference",
+                  "additional_notes": null
                 },
                 {
-                  "text": "世界",
-                  "translation": "world",
-                  "position": 1
+                  "japanese": "、",
+                  "reading": "",
+                  "english": ",",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null
+                },
+                {
+                  "japanese": "新しい",
+                  "reading": "あたらしい",
+                  "english": "new",
+                  "part_of_speech": "adjective",
+                  "grammar_notes": "い-adjective",
+                  "additional_notes": null
+                },
+                {
+                  "japanese": "本",
+                  "reading": "ほん",
+                  "english": "book",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": null
+                },
+                {
+                  "japanese": "を",
+                  "reading": "を",
+                  "english": "object marker",
+                  "part_of_speech": "particle",
+                  "grammar_notes": "Marks the direct object",
+                  "additional_notes": null
+                },
+                {
+                  "japanese": "買いました",
+                  "reading": "かいました",
+                  "english": "bought",
+                  "part_of_speech": "verb",
+                  "grammar_notes": "Past polite form of 買う (kau)",
+                  "additional_notes": null
+                },
+                {
+                  "japanese": "。",
+                  "reading": "",
+                  "english": ".",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null
                 }
               ]
             },
             {
-              "text": "これは日本語の例文です。",
-              "translation": "This is an example Japanese sentence.",
+              "japanese": "その本は日本語の勉強についてです。",
+              "english": "That book is about studying Japanese.",
+              "notes": "Use of について (ni tsuite) to indicate topic",
               "words": [
                 {
-                  "text": "これ",
-                  "translation": "this",
-                  "position": 0
+                  "japanese": "その",
+                  "reading": "その",
+                  "english": "that",
+                  "part_of_speech": "demonstrative",
+                  "grammar_notes": null,
+                  "additional_notes": null
                 },
                 {
-                  "text": "は",
-                  "translation": "is (topic marker)",
-                  "position": 1
+                  "japanese": "本",
+                  "reading": "ほん",
+                  "english": "book",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": null
                 },
                 {
-                  "text": "日本語",
-                  "translation": "Japanese language",
-                  "position": 2
+                  "japanese": "は",
+                  "reading": "は",
+                  "english": "topic marker",
+                  "part_of_speech": "particle",
+                  "grammar_notes": null,
+                  "additional_notes": null
                 },
                 {
-                  "text": "の",
-                  "translation": "of",
-                  "position": 3
+                  "japanese": "日本語",
+                  "reading": "にほんご",
+                  "english": "Japanese language",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": null
                 },
                 {
-                  "text": "例文",
-                  "translation": "example sentence",
-                  "position": 4
+                  "japanese": "の",
+                  "reading": "の",
+                  "english": "possessive particle",
+                  "part_of_speech": "particle",
+                  "grammar_notes": null,
+                  "additional_notes": null
                 },
                 {
-                  "text": "です",
-                  "translation": "is",
-                  "position": 5
+                  "japanese": "勉強",
+                  "reading": "べんきょう",
+                  "english": "study",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": null
+                },
+                {
+                  "japanese": "について",
+                  "reading": "について",
+                  "english": "about, concerning",
+                  "part_of_speech": "compound particle",
+                  "grammar_notes": "Indicates topic or subject matter",
+                  "additional_notes": null
+                },
+                {
+                  "japanese": "です",
+                  "reading": "です",
+                  "english": "is",
+                  "part_of_speech": "copula",
+                  "grammar_notes": "Polite copula",
+                  "additional_notes": null
+                },
+                {
+                  "japanese": "。",
+                  "reading": "",
+                  "english": ".",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null
                 }
               ]
             }
@@ -65,43 +155,112 @@
           "order": 2,
           "sentences": [
             {
-              "text": "私は日本語を勉強しています。",
-              "translation": "I am studying Japanese.",
+              "japanese": "毎日、一時間日本語を勉強しています。",
+              "english": "I study Japanese for one hour every day.",
+              "notes": "Present progressive/habitual action",
               "words": [
                 {
-                  "text": "私",
-                  "translation": "I",
-                  "position": 0
+                  "japanese": "毎日",
+                  "reading": "まいにち",
+                  "english": "every day",
+                  "part_of_speech": "noun",
+                  "grammar_notes": "Time reference",
+                  "additional_notes": null
                 },
                 {
-                  "text": "は",
-                  "translation": "is (topic marker)",
-                  "position": 1
+                  "japanese": "、",
+                  "reading": "",
+                  "english": ",",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null
                 },
                 {
-                  "text": "日本語",
-                  "translation": "Japanese language",
-                  "position": 2
+                  "japanese": "一",
+                  "reading": "いち",
+                  "english": "one",
+                  "part_of_speech": "number",
+                  "grammar_notes": null,
+                  "additional_notes": null
                 },
                 {
-                  "text": "を",
-                  "translation": "object marker",
-                  "position": 3
+                  "japanese": "時間",
+                  "reading": "じかん",
+                  "english": "hour",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": null
                 },
                 {
-                  "text": "勉強",
-                  "translation": "study",
-                  "position": 4
+                  "japanese": "日本語",
+                  "reading": "にほんご",
+                  "english": "Japanese language",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": null
                 },
                 {
-                  "text": "して",
-                  "translation": "doing",
-                  "position": 5
+                  "japanese": "を",
+                  "reading": "を",
+                  "english": "object marker",
+                  "part_of_speech": "particle",
+                  "grammar_notes": null,
+                  "additional_notes": null
                 },
                 {
-                  "text": "います",
-                  "translation": "am (present continuous)",
-                  "position": 6
+                  "japanese": "勉強しています",
+                  "reading": "べんきょうしています",
+                  "english": "am studying",
+                  "part_of_speech": "verb",
+                  "grammar_notes": "Present progressive form of 勉強する (benkyou suru)",
+                  "additional_notes": null
+                },
+                {
+                  "japanese": "。",
+                  "reading": "",
+                  "english": ".",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null
+                }
+              ]
+            },
+            {
+              "japanese": "とても楽しいです。",
+              "english": "It's very enjoyable.",
+              "notes": "Basic sentence with adverb + adjective",
+              "words": [
+                {
+                  "japanese": "とても",
+                  "reading": "とても",
+                  "english": "very",
+                  "part_of_speech": "adverb",
+                  "grammar_notes": "Intensifier",
+                  "additional_notes": null
+                },
+                {
+                  "japanese": "楽しい",
+                  "reading": "たのしい",
+                  "english": "fun, enjoyable",
+                  "part_of_speech": "adjective",
+                  "grammar_notes": "い-adjective",
+                  "additional_notes": null
+                },
+                {
+                  "japanese": "です",
+                  "reading": "です",
+                  "english": "is",
+                  "part_of_speech": "copula",
+                  "grammar_notes": "Polite copula",
+                  "additional_notes": null
+                },
+                {
+                  "japanese": "。",
+                  "reading": "",
+                  "english": ".",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null
                 }
               ]
             }
@@ -111,84 +270,81 @@
           "order": 3,
           "sentences": [
             {
-              "text": "漫画を読むのは楽しいです。",
-              "translation": "Reading manga is fun.",
+              "japanese": "来週、友達と日本語で話してみます。",
+              "english": "Next week, I will try speaking with my friend in Japanese.",
+              "notes": "Using てみる to express trying something",
               "words": [
                 {
-                  "text": "漫画",
-                  "translation": "manga",
-                  "position": 0
+                  "japanese": "来週",
+                  "reading": "らいしゅう",
+                  "english": "next week",
+                  "part_of_speech": "noun",
+                  "grammar_notes": "Time reference",
+                  "additional_notes": null
                 },
                 {
-                  "text": "を",
-                  "translation": "object marker",
-                  "position": 1
+                  "japanese": "、",
+                  "reading": "",
+                  "english": ",",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null
                 },
                 {
-                  "text": "読む",
-                  "translation": "to read",
-                  "position": 2
+                  "japanese": "友達",
+                  "reading": "ともだち",
+                  "english": "friend",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": null
                 },
                 {
-                  "text": "の",
-                  "translation": "nominalizer",
-                  "position": 3
+                  "japanese": "と",
+                  "reading": "と",
+                  "english": "with",
+                  "part_of_speech": "particle",
+                  "grammar_notes": "Indicates accompanying person",
+                  "additional_notes": null
                 },
                 {
-                  "text": "は",
-                  "translation": "is (topic marker)",
-                  "position": 4
+                  "japanese": "日本語",
+                  "reading": "にほんご",
+                  "english": "Japanese language",
+                  "part_of_speech": "noun",
+                  "grammar_notes": null,
+                  "additional_notes": null
                 },
                 {
-                  "text": "楽しい",
-                  "translation": "fun",
-                  "position": 5
+                  "japanese": "で",
+                  "reading": "で",
+                  "english": "in, with",
+                  "part_of_speech": "particle",
+                  "grammar_notes": "Indicates means or method",
+                  "additional_notes": null
                 },
                 {
-                  "text": "です",
-                  "translation": "is",
-                  "position": 6
-                }
-              ]
-            },
-            {
-              "text": "毎日練習することが大切です。",
-              "translation": "It's important to practice every day.",
-              "words": [
-                {
-                  "text": "毎日",
-                  "translation": "every day",
-                  "position": 0
+                  "japanese": "話して",
+                  "reading": "はなして",
+                  "english": "speak",
+                  "part_of_speech": "verb",
+                  "grammar_notes": "Te-form of 話す (hanasu)",
+                  "additional_notes": null
                 },
                 {
-                  "text": "練習",
-                  "translation": "practice",
-                  "position": 1
+                  "japanese": "みます",
+                  "reading": "みます",
+                  "english": "will try",
+                  "part_of_speech": "auxiliary verb",
+                  "grammar_notes": "Expresses trying something",
+                  "additional_notes": null
                 },
                 {
-                  "text": "する",
-                  "translation": "to do",
-                  "position": 2
-                },
-                {
-                  "text": "こと",
-                  "translation": "thing (nominalizer)",
-                  "position": 3
-                },
-                {
-                  "text": "が",
-                  "translation": "subject marker",
-                  "position": 4
-                },
-                {
-                  "text": "大切",
-                  "translation": "important",
-                  "position": 5
-                },
-                {
-                  "text": "です",
-                  "translation": "is",
-                  "position": 6
+                  "japanese": "。",
+                  "reading": "",
+                  "english": ".",
+                  "part_of_speech": "punctuation",
+                  "grammar_notes": null,
+                  "additional_notes": null
                 }
               ]
             }

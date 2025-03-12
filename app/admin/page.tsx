@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Plus, Book, BookOpen, Settings, Users, AlertTriangle } from "lucide-react"
+import { Plus, Book, BookOpen, Settings, Users, AlertTriangle, Download, Upload } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { Story } from "@/lib/types"
 import { useAuth } from "@/lib/auth"
@@ -142,6 +142,17 @@ export default function AdminDashboard() {
           <Link href="/admin/chapters/create">
             <BookOpen className="h-5 w-5" />
             <span>New Chapter</span>
+          </Link>
+        </Button>
+        <Button variant="outline" className="h-24 flex flex-col gap-2" asChild>
+          <Link href="/admin/import">
+            <div className="flex flex-col items-center">
+              <div className="flex">
+                <Upload className="h-5 w-5 mr-1" />
+                <Download className="h-5 w-5 ml-1" />
+              </div>
+              <span>Import/Export</span>
+            </div>
           </Link>
         </Button>
         <Button variant="outline" className="h-24 flex flex-col gap-2" asChild>
