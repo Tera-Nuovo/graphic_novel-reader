@@ -170,6 +170,11 @@ export default function ImportPage() {
                     <li>Sentences with text and translations</li>
                     <li>Words with text, translations, and positions</li>
                   </ul>
+                  <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-md">
+                    <p className="text-sm text-amber-800">
+                      <strong>Note:</strong> If you encounter permission errors during import, the system will automatically attempt to use admin privileges to complete the import. This handles row-level security policies that might prevent regular imports.
+                    </p>
+                  </div>
                   <div className="mt-6 pt-4 border-t">
                     <h3 className="text-lg font-semibold mb-2">Download Test Files</h3>
                     <div className="flex flex-col gap-2">

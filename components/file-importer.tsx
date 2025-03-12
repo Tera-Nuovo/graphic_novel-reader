@@ -63,6 +63,32 @@ interface FileImporterProps {
   onImportComplete: (storyId: string) => void;
 }
 
+// New helper function to import with service role
+const importWithServiceRole = async (importData: ImportedStory): Promise<string> => {
+  try {
+    console.log('Attempting import with service role API...');
+    
+    const response = await fetch('/api/import/service-role', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(importData),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to import with service role');
+    }
+    
+    const data = await response.json();
+    return data.storyId;
+  } catch (error) {
+    console.error('Error importing with service role:', error);
+    throw error;
+  }
+};
+
 export function FileImporter({ onImportComplete }: FileImporterProps) {
   const [file, setFile] = useState<File | null>(null);
   const [importing, setImporting] = useState(false);
@@ -149,181 +175,230 @@ export function FileImporter({ onImportComplete }: FileImporterProps) {
       setImporting(true);
       setImportProgress({ current: 0, total: 1, stage: 'Creating story' });
       
-      // 1. Create story
-      const { data: createdStory, error: storyError } = await supabase
-        .from('stories')
-        .insert({
-          japanese_title: importData.japanese_title || importData.title,
-          english_title: importData.english_title || importData.title,
-          description: importData.description || '',
-          difficulty_level: importData.difficulty_level || 'intermediate',
-          tags: importData.tags || [],
-          cover_image: importData.cover_image || null,
-          status: importData.status || 'draft'
-        })
-        .select()
-        .single();
+      let storyId = '';
+      let shouldUseServiceRole = false;
       
-      if (storyError || !createdStory) {
-        throw new Error(`Failed to create story: ${storyError?.message || 'Unknown error'}`);
-      }
-      
-      const storyId = createdStory.id;
-      
-      // 2. Create chapters
-      setImportProgress({ 
-        current: 1, 
-        total: importData.chapters.length + 1, 
-        stage: 'Creating chapters' 
-      });
-      
-      for (let i = 0; i < importData.chapters.length; i++) {
-        const chapter = importData.chapters[i];
-        
-        setImportProgress({ 
-          current: i + 1, 
-          total: importData.chapters.length + 1, 
-          stage: `Creating chapter ${i + 1}/${importData.chapters.length}` 
-        });
-        
-        const { data: chapterData, error: chapterError } = await supabase
-          .from('chapters')
+      // Try normal client import first
+      try {
+        // 1. Create story
+        const { data: createdStory, error: storyError } = await supabase
+          .from('stories')
           .insert({
-            story_id: storyId,
-            title: chapter.title,
-            order: chapter.order || i + 1,
-            status: chapter.status || 'draft'
+            japanese_title: importData.japanese_title || importData.title,
+            english_title: importData.english_title || importData.title,
+            description: importData.description || '',
+            difficulty_level: importData.difficulty_level || 'intermediate',
+            tags: importData.tags || [],
+            cover_image: importData.cover_image || null,
+            status: importData.status || 'draft'
           })
           .select()
           .single();
         
-        if (chapterError || !chapterData) {
-          throw new Error(`Failed to create chapter: ${chapterError?.message || 'Unknown error'}`);
-        }
-        
-        const chapterId = chapterData.id;
-        
-        // 3. Create panels for this chapter
-        setImportProgress({ 
-          current: 0, 
-          total: chapter.panels.length, 
-          stage: `Creating panels for chapter ${i + 1}` 
-        });
-        
-        for (let j = 0; j < chapter.panels.length; j++) {
-          const panel = chapter.panels[j];
-          
-          setImportProgress({ 
-            current: j + 1, 
-            total: chapter.panels.length, 
-            stage: `Creating panel ${j + 1}/${chapter.panels.length} for chapter ${i + 1}` 
-          });
-          
-          const { data: panelData, error: panelError } = await supabase
-            .from('panels')
-            .insert({
-              chapter_id: chapterId,
-              order: panel.order,
-              image: panel.image || null
-            })
-            .select()
-            .single();
-          
-          if (panelError || !panelData) {
-            throw new Error(`Failed to create panel: ${panelError?.message || 'Unknown error'}`);
+        if (storyError) {
+          // Check if error is RLS related
+          if (storyError.message?.includes('row-level security') || 
+              storyError.message?.includes('policy')) {
+            console.warn('RLS error detected, will try service role import');
+            shouldUseServiceRole = true;
+          } else {
+            throw new Error(`Failed to create story: ${storyError.message}`);
           }
+        } else if (createdStory) {
+          storyId = createdStory.id;
           
-          const panelId = panelData.id;
-          
-          // 4. Create sentences for this panel
+          // Continue with normal import for chapters, panels, etc.
+          // 2. Create chapters
           setImportProgress({ 
-            current: 0, 
-            total: panel.sentences.length, 
-            stage: `Creating sentences for panel ${j + 1}` 
+            current: 1, 
+            total: importData.chapters.length + 1, 
+            stage: 'Creating chapters' 
           });
           
-          for (let k = 0; k < panel.sentences.length; k++) {
-            const sentence = panel.sentences[k];
+          for (let i = 0; i < importData.chapters.length; i++) {
+            const chapter = importData.chapters[i];
             
             setImportProgress({ 
-              current: k + 1, 
-              total: panel.sentences.length, 
-              stage: `Creating sentence ${k + 1}/${panel.sentences.length} for panel ${j + 1}` 
+              current: i + 1, 
+              total: importData.chapters.length + 1, 
+              stage: `Creating chapter ${i + 1}/${importData.chapters.length}` 
             });
             
-            // Handle both old and new format
-            const japanese = sentence.japanese || sentence.text;
-            const english = sentence.english || sentence.translation;
-            const notes = sentence.notes || '';
-            const order = sentence.order || k + 1;
-            
-            const { data: sentenceData, error: sentenceError } = await supabase
-              .from('sentences')
+            const { data: chapterData, error: chapterError } = await supabase
+              .from('chapters')
               .insert({
-                panel_id: panelId,
-                japanese,
-                english,
-                notes,
-                order
+                story_id: storyId,
+                title: chapter.title,
+                order: chapter.order || i + 1,
+                status: chapter.status || 'draft'
               })
               .select()
               .single();
             
-            if (sentenceError || !sentenceData) {
-              throw new Error(`Failed to create sentence: ${sentenceError?.message || 'Unknown error'}`);
+            if (chapterError) {
+              throw new Error(`Failed to create chapter: ${chapterError.message}`);
             }
             
-            const sentenceId = sentenceData.id;
+            const chapterId = chapterData.id;
             
-            // 5. Create words for this sentence
-            if (sentence.words.length > 0) {
-              // Convert words to the expected format, handling both old and new formats
-              const wordsToInsert = sentence.words.map(word => {
-                if ('text' in word && 'translation' in word) {
-                  // Old format
-                  return {
-                    sentence_id: sentenceId,
-                    japanese: word.text,
-                    reading: '',
-                    english: word.translation,
-                    part_of_speech: null,
-                    grammar_notes: null,
-                    additional_notes: null,
-                    order: word.position || 0
-                  };
-                } else {
-                  // New format
-                  return {
-                    sentence_id: sentenceId,
-                    japanese: word.japanese,
-                    reading: word.reading || '',
-                    english: word.english,
-                    part_of_speech: word.part_of_speech || null,
-                    grammar_notes: word.grammar_notes || null,
-                    additional_notes: word.additional_notes || null,
-                    order: word.order || 0
-                  };
-                }
+            // Continue with panels, sentences, and words...
+            // 3. Create panels for this chapter
+            setImportProgress({ 
+              current: 0, 
+              total: chapter.panels.length, 
+              stage: `Creating panels for chapter ${i + 1}` 
+            });
+            
+            for (let j = 0; j < chapter.panels.length; j++) {
+              const panel = chapter.panels[j];
+              
+              setImportProgress({ 
+                current: j + 1, 
+                total: chapter.panels.length, 
+                stage: `Creating panel ${j + 1}/${chapter.panels.length} for chapter ${i + 1}` 
               });
               
-              const { error: wordsError } = await supabase
-                .from('words')
-                .insert(wordsToInsert);
+              const { data: panelData, error: panelError } = await supabase
+                .from('panels')
+                .insert({
+                  chapter_id: chapterId,
+                  order: panel.order,
+                  image: panel.image || null
+                })
+                .select()
+                .single();
               
-              if (wordsError) {
-                throw new Error(`Failed to create words: ${wordsError.message}`);
+              if (panelError || !panelData) {
+                throw new Error(`Failed to create panel: ${panelError?.message || 'Unknown error'}`);
+              }
+              
+              const panelId = panelData.id;
+              
+              // 4. Create sentences for this panel
+              setImportProgress({ 
+                current: 0, 
+                total: panel.sentences.length, 
+                stage: `Creating sentences for panel ${j + 1}` 
+              });
+              
+              for (let k = 0; k < panel.sentences.length; k++) {
+                const sentence = panel.sentences[k];
+                
+                setImportProgress({ 
+                  current: k + 1, 
+                  total: panel.sentences.length, 
+                  stage: `Creating sentence ${k + 1}/${panel.sentences.length} for panel ${j + 1}` 
+                });
+                
+                // Handle both old and new format
+                const japanese = sentence.japanese || sentence.text;
+                const english = sentence.english || sentence.translation;
+                const notes = sentence.notes || '';
+                const order = sentence.order || k + 1;
+                
+                const { data: sentenceData, error: sentenceError } = await supabase
+                  .from('sentences')
+                  .insert({
+                    panel_id: panelId,
+                    japanese,
+                    english,
+                    notes,
+                    order
+                  })
+                  .select()
+                  .single();
+                
+                if (sentenceError || !sentenceData) {
+                  throw new Error(`Failed to create sentence: ${sentenceError?.message || 'Unknown error'}`);
+                }
+                
+                const sentenceId = sentenceData.id;
+                
+                // 5. Create words for this sentence
+                if (sentence.words.length > 0) {
+                  // Convert words to the expected format, handling both old and new formats
+                  const wordsToInsert = sentence.words.map(word => {
+                    if ('text' in word && 'translation' in word) {
+                      // Old format
+                      return {
+                        sentence_id: sentenceId,
+                        japanese: word.text,
+                        reading: '',
+                        english: word.translation,
+                        part_of_speech: null,
+                        grammar_notes: null,
+                        additional_notes: null,
+                        order: word.position || 0
+                      };
+                    } else {
+                      // New format
+                      return {
+                        sentence_id: sentenceId,
+                        japanese: word.japanese,
+                        reading: word.reading || '',
+                        english: word.english,
+                        part_of_speech: word.part_of_speech || null,
+                        grammar_notes: word.grammar_notes || null,
+                        additional_notes: word.additional_notes || null,
+                        order: word.order || 0
+                      };
+                    }
+                  });
+                  
+                  const { error: wordsError } = await supabase
+                    .from('words')
+                    .insert(wordsToInsert);
+                  
+                  if (wordsError) {
+                    throw new Error(`Failed to create words: ${wordsError.message}`);
+                  }
+                }
               }
             }
           }
         }
+      } catch (clientError) {
+        if (!shouldUseServiceRole) {
+          // If not already marked for service role, check the error
+          if (clientError instanceof Error && 
+              (clientError.message.includes('row-level security') || 
+               clientError.message.includes('policy'))) {
+            console.warn('RLS error detected during import, will try service role');
+            shouldUseServiceRole = true;
+          } else {
+            throw clientError;
+          }
+        }
       }
       
-      setImportStatus({
-        success: true,
-        message: `Successfully imported story: ${importData.title}`
-      });
+      // If we need to use service role or client import failed
+      if (shouldUseServiceRole) {
+        setImportProgress({ 
+          current: 0, 
+          total: 1, 
+          stage: 'Importing with admin privileges' 
+        });
+        
+        storyId = await importWithServiceRole(importData);
+        
+        setImportProgress({ 
+          current: 1, 
+          total: 1, 
+          stage: 'Import completed with admin privileges' 
+        });
+      }
       
-      onImportComplete(storyId);
+      // Only proceed if we actually got a storyId
+      if (storyId) {
+        setImportStatus({
+          success: true,
+          message: `Successfully imported story: ${importData.japanese_title || importData.english_title || importData.title}`
+        });
+        
+        onImportComplete(storyId);
+      } else {
+        throw new Error('Failed to create story: No story ID returned');
+      }
       
     } catch (error) {
       console.error("Import error:", error);
