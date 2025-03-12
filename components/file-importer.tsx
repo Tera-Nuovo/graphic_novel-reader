@@ -6,23 +6,57 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Check, AlertTriangle, Upload } from "lucide-react";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
-interface ImportedStory {
+interface ImportedWord {
+  text?: string;
+  translation?: string;
+  position?: number;
+  // New format properties
+  japanese?: string;
+  reading?: string;
+  english?: string;
+  part_of_speech?: string | null;
+  grammar_notes?: string | null;
+  additional_notes?: string | null;
+  order?: number;
+}
+
+interface ImportedSentence {
+  text?: string;
+  translation?: string;
+  // New format properties
+  japanese?: string;
+  english?: string;
+  notes?: string | null;
+  order?: number;
+  words: ImportedWord[];
+}
+
+interface ImportedPanel {
+  order: number;
+  // New format property
+  image?: string | null;
+  sentences: ImportedSentence[];
+}
+
+interface ImportedChapter {
   title: string;
-  chapters: {
-    title: string;
-    panels: {
-      order: number;
-      sentences: {
-        text: string;
-        translation: string;
-        words: {
-          text: string;
-          translation: string;
-          position: number;
-        }[];
-      }[];
-    }[];
-  }[];
+  // New format properties
+  order?: number;
+  status?: 'draft' | 'published';
+  panels: ImportedPanel[];
+}
+
+interface ImportedStory {
+  title?: string;
+  // New format properties
+  japanese_title?: string;
+  english_title?: string;
+  description?: string | null;
+  difficulty_level?: string;
+  tags?: string[] | null;
+  cover_image?: string | null;
+  status?: 'draft' | 'published';
+  chapters: ImportedChapter[];
 }
 
 interface FileImporterProps {
@@ -52,17 +86,18 @@ export function FileImporter({ onImportComplete }: FileImporterProps) {
   };
 
   const validateImportData = (data: any): data is ImportedStory => {
-    if (!data.title || typeof data.title !== 'string') {
-      throw new Error('Invalid story format: Missing or invalid title');
+    if (!data.title && !data.japanese_title) {
+      throw new Error('Invalid story format: Missing title');
     }
     
+    // Handle both the old and new format
     if (!Array.isArray(data.chapters)) {
       throw new Error('Invalid story format: Chapters must be an array');
     }
     
     for (const chapter of data.chapters) {
-      if (!chapter.title || typeof chapter.title !== 'string') {
-        throw new Error('Invalid chapter format: Missing or invalid title');
+      if (!chapter.title) {
+        throw new Error('Invalid chapter format: Missing title');
       }
       
       if (!Array.isArray(chapter.panels)) {
@@ -79,12 +114,13 @@ export function FileImporter({ onImportComplete }: FileImporterProps) {
         }
         
         for (const sentence of panel.sentences) {
-          if (typeof sentence.text !== 'string') {
-            throw new Error('Invalid sentence format: Missing or invalid text');
+          // Check for both old format (text/translation) and new format (japanese/english)
+          if (!sentence.text && !sentence.japanese) {
+            throw new Error('Invalid sentence format: Missing text or japanese field');
           }
           
-          if (typeof sentence.translation !== 'string') {
-            throw new Error('Invalid sentence format: Missing or invalid translation');
+          if (!sentence.translation && !sentence.english) {
+            throw new Error('Invalid sentence format: Missing translation or english field');
           }
           
           if (!Array.isArray(sentence.words)) {
@@ -92,16 +128,13 @@ export function FileImporter({ onImportComplete }: FileImporterProps) {
           }
           
           for (const word of sentence.words) {
-            if (typeof word.text !== 'string') {
-              throw new Error('Invalid word format: Missing or invalid text');
+            // Check for both old format (text/translation) and new format (japanese/english)
+            if (!word.text && !word.japanese) {
+              throw new Error('Invalid word format: Missing text or japanese field');
             }
             
-            if (typeof word.translation !== 'string') {
-              throw new Error('Invalid word format: Missing or invalid translation');
-            }
-            
-            if (typeof word.position !== 'number') {
-              throw new Error('Invalid word format: Missing or invalid position');
+            if (!word.translation && !word.english) {
+              throw new Error('Invalid word format: Missing translation or english field');
             }
           }
         }
@@ -120,8 +153,13 @@ export function FileImporter({ onImportComplete }: FileImporterProps) {
       const { data: createdStory, error: storyError } = await supabase
         .from('stories')
         .insert({
-          title: importData.title,
-          status: 'draft'
+          japanese_title: importData.japanese_title || importData.title,
+          english_title: importData.english_title || importData.title,
+          description: importData.description || '',
+          difficulty_level: importData.difficulty_level || 'intermediate',
+          tags: importData.tags || [],
+          cover_image: importData.cover_image || null,
+          status: importData.status || 'draft'
         })
         .select()
         .single();
@@ -153,7 +191,8 @@ export function FileImporter({ onImportComplete }: FileImporterProps) {
           .insert({
             story_id: storyId,
             title: chapter.title,
-            order_index: i
+            order: chapter.order || i + 1,
+            status: chapter.status || 'draft'
           })
           .select()
           .single();
@@ -184,7 +223,8 @@ export function FileImporter({ onImportComplete }: FileImporterProps) {
             .from('panels')
             .insert({
               chapter_id: chapterId,
-              order_index: panel.order,
+              order: panel.order,
+              image: panel.image || null
             })
             .select()
             .single();
@@ -211,13 +251,20 @@ export function FileImporter({ onImportComplete }: FileImporterProps) {
               stage: `Creating sentence ${k + 1}/${panel.sentences.length} for panel ${j + 1}` 
             });
             
+            // Handle both old and new format
+            const japanese = sentence.japanese || sentence.text;
+            const english = sentence.english || sentence.translation;
+            const notes = sentence.notes || '';
+            const order = sentence.order || k + 1;
+            
             const { data: sentenceData, error: sentenceError } = await supabase
               .from('sentences')
               .insert({
                 panel_id: panelId,
-                text: sentence.text,
-                translation: sentence.translation,
-                order_index: k
+                japanese,
+                english,
+                notes,
+                order
               })
               .select()
               .single();
@@ -230,12 +277,34 @@ export function FileImporter({ onImportComplete }: FileImporterProps) {
             
             // 5. Create words for this sentence
             if (sentence.words.length > 0) {
-              const wordsToInsert = sentence.words.map((word: { text: string; translation: string; position: number }) => ({
-                sentence_id: sentenceId,
-                text: word.text,
-                translation: word.translation,
-                position: word.position
-              }));
+              // Convert words to the expected format, handling both old and new formats
+              const wordsToInsert = sentence.words.map(word => {
+                if ('text' in word && 'translation' in word) {
+                  // Old format
+                  return {
+                    sentence_id: sentenceId,
+                    japanese: word.text,
+                    reading: '',
+                    english: word.translation,
+                    part_of_speech: null,
+                    grammar_notes: null,
+                    additional_notes: null,
+                    order: word.position || 0
+                  };
+                } else {
+                  // New format
+                  return {
+                    sentence_id: sentenceId,
+                    japanese: word.japanese,
+                    reading: word.reading || '',
+                    english: word.english,
+                    part_of_speech: word.part_of_speech || null,
+                    grammar_notes: word.grammar_notes || null,
+                    additional_notes: word.additional_notes || null,
+                    order: word.order || 0
+                  };
+                }
+              });
               
               const { error: wordsError } = await supabase
                 .from('words')

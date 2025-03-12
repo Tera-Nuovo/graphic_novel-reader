@@ -23,6 +23,7 @@ import { useEnsureBuckets } from '@/lib/hooks/use-ensure-buckets'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
 import { ChapterImporter } from "@/components/chapter-importer"
+import { ChapterExporter } from "@/components/chapter-exporter"
 import {
   Dialog,
   DialogContent,
@@ -470,21 +471,32 @@ export default function ChapterPanelsPage() {
         <div className="flex items-center gap-4">
           <Dialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline">Import from File</Button>
+              <Button variant="outline">Import/Export Data</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[600px]">
               <DialogHeader>
-                <DialogTitle>Import Chapter Data</DialogTitle>
+                <DialogTitle>Import & Export Chapter Data</DialogTitle>
                 <DialogDescription>
-                  Upload a JSON file with panels, sentences, and words data to import into this chapter.
+                  Import panels from a JSON file or export current chapter data to a file.
                 </DialogDescription>
               </DialogHeader>
-              <div className="py-4">
-                <ChapterImporter 
-                  storyId={storyId as string} 
-                  chapterId={chapterId as string}
-                  onImportComplete={handleImportComplete}
-                />
+              <div className="py-4 space-y-6">
+                <div className="border rounded-md p-4">
+                  <h3 className="font-medium mb-3">Import Chapter Data</h3>
+                  <ChapterImporter 
+                    storyId={storyId as string} 
+                    chapterId={chapterId as string}
+                    onImportComplete={handleImportComplete}
+                  />
+                </div>
+                
+                <div className="border rounded-md p-4">
+                  <h3 className="font-medium mb-3">Export Chapter Data</h3>
+                  <ChapterExporter 
+                    storyId={storyId as string} 
+                    chapterId={chapterId as string} 
+                  />
+                </div>
               </div>
             </DialogContent>
           </Dialog>

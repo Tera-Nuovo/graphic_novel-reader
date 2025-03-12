@@ -18,6 +18,7 @@ import { ImageUpload } from "@/components/image-upload"
 import { useEnsureBuckets } from '@/lib/hooks/use-ensure-buckets'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
+import { StoryExporter } from "@/components/story-exporter"
 
 export default function EditStoryPage() {
   const router = useRouter()
@@ -285,6 +286,13 @@ export default function EditStoryPage() {
             </Button>
           </div>
         </form>
+
+        <Card>
+          <CardContent className="p-6">
+            <h2 className="text-xl font-bold mb-4">Export Story</h2>
+            <StoryExporter storyId={storyId} storyData={storyData as Story} />
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

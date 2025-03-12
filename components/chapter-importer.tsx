@@ -7,20 +7,34 @@ import { Check, AlertTriangle, Upload } from "lucide-react";
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 interface ImportedWord {
-  text: string;
-  translation: string;
-  position: number;
+  text?: string;
+  translation?: string;
+  position?: number;
+  // New format properties
+  japanese?: string;
+  reading?: string;
+  english?: string;
+  part_of_speech?: string | null;
+  grammar_notes?: string | null;
+  additional_notes?: string | null;
+  order?: number;
 }
 
 interface ImportedSentence {
-  text: string;
-  translation: string;
+  text?: string;
+  translation?: string;
+  // New format properties
+  japanese?: string;
+  english?: string;
+  notes?: string | null;
+  order?: number;
   words: ImportedWord[];
 }
 
 interface ImportedPanel {
   order: number;
   sentences: ImportedSentence[];
+  image?: string;
 }
 
 interface ImportedChapter {
@@ -120,23 +134,42 @@ export function ChapterImporter({ storyId, chapterId, onImportComplete }: Chapte
     return importedChapter.panels.map((panel, index) => {
       return {
         id: index + 1, // Generate sequential IDs
-        image: null, // No image in imported data
+        image: panel.image || null, // Use image if available
         sentences: panel.sentences.map((sentence, sentenceIndex) => {
+          // Check format: old format has 'text' and 'translation', new format has 'japanese' and 'english'
+          const japanese = 'japanese' in sentence ? sentence.japanese : sentence.text;
+          const english = 'english' in sentence ? sentence.english : sentence.translation;
+          const notes = 'notes' in sentence ? sentence.notes : "";
+          
           return {
             id: sentenceIndex + 1,
-            japanese: sentence.text,
-            english: sentence.translation,
-            notes: "",
+            japanese,
+            english,
+            notes,
             words: sentence.words.map((word, wordIndex) => {
-              return {
-                id: wordIndex + 1,
-                japanese: word.text,
-                reading: "", // No reading in imported data
-                english: word.translation,
-                partOfSpeech: "",
-                grammarNotes: "",
-                additionalNotes: "",
-              };
+              // Check if word is in old format (text, translation, position) or new format
+              if ('text' in word && 'translation' in word) {
+                return {
+                  id: wordIndex + 1,
+                  japanese: word.text,
+                  reading: "", // No reading in old format
+                  english: word.translation,
+                  partOfSpeech: "",
+                  grammarNotes: "",
+                  additionalNotes: "",
+                };
+              } else {
+                // New format with more details
+                return {
+                  id: wordIndex + 1,
+                  japanese: word.japanese,
+                  reading: word.reading || "",
+                  english: word.english,
+                  partOfSpeech: word.part_of_speech || "",
+                  grammarNotes: word.grammar_notes || "",
+                  additionalNotes: word.additional_notes || "",
+                };
+              }
             }),
           };
         }),

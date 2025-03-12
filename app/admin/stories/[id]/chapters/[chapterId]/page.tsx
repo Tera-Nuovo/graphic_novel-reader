@@ -13,6 +13,7 @@ import { getChapterById, updateChapter, getStoryById } from "@/lib/db"
 import { useAuth } from "@/lib/auth"
 import { toast } from "@/components/ui/use-toast"
 import { Chapter, Story } from "@/lib/types"
+import { ChapterExporter } from "@/components/chapter-exporter"
 
 export default function EditChapterPage() {
   const router = useRouter()
@@ -171,37 +172,37 @@ export default function EditChapterPage() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <Card className="mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Edit chapter details */}
+          <Card>
             <CardContent className="pt-6">
-              <div className="grid gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="title">Chapter Title</Label>
-                  <Input 
-                    id="title" 
-                    placeholder="Enter chapter title" 
-                    value={chapterData.title || ''}
-                    onChange={(e) => handleInputChange("title", e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="grid gap-6 grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="order">Order</Label>
-                    <Input 
-                      id="order" 
-                      type="number"
-                      min="1"
-                      placeholder="Enter chapter order" 
-                      value={chapterData.order || '1'}
-                      onChange={(e) => handleInputChange("order", e.target.value)}
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="title">Title</Label>
+                    <Input
+                      id="title"
+                      value={chapterData.title || ""}
+                      onChange={(e) => handleInputChange("title", e.target.value)}
                       required
                     />
                   </div>
-                  <div className="space-y-2">
+                  
+                  <div>
+                    <Label htmlFor="order">Order</Label>
+                    <Input
+                      id="order"
+                      type="number"
+                      value={chapterData.order || 1}
+                      onChange={(e) => handleInputChange("order", parseInt(e.target.value))}
+                      required
+                    />
+                  </div>
+                  
+                  <div>
                     <Label htmlFor="status">Status</Label>
-                    <Select 
-                      value={chapterData.status || 'draft'}
+                    <Select
+                      value={chapterData.status || "draft"}
                       onValueChange={(value) => handleInputChange("status", value)}
                     >
                       <SelectTrigger id="status">
@@ -214,19 +215,31 @@ export default function EditChapterPage() {
                     </Select>
                   </div>
                 </div>
+                
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading ? "Saving..." : "Save Chapter"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+          
+          {/* Chapter Exporter */}
+          <Card>
+            <CardContent className="pt-6">
+              <h2 className="text-xl font-bold mb-4">Export Chapter</h2>
+              <ChapterExporter storyId={storyId} chapterId={chapterId} chapterData={chapterData as Chapter} />
+              
+              <div className="mt-6">
+                <h3 className="font-semibold mb-2">Edit Chapter Content</h3>
+                <Button asChild className="w-full">
+                  <Link href={`/admin/stories/${storyId}/chapters/${chapterId}/panels`}>
+                    Manage Panels and Content
+                  </Link>
+                </Button>
               </div>
             </CardContent>
           </Card>
-
-          <div className="flex justify-end gap-4">
-            <Button variant="outline" type="button" onClick={() => router.push(`/admin/stories/${storyId}/chapters`)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Updating..." : "Update Chapter"}
-            </Button>
-          </div>
-        </form>
+        </div>
       </div>
     </div>
   )
