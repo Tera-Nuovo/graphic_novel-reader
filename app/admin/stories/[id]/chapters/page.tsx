@@ -10,6 +10,7 @@ import { getStoryById, getChaptersByStoryId, deleteChapter } from "@/lib/db"
 import { useAuth } from "@/lib/auth"
 import { toast } from "@/components/ui/use-toast"
 import { Story, Chapter } from "@/lib/types"
+import { ChapterImporter } from "@/components/chapter-importer"
 
 export default function StoryChaptersPage() {
   const params = useParams()
@@ -20,32 +21,32 @@ export default function StoryChaptersPage() {
   const [story, setStory] = useState<Story | null>(null)
   const [chapters, setChapters] = useState<Chapter[]>([])
 
-  useEffect(() => {
-    async function fetchData() {
-      if (!storyId || !user) return
+  const fetchData = async () => {
+    if (!storyId || !user) return
+    
+    try {
+      setIsFetching(true)
       
-      try {
-        setIsFetching(true)
-        
-        // Fetch story data
-        const storyData = await getStoryById(storyId)
-        setStory(storyData)
-        
-        // Fetch chapters data
-        const chaptersData = await getChaptersByStoryId(storyId)
-        setChapters(chaptersData)
-      } catch (error) {
-        console.error("Error fetching data:", error)
-        toast({
-          title: "Error",
-          description: "Failed to load story and chapters",
-          variant: "destructive",
-        })
-      } finally {
-        setIsFetching(false)
-      }
+      // Fetch story data
+      const storyData = await getStoryById(storyId)
+      setStory(storyData)
+      
+      // Fetch chapters data
+      const chaptersData = await getChaptersByStoryId(storyId)
+      setChapters(chaptersData)
+    } catch (error) {
+      console.error("Error fetching data:", error)
+      toast({
+        title: "Error",
+        description: "Failed to load story and chapters",
+        variant: "destructive",
+      })
+    } finally {
+      setIsFetching(false)
     }
+  }
 
+  useEffect(() => {
     fetchData()
   }, [storyId, user])
 
@@ -129,12 +130,26 @@ export default function StoryChaptersPage() {
 
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-bold">Chapters</h2>
-          <Button asChild>
-            <Link href={`/admin/stories/${storyId}/chapters/create`}>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Chapter
-            </Link>
-          </Button>
+          <div className="flex space-x-2">
+            <ChapterImporter 
+              storyId={storyId} 
+              onComplete={() => {
+                // Refresh the chapters data
+                fetchData();
+                
+                toast({
+                  title: "Chapter imported",
+                  description: "Chapter has been imported successfully",
+                });
+              }} 
+            />
+            <Button asChild>
+              <Link href={`/admin/stories/${storyId}/chapters/create`}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Chapter
+              </Link>
+            </Button>
+          </div>
         </div>
 
         {chapters.length === 0 ? (
