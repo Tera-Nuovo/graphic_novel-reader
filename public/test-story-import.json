@@ -4,7 +4,7 @@
   "description": "A heartwarming story about a young girl who discovers a magical forest and the creatures who live there. This beginner-friendly manga introduces basic Japanese vocabulary and simple sentence structures.",
   "difficulty_level": "beginner",
   "tags": ["fantasy", "slice of life", "nature", "friendship"],
-  "cover_image": null,
+  "cover_image": "https://images.unsplash.com/photo-1503435980610-a51f3ddfee50?q=80&w=1000",
   "status": "published",
   "chapters": [
     {
@@ -14,7 +14,7 @@
       "panels": [
         {
           "order": 1,
-          "image": null,
+          "image": "https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?q=80&w=1000",
           "sentences": [
             {
               "japanese": "朝、さくらは森に入りました。",
@@ -171,7 +171,7 @@
         },
         {
           "order": 2,
-          "image": null,
+          "image": "https://images.unsplash.com/photo-1501854140801-50d01698950b?q=80&w=1000",
           "sentences": [
             {
               "japanese": "突然、小さな声が聞こえました。",
@@ -326,7 +326,7 @@
       "panels": [
         {
           "order": 1,
-          "image": null,
+          "image": "https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=1000",
           "sentences": [
             {
               "japanese": "さくらは驚いて立ち止まりました。",
@@ -483,7 +483,7 @@
         },
         {
           "order": 2,
-          "image": null,
+          "image": "https://images.unsplash.com/photo-1520962880247-cfaf541c8724?q=80&w=1000",
           "sentences": [
             {
               "japanese": "花の後ろから小さな妖精が現れました。",
@@ -692,7 +692,7 @@
       "panels": [
         {
           "order": 1,
-          "image": null,
+          "image": "https://images.unsplash.com/photo-1507038732509-8b1a9623223a?q=80&w=1000",
           "sentences": [
             {
               "japanese": "レイナは空中に浮かびながら言いました。",
@@ -876,7 +876,7 @@
         },
         {
           "order": 2,
-          "image": null,
+          "image": "https://images.unsplash.com/photo-1507038732509-8b1a9623223a?q=80&w=1000",
           "sentences": [
             {
               "japanese": "「力？どんな力ですか？」と、さくらは尋ねました。",

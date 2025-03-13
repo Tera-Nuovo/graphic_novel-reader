@@ -6,6 +6,7 @@
       "panels": [
         {
           "order": 1,
+          "image": "https://images.unsplash.com/photo-1547414368-ac947d00b440?q=80&w=1000",
           "sentences": [
             {
               "japanese": "昨日、新しい本を買いました。",
@@ -153,6 +154,7 @@
         },
         {
           "order": 2,
+          "image": "https://images.unsplash.com/photo-1509266272358-7701da638078?q=80&w=1000",
           "sentences": [
             {
               "japanese": "毎日、一時間日本語を勉強しています。",
@@ -268,6 +270,7 @@
         },
         {
           "order": 3,
+          "image": "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=1000",
           "sentences": [
             {
               "japanese": "来週、友達と日本語で話してみます。",
