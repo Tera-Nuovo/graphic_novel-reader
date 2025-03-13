@@ -106,74 +106,51 @@ function SmartFurigana({
     }
   }
   
-  // Now, try to map readings to kanji segments using a simple heuristic
-  // This approach uses knowledge of how Japanese syllables work
-  let readingIndex = 0;
+  // Simplify our approach for kanji reading assignment
+  // Let's count kanji characters and map them directly
+  const kanjiPositions: number[] = [];
+  japaneseChars.forEach((char, index) => {
+    if (isKanji(char)) {
+      kanjiPositions.push(index);
+    }
+  });
+  
+  // Map furigana to each kanji character
+  const furiganaMap: Map<number, string> = new Map();
+  
+  // Simple approach: split furigana by syllables
   const readingChars = [...furigana];
+  let currentKanjiIndex = 0;
   
-  for (let i = 0; i < segments.length; i++) {
-    const segment = segments[i];
+  // For each segment, assign readings only to kanji segments
+  for (const segment of segments) {
+    if (!segment.isKanji) continue;
     
-    if (!segment.isKanji) {
-      // For non-kanji segments, we advance the reading index by the number of kana
-      // that would be expected for these characters (approximation)
-      const kanaCount = [...segment.text].filter(char => isKana(char)).length;
-      readingIndex += kanaCount;
-      continue;
-    }
+    // Each kanji character in this segment needs a reading
+    const segmentChars = [...segment.text];
+    let segmentReading = '';
     
-    // For kanji segments, we need to determine how much of the reading to assign
-    // This is a heuristic - in real Japanese, readings don't always map 1:1 with characters
-    
-    // Check if we still have readings left
-    if (readingIndex >= readingChars.length) {
-      continue; // Skip if we've run out of readings
-    }
-    
-    // For kanji segments, estimate reading length based on the segment length
-    // and available remaining reading characters
-    const estimatedReadingLength = Math.min(
-      // At least the number of kanji characters
-      segment.text.length,
-      // But no more than remaining reading characters
-      readingChars.length - readingIndex,
-      // And add some extra for okurigana if needed
-      segment.text.length + 2
-    );
-    
-    // Assign reading
-    segment.reading = furigana.substring(readingIndex, readingIndex + estimatedReadingLength);
-    
-    // Advance reading index
-    readingIndex += estimatedReadingLength;
-  }
-  
-  // For advanced cases, we need to determine where readings start and end more precisely
-  // Adjust readings for Japanese linguistic patterns (very simplified)
-  if (segments.length > 1) {
-    // Scan for typical verb and adjective patterns
-    // This is a massive simplification and only handles some common cases
-    for (let i = 0; i < segments.length - 1; i++) {
-      const current = segments[i];
-      const next = segments[i + 1];
+    // For each kanji in this segment, get a reading from the furigana
+    for (let i = 0; i < segmentChars.length; i++) {
+      // Make sure we don't run out of kanji indices
+      if (currentKanjiIndex >= kanjiPositions.length) break;
       
-      // If we have kanji followed by non-kanji, the reading might extend
-      // beyond just the kanji (e.g., 食べる -> たべる)
-      if (current.isKanji && !next.isKanji && current.reading) {
-        // Check if the next segment starts with certain hiragana that often
-        // follow kanji as part of the same reading unit
-        const commonOkurigana = ["る", "す", "く", "ぐ", "む", "ぶ", "ぬ", "う", "つ", "れ", "せ", "け"];
-        if (next.text.length > 0 && commonOkurigana.some(okurigana => next.text.startsWith(okurigana))) {
-          // Adjust the reading to include part of the next segment
-          if (current.reading && next.text.length > 0) {
-            // Simple heuristic: Take one more character from reading
-            const extendedReading = current.reading + readingChars[readingIndex];
-            current.reading = extendedReading;
-            readingIndex += 1;
-          }
-        }
-      }
+      // Get position of this kanji in the original string
+      const kanjiPos = kanjiPositions[currentKanjiIndex];
+      
+      // Basic heuristic: assign one character from furigana to each kanji
+      // This is very simplified but works for many cases
+      const readingChar = readingChars[kanjiPos < readingChars.length ? kanjiPos : 0] || '';
+      
+      // Add this reading to our segment reading
+      segmentReading += readingChar;
+      
+      // Move to next kanji
+      currentKanjiIndex++;
     }
+    
+    // Assign the combined reading to this segment
+    segment.reading = segmentReading.length > 0 ? segmentReading : undefined;
   }
   
   // Now render the segments
@@ -689,7 +666,7 @@ export default function ReaderPage() {
               {/* Text content */}
               <div className="space-y-6">
                 <div className="relative group">
-                  <div className="flex flex-wrap gap-x-1 text-lg leading-loose">
+                    <div className="flex flex-wrap gap-x-1 text-lg leading-loose">
                     {panel.sentences.map((sentence, sentenceIndex) => (
                       <React.Fragment key={sentence.id}>
                         {sentence.words.map((word, wordIndex) => (
@@ -705,16 +682,16 @@ export default function ReaderPage() {
                               />
                             </div>
                           </div>
-                        ))}
-                        <Button
-                          variant="ghost"
-                          size="icon"
+                      ))}
+                      <Button
+                        variant="ghost"
+                        size="icon"
                           className="h-6 w-6 ml-1 opacity-0 group-hover:opacity-100 transition-opacity self-end mb-1 -ml-1"
                           onClick={(e) => handleSentenceClick(sentence.translation, panel.id, e)}
-                        >
-                          <MessageCircle className="h-4 w-4" />
+                      >
+                        <MessageCircle className="h-4 w-4" />
                           <span className="sr-only">Show translation</span>
-                        </Button>
+                      </Button>
                         {/* Add a small space after each sentence except the last one */}
                         {sentenceIndex < panel.sentences.length - 1 && (
                           <span className="mx-1"></span>
@@ -734,25 +711,25 @@ export default function ReaderPage() {
                   height={400}
                   className="w-full"
                 />
-              </div>
+        </div>
 
               {/* Word popup */}
               {selectedWord && selectedWord.panelId === panel.id && (
-                <WordPopover
-                  word={selectedWord.word}
-                  position={selectedWord.position}
-                  onClose={() => setSelectedWord(null)}
-                />
-              )}
+          <WordPopover
+            word={selectedWord.word}
+            position={selectedWord.position}
+            onClose={() => setSelectedWord(null)}
+          />
+        )}
 
               {/* Sentence popup */}
               {selectedSentence && selectedSentence.panelId === panel.id && (
-                <SentencePopover
-                  translation={selectedSentence.translation}
-                  position={selectedSentence.position}
-                  onClose={() => setSelectedSentence(null)}
-                />
-              )}
+          <SentencePopover
+            translation={selectedSentence.translation}
+            position={selectedSentence.position}
+            onClose={() => setSelectedSentence(null)}
+          />
+        )}
             </Card>
           ))}
         </div>
