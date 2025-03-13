@@ -63,7 +63,7 @@ function isKana(char: string): boolean {
          (code >= 0x30a0 && code <= 0x30ff);   // Katakana
 }
 
-// Component to intelligently render a Japanese word with furigana only on kanji
+// Replace the current SmartFurigana component with this improved version
 function SmartFurigana({ 
   japanese, 
   furigana 
@@ -71,20 +71,121 @@ function SmartFurigana({
   japanese: string; 
   furigana: string; 
 }): JSX.Element {
-  // If the word doesn't contain any kanji, just return the word without furigana
+  // If no Japanese text or no furigana, just return the Japanese text
+  if (!japanese || !furigana) {
+    return <span>{japanese}</span>;
+  }
+  
+  // Check if the word is all kana (hiragana/katakana)
   if ([...japanese].every(char => !isKanji(char))) {
     return <span>{japanese}</span>;
   }
   
-  // For simplicity in this first implementation, if the word has kanji,
-  // we'll use the standard furigana approach.
-  // A more sophisticated implementation would map each kanji character to its specific reading
-  return (
-    <ruby>
-      {japanese}
-      <rt className="text-xs text-muted-foreground">{furigana}</rt>
-    </ruby>
-  );
+  // For words with a mix of kanji and kana, we need a more sophisticated approach
+  const japaneseChars = [...japanese];
+  
+  // Implementation for words that start with kanji
+  if (isKanji(japaneseChars[0])) {
+    // Count consecutive kanji at the beginning
+    let kanjiCount = 0;
+    while (kanjiCount < japaneseChars.length && isKanji(japaneseChars[kanjiCount])) {
+      kanjiCount++;
+    }
+    
+    // Get the reading for the kanji portion
+    const kanjiReading = furigana.substring(0, kanjiCount);
+    
+    // Create output elements
+    const elements: JSX.Element[] = [];
+    
+    // Add kanji with furigana
+    elements.push(
+      <ruby key="kanji-part">
+        {japanese.substring(0, kanjiCount)}
+        <rt className="text-xs text-muted-foreground">{kanjiReading}</rt>
+      </ruby>
+    );
+    
+    // Add the rest of the word without furigana
+    if (kanjiCount < japaneseChars.length) {
+      elements.push(
+        <span key="kana-part">{japanese.substring(kanjiCount)}</span>
+      );
+    }
+    
+    return <>{elements}</>;
+  }
+  
+  // More complex cases - handle words with kanji in the middle
+  const elements: JSX.Element[] = [];
+  let currentKanjiStart = -1;
+  let currentNonKanjiStart = 0;
+  
+  // Process the word character by character
+  for (let i = 0; i < japaneseChars.length; i++) {
+    const isCurrentCharKanji = isKanji(japaneseChars[i]);
+    
+    if (isCurrentCharKanji && currentKanjiStart === -1) {
+      // Found start of a kanji sequence
+      
+      // Add any non-kanji characters before this
+      if (i > currentNonKanjiStart) {
+        elements.push(
+          <span key={`non-kanji-${currentNonKanjiStart}`}>
+            {japanese.substring(currentNonKanjiStart, i)}
+          </span>
+        );
+      }
+      
+      currentKanjiStart = i;
+    } 
+    else if (!isCurrentCharKanji && currentKanjiStart !== -1) {
+      // End of a kanji sequence
+      
+      // The reading for this kanji is estimated based on position
+      // This is a simplified approach and not perfect for all Japanese words
+      const kanjiLength = i - currentKanjiStart;
+      const readingStart = currentKanjiStart; // Estimate reading position
+      const readingEnd = readingStart + kanjiLength;
+      const reading = furigana.substring(readingStart, readingEnd);
+      
+      elements.push(
+        <ruby key={`kanji-${currentKanjiStart}`}>
+          {japanese.substring(currentKanjiStart, i)}
+          <rt className="text-xs text-muted-foreground">{reading}</rt>
+        </ruby>
+      );
+      
+      currentKanjiStart = -1;
+      currentNonKanjiStart = i;
+    }
+  }
+  
+  // Handle any remaining characters
+  if (currentKanjiStart !== -1) {
+    // End with kanji
+    const kanjiLength = japaneseChars.length - currentKanjiStart;
+    const readingStart = currentKanjiStart;
+    const readingEnd = readingStart + kanjiLength;
+    const reading = furigana.substring(readingStart, readingEnd);
+    
+    elements.push(
+      <ruby key={`kanji-${currentKanjiStart}`}>
+        {japanese.substring(currentKanjiStart)}
+        <rt className="text-xs text-muted-foreground">{reading}</rt>
+      </ruby>
+    );
+  } 
+  else if (currentNonKanjiStart < japaneseChars.length) {
+    // End with non-kanji
+    elements.push(
+      <span key={`non-kanji-${currentNonKanjiStart}`}>
+        {japanese.substring(currentNonKanjiStart)}
+      </span>
+    );
+  }
+  
+  return <>{elements}</>;
 }
 
 export default function ReaderPage() {
