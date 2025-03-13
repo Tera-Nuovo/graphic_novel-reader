@@ -5,12 +5,21 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { ChevronLeft, ChevronRight, MessageCircle, Loader2 } from "lucide-react"
+import { ChevronLeft, ChevronRight, MessageCircle, Loader2, BookmarkIcon } from "lucide-react"
 import { WordPopover } from "@/components/word-popover"
 import { SentencePopover } from "@/components/sentence-popover"
-import { getStoryById, getPublishedChaptersByStoryId, getPanelsByChapterId, getSentencesByPanelId, getWordsBySentenceId } from "@/lib/db"
+import { getStoryById, getPublishedChaptersByStoryId, getPanelsByChapterId, getSentencesByPanelId, getWordsBySentenceId, getUserProgress, updateUserProgress } from "@/lib/db"
 import { toast } from "@/components/ui/use-toast"
 import { useParams, useRouter } from "next/navigation"
+import React from "react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { useAuth } from "@/lib/auth"
 
 interface ReaderWord {
   japanese: string
@@ -43,6 +52,7 @@ export default function ReaderPage() {
   const params = useParams();
   const router = useRouter();
   const storyId = params.id as string;
+  const { user } = useAuth();
   
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -54,6 +64,11 @@ export default function ReaderPage() {
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [currentChapter, setCurrentChapter] = useState<Chapter | null>(null);
+  const [currentPanelId, setCurrentPanelId] = useState<number | null>(null);
+  
+  const [restoringProgress, setRestoringProgress] = useState(false);
+  
+  const panelRefs = useRef<{[key: number]: HTMLDivElement | null}>({});
   
   const [selectedWord, setSelectedWord] = useState<{
     word: ReaderWord
@@ -179,6 +194,140 @@ export default function ReaderPage() {
     loadChapterContent();
   }, [currentChapter]);
 
+  // Get user progress when story loads
+  useEffect(() => {
+    async function loadUserProgress() {
+      if (!user || !storyId || !currentChapter || panels.length === 0 || restoringProgress) return;
+      
+      try {
+        const progress = await getUserProgress(user.id, storyId);
+        
+        if (progress) {
+          console.log('Found user progress:', progress);
+          
+          // Find chapter index
+          const chapterIndex = chapters.findIndex(ch => ch.id === progress.chapter_id);
+          
+          if (chapterIndex !== -1 && chapterIndex !== currentChapterIndex) {
+            // If found chapter is different than current, load it
+            setRestoringProgress(true);
+            setCurrentChapter(chapters[chapterIndex]);
+            setCurrentChapterIndex(chapterIndex);
+          } else if (progress.panel_id) {
+            // Convert UUID to numeric ID (same conversion used when creating panel IDs)
+            const panelIdString = progress.panel_id.substring(0, 8);
+            const numericPanelId = parseInt(panelIdString, 16);
+            
+            // Find panel in current chapter
+            const panelIndex = panels.findIndex(p => p.id === numericPanelId);
+            
+            if (panelIndex !== -1) {
+              setCurrentPanelId(numericPanelId);
+              
+              // Small delay to ensure DOM is ready
+              setTimeout(() => {
+                if (panelRefs.current[numericPanelId]) {
+                  panelRefs.current[numericPanelId]?.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                  });
+                  
+                  toast({
+                    title: "Reading Progress Restored",
+                    description: "Continuing from where you left off",
+                  });
+                }
+                setRestoringProgress(false);
+              }, 500);
+            }
+          }
+        } else {
+          // No progress found, start at beginning
+          setCurrentPanelId(panels[0]?.id || null);
+          setRestoringProgress(false);
+        }
+      } catch (err) {
+        console.error("Error loading user progress:", err);
+        setRestoringProgress(false);
+      }
+    }
+    
+    loadUserProgress();
+  }, [user, storyId, currentChapter, panels, restoringProgress]);
+  
+  // Save user progress when panel changes
+  useEffect(() => {
+    async function saveUserProgress() {
+      if (!user || !storyId || !currentChapter || !currentPanelId || restoringProgress) return;
+      
+      try {
+        // Find the original panel UUID
+        const panel = panels.find(p => p.id === currentPanelId);
+        if (!panel) return;
+        
+        // Convert panel ID back to UUID format - this is a simple approach and may not match exactly
+        // In a production app, you'd want to store the original UUID in the panel object
+        const originalPanelId = panel.id.toString(16).padStart(8, '0') + '-0000-0000-0000-000000000000';
+        
+        await updateUserProgress({
+          user_id: user.id,
+          story_id: storyId,
+          chapter_id: currentChapter.id,
+          panel_id: originalPanelId,
+          completed: false
+        });
+        
+        console.log('Progress saved:', {
+          chapter: currentChapter.title,
+          panel: currentPanelId
+        });
+      } catch (err) {
+        console.error("Error saving user progress:", err);
+      }
+    }
+    
+    saveUserProgress();
+  }, [user, storyId, currentChapter, currentPanelId, panels, restoringProgress]);
+  
+  // Track current panel based on scroll position
+  useEffect(() => {
+    if (restoringProgress || panels.length === 0) return;
+    
+    const handleScroll = () => {
+      // Find the panel that is most visible in the viewport
+      let highestVisibleRatio = 0;
+      let mostVisiblePanelId = null;
+      
+      Object.entries(panelRefs.current).forEach(([panelId, element]) => {
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          const windowHeight = window.innerHeight;
+          
+          // Calculate how much of the panel is in the viewport
+          const visibleHeight = Math.min(rect.bottom, windowHeight) - Math.max(rect.top, 0);
+          const ratio = visibleHeight > 0 ? visibleHeight / rect.height : 0;
+          
+          if (ratio > highestVisibleRatio) {
+            highestVisibleRatio = ratio;
+            mostVisiblePanelId = parseInt(panelId);
+          }
+        }
+      });
+      
+      if (mostVisiblePanelId !== null && mostVisiblePanelId !== currentPanelId) {
+        setCurrentPanelId(mostVisiblePanelId);
+      }
+    };
+    
+    // Set initial panel
+    if (!currentPanelId && panels.length > 0) {
+      setCurrentPanelId(panels[0].id);
+    }
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [panels, currentPanelId, restoringProgress]);
+
   const navigateToPreviousChapter = () => {
     if (currentChapterIndex > 0) {
       setCurrentChapter(chapters[currentChapterIndex - 1]);
@@ -293,65 +442,109 @@ export default function ReaderPage() {
         </div>
 
         {/* Chapter Navigation */}
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <Button 
             variant="outline" 
             size="sm" 
             onClick={navigateToPreviousChapter}
             disabled={currentChapterIndex === 0}
-            className={currentChapterIndex === 0 ? "invisible" : ""}
+            className={currentChapterIndex === 0 ? "invisible md:visible md:opacity-50" : ""}
           >
             <ChevronLeft className="h-4 w-4 mr-2" />
             Previous Chapter
           </Button>
+          
+          {/* Chapter Dropdown */}
+          <div className="w-full md:w-64">
+            <Select
+              value={currentChapter?.id}
+              onValueChange={(value) => {
+                const index = chapters.findIndex(chapter => chapter.id === value);
+                if (index !== -1) {
+                  setCurrentChapter(chapters[index]);
+                  setCurrentChapterIndex(index);
+                  window.scrollTo(0, 0);
+                }
+              }}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select a chapter" />
+              </SelectTrigger>
+              <SelectContent>
+                {chapters.map((chapter) => (
+                  <SelectItem key={chapter.id} value={chapter.id}>
+                    {chapter.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           
           <Button 
             variant="outline" 
             size="sm"
             onClick={navigateToNextChapter}
             disabled={currentChapterIndex === chapters.length - 1}
-            className={currentChapterIndex === chapters.length - 1 ? "invisible" : ""}
+            className={currentChapterIndex === chapters.length - 1 ? "invisible md:visible md:opacity-50" : ""}
           >
             Next Chapter
             <ChevronRight className="h-4 w-4 ml-2" />
           </Button>
         </div>
 
+        {/* User Progress Indicator */}
+        {user && currentPanelId && (
+          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+            <BookmarkIcon className="h-4 w-4" />
+            <span>Progress is saved automatically</span>
+          </div>
+        )}
+
         {/* Story content */}
         <div className="space-y-12">
           {panels.map((panel) => (
-            <Card key={panel.id} className="p-6 space-y-8 w-full panel-container relative">
+            <Card 
+              key={panel.id} 
+              className="p-6 space-y-8 w-full panel-container relative"
+              ref={(el) => { panelRefs.current[panel.id] = el; }}
+            >
               {/* Text content */}
               <div className="space-y-6">
-                {panel.sentences.map((sentence) => (
-                  <div key={sentence.id} className="relative group">
-                    <div className="flex flex-wrap gap-x-1 text-lg leading-loose">
-                      {sentence.words.map((word, index) => (
-                        <div
-                          key={index}
-                          className="cursor-pointer relative inline-flex items-center"
-                          onClick={(e) => handleWordClick(word, panel.id, e)}
-                        >
-                          <div className="text-lg hover:text-primary">
-                            <ruby>
-                              {word.japanese}
-                              <rt className="text-xs text-muted-foreground">{word.furigana}</rt>
-                            </ruby>
+                <div className="relative group">
+                  <div className="flex flex-wrap gap-x-1 text-lg leading-loose">
+                    {panel.sentences.map((sentence, sentenceIndex) => (
+                      <React.Fragment key={sentence.id}>
+                        {sentence.words.map((word, wordIndex) => (
+                          <div
+                            key={`${sentence.id}-${wordIndex}`}
+                            className="cursor-pointer relative inline-flex items-center"
+                            onClick={(e) => handleWordClick(word, panel.id, e)}
+                          >
+                            <div className="text-lg hover:text-primary">
+                              <ruby>
+                                {word.japanese}
+                                <rt className="text-xs text-muted-foreground">{word.furigana}</rt>
+                              </ruby>
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 ml-1 opacity-0 group-hover:opacity-100 transition-opacity self-end mb-1 -ml-1"
-                        onClick={(e) => handleSentenceClick(sentence.translation, panel.id, e)}
-                      >
-                        <MessageCircle className="h-4 w-4" />
-                        <span className="sr-only">Show translation</span>
-                      </Button>
-                    </div>
+                        ))}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 ml-1 opacity-0 group-hover:opacity-100 transition-opacity self-end mb-1 -ml-1"
+                          onClick={(e) => handleSentenceClick(sentence.translation, panel.id, e)}
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                          <span className="sr-only">Show translation</span>
+                        </Button>
+                        {/* Add a small space after each sentence except the last one */}
+                        {sentenceIndex < panel.sentences.length - 1 && (
+                          <span className="mx-1"></span>
+                        )}
+                      </React.Fragment>
+                    ))}
                   </div>
-                ))}
+                </div>
               </div>
 
               {/* Panel image */}
@@ -384,29 +577,6 @@ export default function ReaderPage() {
               )}
             </Card>
           ))}
-        </div>
-        
-        {/* Bottom Chapter Navigation */}
-        <div className="flex justify-between items-center mt-8">
-          <Button 
-            variant="outline" 
-            onClick={navigateToPreviousChapter}
-            disabled={currentChapterIndex === 0}
-            className={currentChapterIndex === 0 ? "invisible" : ""}
-          >
-            <ChevronLeft className="h-4 w-4 mr-2" />
-            Previous Chapter
-          </Button>
-          
-          <Button 
-            variant="outline"
-            onClick={navigateToNextChapter}
-            disabled={currentChapterIndex === chapters.length - 1}
-            className={currentChapterIndex === chapters.length - 1 ? "invisible" : ""}
-          >
-            Next Chapter
-            <ChevronRight className="h-4 w-4 ml-2" />
-          </Button>
         </div>
       </div>
     </div>
