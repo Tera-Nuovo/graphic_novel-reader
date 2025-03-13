@@ -279,7 +279,10 @@ export function ChapterImporter({ storyId, onComplete }: ChapterImporterProps) {
                 
                 // Create words
                 if (sentence.words && sentence.words.length > 0) {
-                  const wordsToInsert = sentence.words.map(word => {
+                  const wordsToInsert = sentence.words.map((word, wordIndex) => {
+                    // Calculate a safe order value - if word order/position is present, use it, otherwise use index + 1
+                    const orderValue = (word.order || word.position || (wordIndex + 1));
+                    
                     if ('text' in word && 'translation' in word) {
                       // Old format
                       return {
@@ -290,7 +293,7 @@ export function ChapterImporter({ storyId, onComplete }: ChapterImporterProps) {
                         part_of_speech: null,
                         grammar_notes: null,
                         additional_notes: null,
-                        order: word.position || 0
+                        order: orderValue
                       };
                     } else {
                       // New format
@@ -302,17 +305,49 @@ export function ChapterImporter({ storyId, onComplete }: ChapterImporterProps) {
                         part_of_speech: word.part_of_speech || null,
                         grammar_notes: word.grammar_notes || null,
                         additional_notes: word.additional_notes || null,
-                        order: word.order || 0
+                        order: orderValue
                       };
                     }
                   });
                   
-                  const { error: wordsError } = await supabase
-                    .from('words')
-                    .insert(wordsToInsert);
+                  // Try to insert words with retry logic for duplicate keys
+                  let wordInsertSuccess = false;
+                  let wordInsertAttempt = 0;
+                  const maxWordInsertAttempts = 3;
                   
-                  if (wordsError) {
-                    throw new Error(`Failed to create words: ${wordsError.message}`);
+                  while (!wordInsertSuccess && wordInsertAttempt < maxWordInsertAttempts) {
+                    try {
+                      // If this is a retry, adjust all order values
+                      if (wordInsertAttempt > 0) {
+                        console.log(`Retrying word insert with offset ${wordInsertAttempt * 100}`);
+                        wordsToInsert.forEach(word => {
+                          word.order += (wordInsertAttempt * 100); // Add a large offset on each retry
+                        });
+                      }
+                      
+                      const { error: wordsError } = await supabase
+                        .from('words')
+                        .insert(wordsToInsert);
+                      
+                      if (wordsError) {
+                        if (wordsError.message?.includes('duplicate key') || 
+                           wordsError.message?.includes('unique constraint')) {
+                          // If it's a duplicate key error, try again
+                          wordInsertAttempt++;
+                        } else {
+                          throw wordsError;
+                        }
+                      } else {
+                        wordInsertSuccess = true;
+                      }
+                    } catch (error) {
+                      console.error("Error inserting words:", error);
+                      throw error;
+                    }
+                  }
+                  
+                  if (!wordInsertSuccess) {
+                    throw new Error(`Failed to create words after ${maxWordInsertAttempts} attempts`);
                   }
                 }
               }

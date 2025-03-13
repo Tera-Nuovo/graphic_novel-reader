@@ -183,7 +183,10 @@ export async function POST(request: NextRequest) {
           // 4. Create words for this sentence
           if (sentence.words && sentence.words.length > 0) {
             // Convert words to the expected format, handling both old and new formats
-            const wordsToInsert = sentence.words.map((word: any) => {
+            const wordsToInsert = sentence.words.map((word: any, wordIndex: number) => {
+              // Calculate a safe order value - if present use it, otherwise use index + 1
+              const orderValue = (word.order || word.position || (wordIndex + 1));
+              
               if ('text' in word && 'translation' in word) {
                 // Old format
                 return {
@@ -194,7 +197,7 @@ export async function POST(request: NextRequest) {
                   part_of_speech: null,
                   grammar_notes: null,
                   additional_notes: null,
-                  order: word.position || 0
+                  order: orderValue
                 };
               } else {
                 // New format
@@ -206,19 +209,54 @@ export async function POST(request: NextRequest) {
                   part_of_speech: word.part_of_speech || null,
                   grammar_notes: word.grammar_notes || null,
                   additional_notes: word.additional_notes || null,
-                  order: word.order || 0
+                  order: orderValue
                 };
               }
             });
             
-            const { error: wordsError } = await supabase
-              .from('words')
-              .insert(wordsToInsert);
+            // Try to insert words with retry logic
+            let wordInsertSuccess = false;
+            let wordInsertAttempt = 0;
+            const maxWordInsertAttempts = 3;
             
-            if (wordsError) {
-              console.error('API: Words creation failed:', wordsError);
+            while (!wordInsertSuccess && wordInsertAttempt < maxWordInsertAttempts) {
+              try {
+                // If this is a retry, adjust all order values
+                if (wordInsertAttempt > 0) {
+                  console.log(`API: Retrying word insert with offset ${wordInsertAttempt * 100}`);
+                  wordsToInsert.forEach((word: any) => {
+                    word.order += (wordInsertAttempt * 100); // Add a large offset on each retry
+                  });
+                }
+                
+                const { error: wordsError } = await supabase
+                  .from('words')
+                  .insert(wordsToInsert);
+                
+                if (wordsError) {
+                  if (wordsError.message?.includes('duplicate key') || 
+                     wordsError.message?.includes('unique constraint')) {
+                    // If it's a duplicate key error, try again
+                    wordInsertAttempt++;
+                    if (wordInsertAttempt >= maxWordInsertAttempts) {
+                      throw new Error(`Failed to create words after ${maxWordInsertAttempts} attempts: ${wordsError.message}`);
+                    }
+                  } else {
+                    throw wordsError;
+                  }
+                } else {
+                  wordInsertSuccess = true;
+                }
+              } catch (error) {
+                console.error('API: Error inserting words:', error);
+                throw error;
+              }
+            }
+            
+            if (!wordInsertSuccess) {
+              console.error('API: Words creation failed after maximum retry attempts');
               return NextResponse.json(
-                { success: false, error: `Failed to create words: ${wordsError.message}` },
+                { success: false, error: `Failed to create words after maximum retry attempts` },
                 { status: 500 }
               );
             }
