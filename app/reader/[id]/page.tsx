@@ -49,6 +49,44 @@ interface Chapter {
   status: 'draft' | 'published'
 }
 
+// Function to check if a character is kanji
+function isKanji(char: string): boolean {
+  const code = char.charCodeAt(0);
+  return (code >= 0x4e00 && code <= 0x9faf) || // Common and uncommon kanji
+         (code >= 0x3400 && code <= 0x4dbf);   // Rare kanji
+}
+
+// Function to check if a character is kana (hiragana or katakana)
+function isKana(char: string): boolean {
+  const code = char.charCodeAt(0);
+  return (code >= 0x3040 && code <= 0x309f) || // Hiragana
+         (code >= 0x30a0 && code <= 0x30ff);   // Katakana
+}
+
+// Component to intelligently render a Japanese word with furigana only on kanji
+function SmartFurigana({ 
+  japanese, 
+  furigana 
+}: { 
+  japanese: string; 
+  furigana: string; 
+}): JSX.Element {
+  // If the word doesn't contain any kanji, just return the word without furigana
+  if ([...japanese].every(char => !isKanji(char))) {
+    return <span>{japanese}</span>;
+  }
+  
+  // For simplicity in this first implementation, if the word has kanji,
+  // we'll use the standard furigana approach.
+  // A more sophisticated implementation would map each kanji character to its specific reading
+  return (
+    <ruby>
+      {japanese}
+      <rt className="text-xs text-muted-foreground">{furigana}</rt>
+    </ruby>
+  );
+}
+
 export default function ReaderPage() {
   const params = useParams();
   const router = useRouter();
@@ -555,10 +593,10 @@ export default function ReaderPage() {
                             onClick={(e) => handleWordClick(word, panel.id, e)}
                           >
                             <div className="text-lg hover:text-primary">
-                              <ruby>
-                                {word.japanese}
-                                <rt className="text-xs text-muted-foreground">{word.furigana}</rt>
-                              </ruby>
+                              <SmartFurigana 
+                                japanese={word.japanese} 
+                                furigana={word.furigana} 
+                              />
                             </div>
                           </div>
                         ))}

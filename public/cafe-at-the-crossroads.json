@@ -1,0 +1,2132 @@
+{
+    "japanese_title": "交差点のカフェ",
+    "english_title": "Cafe at the Crossroads",
+    "description": "A mysterious tale set in a transforming café where reality blurs and choices shape destinies.",
+    "difficulty_level": "beginner",
+    "tags": [
+      "mystery",
+      "fantasy",
+      "supernatural",
+      "choice"
+    ],
+    "cover_image": "https://images.unsplash.com/photo-1503435980610-a51f3ddfee50?q=80&w=1000",
+    "status": "published",
+    "chapters": [
+      {
+        "title": "第一章: 交差点のカフェ",
+        "order": 1,
+        "status": "published",
+        "panels": [
+          {
+            "order": 1,
+            "image": "",
+            "sentences": [
+              {
+                "japanese": "ヴィクター・レイトン、私たちはあなたを待っていました。",
+                "english": "Victor Layton, we've been expecting you.",
+                "notes": "Introduction of Victor through the mysterious message.",
+                "order": 1,
+                "words": [
+                  {
+                    "japanese": "ヴィクター",
+                    "reading": "ヴィクター",
+                    "english": "Victor",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": "Character name",
+                    "order": 1
+                  },
+                  {
+                    "japanese": "・",
+                    "reading": "・",
+                    "english": "-",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 2
+                  },
+                  {
+                    "japanese": "レイトン",
+                    "reading": "レイトン",
+                    "english": "Layton",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": "Character surname",
+                    "order": 3
+                  },
+                  {
+                    "japanese": "、",
+                    "reading": "、",
+                    "english": ",",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 4
+                  },
+                  {
+                    "japanese": "私たち",
+                    "reading": "わたしたち",
+                    "english": "we",
+                    "part_of_speech": "pronoun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 5
+                  },
+                  {
+                    "japanese": "は",
+                    "reading": "は",
+                    "english": "topic marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": "marks the topic",
+                    "additional_notes": null,
+                    "order": 6
+                  },
+                  {
+                    "japanese": "あなた",
+                    "reading": "あなた",
+                    "english": "you",
+                    "part_of_speech": "pronoun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 7
+                  },
+                  {
+                    "japanese": "を",
+                    "reading": "を",
+                    "english": "object marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": "marks the object",
+                    "additional_notes": null,
+                    "order": 8
+                  },
+                  {
+                    "japanese": "待っていました",
+                    "reading": "まっていました",
+                    "english": "were waiting",
+                    "part_of_speech": "verb",
+                    "grammar_notes": "past progressive polite form of 待つ",
+                    "additional_notes": null,
+                    "order": 9
+                  },
+                  {
+                    "japanese": "。",
+                    "reading": "。",
+                    "english": ".",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 10
+                  }
+                ]
+              },
+              {
+                "japanese": "暖炉の青い炎が突然大きくなり、部屋に移り変わる影を落としました。",
+                "english": "The blue flames in the fireplace suddenly grow taller, casting shifting shadows across the room.",
+                "notes": "Descriptive sentence about the changing fireplace.",
+                "order": 2,
+                "words": [
+                  {
+                    "japanese": "暖炉",
+                    "reading": "だんろ",
+                    "english": "fireplace",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 1
+                  },
+                  {
+                    "japanese": "の",
+                    "reading": "の",
+                    "english": "of",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 2
+                  },
+                  {
+                    "japanese": "青い",
+                    "reading": "あおい",
+                    "english": "blue",
+                    "part_of_speech": "adjective",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 3
+                  },
+                  {
+                    "japanese": "炎",
+                    "reading": "ほのお",
+                    "english": "flames",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 4
+                  },
+                  {
+                    "japanese": "が",
+                    "reading": "が",
+                    "english": "subject marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 5
+                  },
+                  {
+                    "japanese": "突然",
+                    "reading": "とつぜん",
+                    "english": "suddenly",
+                    "part_of_speech": "adverb",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 6
+                  },
+                  {
+                    "japanese": "大きくなり",
+                    "reading": "おおきくなり",
+                    "english": "grow larger",
+                    "part_of_speech": "verb",
+                    "grammar_notes": "te-form of 大きくなる",
+                    "additional_notes": null,
+                    "order": 7
+                  },
+                  {
+                    "japanese": "、",
+                    "reading": "、",
+                    "english": ",",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 8
+                  },
+                  {
+                    "japanese": "部屋",
+                    "reading": "へや",
+                    "english": "room",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 9
+                  },
+                  {
+                    "japanese": "に",
+                    "reading": "に",
+                    "english": "in",
+                    "part_of_speech": "particle",
+                    "grammar_notes": "indicates location",
+                    "additional_notes": null,
+                    "order": 10
+                  },
+                  {
+                    "japanese": "移り変わる",
+                    "reading": "うつりかわる",
+                    "english": "shift",
+                    "part_of_speech": "verb",
+                    "grammar_notes": "dictionary form",
+                    "additional_notes": null,
+                    "order": 11
+                  },
+                  {
+                    "japanese": "影",
+                    "reading": "かげ",
+                    "english": "shadows",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 12
+                  },
+                  {
+                    "japanese": "を",
+                    "reading": "を",
+                    "english": "object marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 13
+                  },
+                  {
+                    "japanese": "落としました",
+                    "reading": "おとしました",
+                    "english": "cast",
+                    "part_of_speech": "verb",
+                    "grammar_notes": "past polite form of 落とす",
+                    "additional_notes": null,
+                    "order": 14
+                  },
+                  {
+                    "japanese": "。",
+                    "reading": "。",
+                    "english": ".",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 15
+                  }
+                ]
+              },
+              {
+                "japanese": "他の客たちは今、はっきりとヴィクターとその本を見つめています。",
+                "english": "The other patrons now openly stare at Victor and the book.",
+                "notes": "Observing the reaction of other patrons.",
+                "order": 3,
+                "words": [
+                  {
+                    "japanese": "他の",
+                    "reading": "ほかの",
+                    "english": "other",
+                    "part_of_speech": "adjective",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 1
+                  },
+                  {
+                    "japanese": "客たち",
+                    "reading": "きゃくたち",
+                    "english": "patrons",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 2
+                  },
+                  {
+                    "japanese": "は",
+                    "reading": "は",
+                    "english": "topic marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 3
+                  },
+                  {
+                    "japanese": "今",
+                    "reading": "いま",
+                    "english": "now",
+                    "part_of_speech": "adverb",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 4
+                  },
+                  {
+                    "japanese": "、",
+                    "reading": "、",
+                    "english": ",",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 5
+                  },
+                  {
+                    "japanese": "はっきりと",
+                    "reading": "はっきりと",
+                    "english": "clearly",
+                    "part_of_speech": "adverb",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 6
+                  },
+                  {
+                    "japanese": "ヴィクター",
+                    "reading": "ヴィクター",
+                    "english": "Victor",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": "Character name",
+                    "order": 7
+                  },
+                  {
+                    "japanese": "と",
+                    "reading": "と",
+                    "english": "and",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 8
+                  },
+                  {
+                    "japanese": "その",
+                    "reading": "その",
+                    "english": "his",
+                    "part_of_speech": "determiner",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 9
+                  },
+                  {
+                    "japanese": "本",
+                    "reading": "ほん",
+                    "english": "book",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 10
+                  },
+                  {
+                    "japanese": "を",
+                    "reading": "を",
+                    "english": "object marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 11
+                  },
+                  {
+                    "japanese": "見つめています",
+                    "reading": "みつめています",
+                    "english": "are staring",
+                    "part_of_speech": "verb",
+                    "grammar_notes": "present continuous form of 見つめる",
+                    "additional_notes": null,
+                    "order": 12
+                  },
+                  {
+                    "japanese": "。",
+                    "reading": "。",
+                    "english": ".",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 13
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "order": 2,
+            "image": "",
+            "sentences": [
+              {
+                "japanese": "「あなたには選択がある」とミラは静かに言いながら、本に手を添えました。",
+                "english": "\"You have a choice to make,\" Mira says quietly, her hand still on the book.",
+                "notes": "Mira introduces the choice.",
+                "order": 1,
+                "words": [
+                  {
+                    "japanese": "「",
+                    "reading": "",
+                    "english": "\"",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 1
+                  },
+                  {
+                    "japanese": "あなた",
+                    "reading": "あなた",
+                    "english": "you",
+                    "part_of_speech": "pronoun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 2
+                  },
+                  {
+                    "japanese": "には",
+                    "reading": "には",
+                    "english": "has",
+                    "part_of_speech": "particle",
+                    "grammar_notes": "combination marker",
+                    "additional_notes": null,
+                    "order": 3
+                  },
+                  {
+                    "japanese": "選択",
+                    "reading": "せんたく",
+                    "english": "choice",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 4
+                  },
+                  {
+                    "japanese": "が",
+                    "reading": "が",
+                    "english": "subject marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 5
+                  },
+                  {
+                    "japanese": "ある",
+                    "reading": "ある",
+                    "english": "exists",
+                    "part_of_speech": "verb",
+                    "grammar_notes": "dictionary form",
+                    "additional_notes": null,
+                    "order": 6
+                  },
+                  {
+                    "japanese": "」",
+                    "reading": "",
+                    "english": "\"",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 7
+                  },
+                  {
+                    "japanese": "と",
+                    "reading": "と",
+                    "english": "as",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 8
+                  },
+                  {
+                    "japanese": "ミラ",
+                    "reading": "ミラ",
+                    "english": "Mira",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": "Character name",
+                    "order": 9
+                  },
+                  {
+                    "japanese": "は",
+                    "reading": "は",
+                    "english": "topic marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 10
+                  },
+                  {
+                    "japanese": "静かに",
+                    "reading": "しずかに",
+                    "english": "quietly",
+                    "part_of_speech": "adverb",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 11
+                  },
+                  {
+                    "japanese": "言いながら",
+                    "reading": "いいながら",
+                    "english": "saying",
+                    "part_of_speech": "verb",
+                    "grammar_notes": "ながら form",
+                    "additional_notes": null,
+                    "order": 12
+                  },
+                  {
+                    "japanese": "、",
+                    "reading": "、",
+                    "english": ",",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 13
+                  },
+                  {
+                    "japanese": "本",
+                    "reading": "ほん",
+                    "english": "book",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 14
+                  },
+                  {
+                    "japanese": "に",
+                    "reading": "に",
+                    "english": "to",
+                    "part_of_speech": "particle",
+                    "grammar_notes": "indicates location",
+                    "additional_notes": null,
+                    "order": 15
+                  },
+                  {
+                    "japanese": "手",
+                    "reading": "て",
+                    "english": "hand",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 16
+                  },
+                  {
+                    "japanese": "を",
+                    "reading": "を",
+                    "english": "object marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 17
+                  },
+                  {
+                    "japanese": "添えました",
+                    "reading": "そえました",
+                    "english": "placed",
+                    "part_of_speech": "verb",
+                    "grammar_notes": "past polite form of 添える",
+                    "additional_notes": null,
+                    "order": 18
+                  },
+                  {
+                    "japanese": "。",
+                    "reading": "。",
+                    "english": ".",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 19
+                  }
+                ]
+              },
+              {
+                "japanese": "「このカフェは一体どんなところなのか？」とヴィクターは尋ね、写真家としての好奇心が不安を上回りました。",
+                "english": "\"What kind of café is this really?\" Victor asks, his photographer's curiosity overcoming his unease.",
+                "notes": "Victor questions the nature of the café.",
+                "order": 2,
+                "words": [
+                  {
+                    "japanese": "「",
+                    "reading": "",
+                    "english": "\"",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 1
+                  },
+                  {
+                    "japanese": "この",
+                    "reading": "この",
+                    "english": "this",
+                    "part_of_speech": "demonstrative",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 2
+                  },
+                  {
+                    "japanese": "カフェ",
+                    "reading": "カフェ",
+                    "english": "café",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 3
+                  },
+                  {
+                    "japanese": "は",
+                    "reading": "は",
+                    "english": "topic marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 4
+                  },
+                  {
+                    "japanese": "一体",
+                    "reading": "いったい",
+                    "english": "on earth",
+                    "part_of_speech": "adverb",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 5
+                  },
+                  {
+                    "japanese": "どんな",
+                    "reading": "どんな",
+                    "english": "what kind of",
+                    "part_of_speech": "adjective",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 6
+                  },
+                  {
+                    "japanese": "ところ",
+                    "reading": "ところ",
+                    "english": "place",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 7
+                  },
+                  {
+                    "japanese": "なのか",
+                    "reading": "なのか",
+                    "english": "is it",
+                    "part_of_speech": "copula",
+                    "grammar_notes": "question form",
+                    "additional_notes": null,
+                    "order": 8
+                  },
+                  {
+                    "japanese": "？",
+                    "reading": "",
+                    "english": "?",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 9
+                  },
+                  {
+                    "japanese": "」",
+                    "reading": "",
+                    "english": "\"",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 10
+                  },
+                  {
+                    "japanese": "と",
+                    "reading": "と",
+                    "english": "as",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 11
+                  },
+                  {
+                    "japanese": "ヴィクター",
+                    "reading": "ヴィクター",
+                    "english": "Victor",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": "Character name",
+                    "order": 12
+                  },
+                  {
+                    "japanese": "は",
+                    "reading": "は",
+                    "english": "topic marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 13
+                  },
+                  {
+                    "japanese": "尋ね",
+                    "reading": "たずね",
+                    "english": "asked",
+                    "part_of_speech": "verb",
+                    "grammar_notes": "stem of 尋ねる",
+                    "additional_notes": null,
+                    "order": 14
+                  },
+                  {
+                    "japanese": "、",
+                    "reading": "、",
+                    "english": ",",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 15
+                  },
+                  {
+                    "japanese": "写真家",
+                    "reading": "しゃしんか",
+                    "english": "photographer",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 16
+                  },
+                  {
+                    "japanese": "として",
+                    "reading": "として",
+                    "english": "as",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 17
+                  },
+                  {
+                    "japanese": "の",
+                    "reading": "の",
+                    "english": "of",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 18
+                  },
+                  {
+                    "japanese": "好奇心",
+                    "reading": "こうきしん",
+                    "english": "curiosity",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 19
+                  },
+                  {
+                    "japanese": "が",
+                    "reading": "が",
+                    "english": "subject marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 20
+                  },
+                  {
+                    "japanese": "不安",
+                    "reading": "ふあん",
+                    "english": "unease",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 21
+                  },
+                  {
+                    "japanese": "を",
+                    "reading": "を",
+                    "english": "object marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 22
+                  },
+                  {
+                    "japanese": "上回りました",
+                    "reading": "うわまわりました",
+                    "english": "overcame",
+                    "part_of_speech": "verb",
+                    "grammar_notes": "past polite form of 上回る",
+                    "additional_notes": null,
+                    "order": 23
+                  },
+                  {
+                    "japanese": "。",
+                    "reading": "。",
+                    "english": ".",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 24
+                  }
+                ]
+              },
+              {
+                "japanese": "ミラは首にかけた光る鍵に触れながら、謎めいた笑みを浮かべました。",
+                "english": "Mira's enigmatic smile returns as she touches the glowing key at her neck.",
+                "notes": "Mira's enigmatic reaction.",
+                "order": 3,
+                "words": [
+                  {
+                    "japanese": "ミラ",
+                    "reading": "ミラ",
+                    "english": "Mira",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": "Character name",
+                    "order": 1
+                  },
+                  {
+                    "japanese": "は",
+                    "reading": "は",
+                    "english": "topic marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 2
+                  },
+                  {
+                    "japanese": "首",
+                    "reading": "くび",
+                    "english": "neck",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 3
+                  },
+                  {
+                    "japanese": "に",
+                    "reading": "に",
+                    "english": "on",
+                    "part_of_speech": "particle",
+                    "grammar_notes": "indicates location",
+                    "additional_notes": null,
+                    "order": 4
+                  },
+                  {
+                    "japanese": "かけた",
+                    "reading": "かけた",
+                    "english": "worn",
+                    "part_of_speech": "verb",
+                    "grammar_notes": "past form of かける",
+                    "additional_notes": null,
+                    "order": 5
+                  },
+                  {
+                    "japanese": "光る",
+                    "reading": "ひかる",
+                    "english": "glowing",
+                    "part_of_speech": "adjective",
+                    "grammar_notes": "verb used adjectivally",
+                    "additional_notes": null,
+                    "order": 6
+                  },
+                  {
+                    "japanese": "鍵",
+                    "reading": "かぎ",
+                    "english": "key",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 7
+                  },
+                  {
+                    "japanese": "に",
+                    "reading": "に",
+                    "english": "with",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 8
+                  },
+                  {
+                    "japanese": "触れながら",
+                    "reading": "ふれながら",
+                    "english": "while touching",
+                    "part_of_speech": "verb",
+                    "grammar_notes": "ながら form",
+                    "additional_notes": null,
+                    "order": 9
+                  },
+                  {
+                    "japanese": "、",
+                    "reading": "、",
+                    "english": ",",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 10
+                  },
+                  {
+                    "japanese": "謎めいた",
+                    "reading": "なぞめいた",
+                    "english": "enigmatic",
+                    "part_of_speech": "adjective",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 11
+                  },
+                  {
+                    "japanese": "笑み",
+                    "reading": "えみ",
+                    "english": "smile",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 12
+                  },
+                  {
+                    "japanese": "を",
+                    "reading": "を",
+                    "english": "object marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 13
+                  },
+                  {
+                    "japanese": "浮かべました",
+                    "reading": "うかべました",
+                    "english": "appeared",
+                    "part_of_speech": "verb",
+                    "grammar_notes": "past polite form of 浮かべる",
+                    "additional_notes": null,
+                    "order": 14
+                  },
+                  {
+                    "japanese": "。",
+                    "reading": "。",
+                    "english": ".",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 15
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "order": 3,
+            "image": "",
+            "sentences": [
+              {
+                "japanese": "「これはただのカフェではありません」と彼女は説明し、「これは交差点です。」",
+                "english": "\"This is not just a café,\" she explains. \"It's a crossroads.\"",
+                "notes": "Mira explains the true nature of the café.",
+                "order": 1,
+                "words": [
+                  {
+                    "japanese": "「",
+                    "reading": "",
+                    "english": "\"",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 1
+                  },
+                  {
+                    "japanese": "これ",
+                    "reading": "これ",
+                    "english": "this",
+                    "part_of_speech": "pronoun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 2
+                  },
+                  {
+                    "japanese": "は",
+                    "reading": "は",
+                    "english": "topic marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 3
+                  },
+                  {
+                    "japanese": "ただの",
+                    "reading": "ただの",
+                    "english": "mere",
+                    "part_of_speech": "adjective",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 4
+                  },
+                  {
+                    "japanese": "カフェ",
+                    "reading": "カフェ",
+                    "english": "café",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 5
+                  },
+                  {
+                    "japanese": "で",
+                    "reading": "で",
+                    "english": "is",
+                    "part_of_speech": "copula",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 6
+                  },
+                  {
+                    "japanese": "は",
+                    "reading": "は",
+                    "english": "not",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": "negation indicator",
+                    "order": 7
+                  },
+                  {
+                    "japanese": "ありません",
+                    "reading": "ありません",
+                    "english": "are not",
+                    "part_of_speech": "verb",
+                    "grammar_notes": "polite negative",
+                    "additional_notes": null,
+                    "order": 8
+                  },
+                  {
+                    "japanese": "」",
+                    "reading": "",
+                    "english": "\"",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 9
+                  },
+                  {
+                    "japanese": "と",
+                    "reading": "と",
+                    "english": "as",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 10
+                  },
+                  {
+                    "japanese": "彼女",
+                    "reading": "かのじょ",
+                    "english": "she",
+                    "part_of_speech": "pronoun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 11
+                  },
+                  {
+                    "japanese": "は",
+                    "reading": "は",
+                    "english": "topic marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 12
+                  },
+                  {
+                    "japanese": "説明し",
+                    "reading": "せつめいし",
+                    "english": "explained",
+                    "part_of_speech": "verb",
+                    "grammar_notes": "stem of 説明する",
+                    "additional_notes": null,
+                    "order": 13
+                  },
+                  {
+                    "japanese": "、",
+                    "reading": "、",
+                    "english": ",",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 14
+                  },
+                  {
+                    "japanese": "「",
+                    "reading": "",
+                    "english": "\"",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 15
+                  },
+                  {
+                    "japanese": "これ",
+                    "reading": "これ",
+                    "english": "this",
+                    "part_of_speech": "pronoun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 16
+                  },
+                  {
+                    "japanese": "は",
+                    "reading": "は",
+                    "english": "is",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 17
+                  },
+                  {
+                    "japanese": "交差点",
+                    "reading": "こうさてん",
+                    "english": "crossroads",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 18
+                  },
+                  {
+                    "japanese": "です",
+                    "reading": "です",
+                    "english": "are",
+                    "part_of_speech": "copula",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 19
+                  },
+                  {
+                    "japanese": "。",
+                    "reading": "。",
+                    "english": ".",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 20
+                  },
+                  {
+                    "japanese": "」",
+                    "reading": "",
+                    "english": "\"",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 21
+                  }
+                ]
+              },
+              {
+                "japanese": "彼らの背後で、カフェのドアが自ら揺れて開きました。",
+                "english": "Behind them, the café door swings open by itself.",
+                "notes": "The café door opens by itself.",
+                "order": 2,
+                "words": [
+                  {
+                    "japanese": "彼ら",
+                    "reading": "かれら",
+                    "english": "they",
+                    "part_of_speech": "pronoun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 1
+                  },
+                  {
+                    "japanese": "の",
+                    "reading": "の",
+                    "english": "of",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 2
+                  },
+                  {
+                    "japanese": "背後",
+                    "reading": "はいご",
+                    "english": "behind",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 3
+                  },
+                  {
+                    "japanese": "で",
+                    "reading": "で",
+                    "english": "at",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 4
+                  },
+                  {
+                    "japanese": "、",
+                    "reading": "、",
+                    "english": ",",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 5
+                  },
+                  {
+                    "japanese": "カフェ",
+                    "reading": "カフェ",
+                    "english": "café",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 6
+                  },
+                  {
+                    "japanese": "の",
+                    "reading": "の",
+                    "english": "of",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 7
+                  },
+                  {
+                    "japanese": "ドア",
+                    "reading": "ドア",
+                    "english": "door",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 8
+                  },
+                  {
+                    "japanese": "が",
+                    "reading": "が",
+                    "english": "subject marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 9
+                  },
+                  {
+                    "japanese": "自ら",
+                    "reading": "みずから",
+                    "english": "by itself",
+                    "part_of_speech": "adverb",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 10
+                  },
+                  {
+                    "japanese": "揺れて",
+                    "reading": "ゆれて",
+                    "english": "swinging",
+                    "part_of_speech": "verb",
+                    "grammar_notes": "te-form of 揺れる",
+                    "additional_notes": null,
+                    "order": 11
+                  },
+                  {
+                    "japanese": "開きました",
+                    "reading": "あきました",
+                    "english": "opened",
+                    "part_of_speech": "verb",
+                    "grammar_notes": "past polite form of 開く",
+                    "additional_notes": null,
+                    "order": 12
+                  },
+                  {
+                    "japanese": "。",
+                    "reading": "。",
+                    "english": ".",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 13
+                  }
+                ]
+              },
+              {
+                "japanese": "雨の降る通りの代わりに、輝く青い扉があり、不可能な場所の映像がちらついています。",
+                "english": "Instead of the rainy street, a luminous blue doorway shimmers with images of impossible places.",
+                "notes": "A surreal portal replaces the rainy street.",
+                "order": 3,
+                "words": [
+                  {
+                    "japanese": "雨",
+                    "reading": "あめ",
+                    "english": "rain",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 1
+                  },
+                  {
+                    "japanese": "の",
+                    "reading": "の",
+                    "english": "of",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 2
+                  },
+                  {
+                    "japanese": "降る",
+                    "reading": "ふる",
+                    "english": "falling",
+                    "part_of_speech": "verb",
+                    "grammar_notes": "dictionary form of 降る",
+                    "additional_notes": null,
+                    "order": 3
+                  },
+                  {
+                    "japanese": "通り",
+                    "reading": "とおり",
+                    "english": "street",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 4
+                  },
+                  {
+                    "japanese": "の",
+                    "reading": "の",
+                    "english": "of",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 5
+                  },
+                  {
+                    "japanese": "代わり",
+                    "reading": "かわり",
+                    "english": "instead",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 6
+                  },
+                  {
+                    "japanese": "に",
+                    "reading": "に",
+                    "english": "for",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 7
+                  },
+                  {
+                    "japanese": "、",
+                    "reading": "、",
+                    "english": ",",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 8
+                  },
+                  {
+                    "japanese": "輝く",
+                    "reading": "かがやく",
+                    "english": "shimmering",
+                    "part_of_speech": "adjective",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 9
+                  },
+                  {
+                    "japanese": "青い",
+                    "reading": "あおい",
+                    "english": "blue",
+                    "part_of_speech": "adjective",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 10
+                  },
+                  {
+                    "japanese": "扉",
+                    "reading": "とびら",
+                    "english": "doorway",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 11
+                  },
+                  {
+                    "japanese": "が",
+                    "reading": "が",
+                    "english": "subject marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 12
+                  },
+                  {
+                    "japanese": "あり",
+                    "reading": "あり",
+                    "english": "exists",
+                    "part_of_speech": "verb",
+                    "grammar_notes": "stem of ある",
+                    "additional_notes": null,
+                    "order": 13
+                  },
+                  {
+                    "japanese": "、",
+                    "reading": "、",
+                    "english": ",",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 14
+                  },
+                  {
+                    "japanese": "不可能な",
+                    "reading": "ふかのうな",
+                    "english": "impossible",
+                    "part_of_speech": "adjective",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 15
+                  },
+                  {
+                    "japanese": "場所",
+                    "reading": "ばしょ",
+                    "english": "places",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 16
+                  },
+                  {
+                    "japanese": "の",
+                    "reading": "の",
+                    "english": "of",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 17
+                  },
+                  {
+                    "japanese": "映像",
+                    "reading": "えいぞう",
+                    "english": "images",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 18
+                  },
+                  {
+                    "japanese": "が",
+                    "reading": "が",
+                    "english": "subject marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 19
+                  },
+                  {
+                    "japanese": "ちらついています",
+                    "reading": "ちらついています",
+                    "english": "are shimmering",
+                    "part_of_speech": "verb",
+                    "grammar_notes": "present continuous form of ちらつく",
+                    "additional_notes": null,
+                    "order": 20
+                  },
+                  {
+                    "japanese": "。",
+                    "reading": "。",
+                    "english": ".",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 21
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "order": 4,
+            "image": "",
+            "sentences": [
+              {
+                "japanese": "テーブルの上の本は自ら文章を書き続けています：「あなたは踏み出しますか？」",
+                "english": "The book on the table continues writing itself: \"Will you step through?\"",
+                "notes": "The book writes a mysterious question.",
+                "order": 1,
+                "words": [
+                  {
+                    "japanese": "テーブル",
+                    "reading": "テーブル",
+                    "english": "table",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 1
+                  },
+                  {
+                    "japanese": "の",
+                    "reading": "の",
+                    "english": "of",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 2
+                  },
+                  {
+                    "japanese": "上",
+                    "reading": "うえ",
+                    "english": "on",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 3
+                  },
+                  {
+                    "japanese": "の",
+                    "reading": "の",
+                    "english": "of",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 4
+                  },
+                  {
+                    "japanese": "本",
+                    "reading": "ほん",
+                    "english": "book",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 5
+                  },
+                  {
+                    "japanese": "は",
+                    "reading": "は",
+                    "english": "topic marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 6
+                  },
+                  {
+                    "japanese": "自ら",
+                    "reading": "みずから",
+                    "english": "itself",
+                    "part_of_speech": "adverb",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 7
+                  },
+                  {
+                    "japanese": "文章",
+                    "reading": "ぶんしょう",
+                    "english": "text",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 8
+                  },
+                  {
+                    "japanese": "を",
+                    "reading": "を",
+                    "english": "object marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 9
+                  },
+                  {
+                    "japanese": "書き続けています",
+                    "reading": "かきつづけています",
+                    "english": "continues writing",
+                    "part_of_speech": "verb",
+                    "grammar_notes": "present continuous form",
+                    "additional_notes": null,
+                    "order": 10
+                  },
+                  {
+                    "japanese": "：",
+                    "reading": "：",
+                    "english": ":",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 11
+                  },
+                  {
+                    "japanese": "「",
+                    "reading": "",
+                    "english": "\"",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 12
+                  },
+                  {
+                    "japanese": "あなた",
+                    "reading": "あなた",
+                    "english": "you",
+                    "part_of_speech": "pronoun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 13
+                  },
+                  {
+                    "japanese": "は",
+                    "reading": "は",
+                    "english": "topic marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 14
+                  },
+                  {
+                    "japanese": "踏み出しますか",
+                    "reading": "ふみだしますか",
+                    "english": "step through?",
+                    "part_of_speech": "verb",
+                    "grammar_notes": "question form of 踏み出す",
+                    "additional_notes": null,
+                    "order": 15
+                  },
+                  {
+                    "japanese": "？",
+                    "reading": "",
+                    "english": "?",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 16
+                  },
+                  {
+                    "japanese": "」",
+                    "reading": "",
+                    "english": "\"",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 17
+                  }
+                ]
+              },
+              {
+                "japanese": "ヴィクターは輝く扉から再びミラを見つめ、心が高鳴りました。",
+                "english": "Victor looks from the glowing doorway back to Mira, his heart racing.",
+                "notes": "Victor reacts with rising excitement.",
+                "order": 2,
+                "words": [
+                  {
+                    "japanese": "ヴィクター",
+                    "reading": "ヴィクター",
+                    "english": "Victor",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": "Character name",
+                    "order": 1
+                  },
+                  {
+                    "japanese": "は",
+                    "reading": "は",
+                    "english": "topic marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 2
+                  },
+                  {
+                    "japanese": "輝く",
+                    "reading": "かがやく",
+                    "english": "glowing",
+                    "part_of_speech": "adjective",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 3
+                  },
+                  {
+                    "japanese": "扉",
+                    "reading": "とびら",
+                    "english": "doorway",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 4
+                  },
+                  {
+                    "japanese": "から",
+                    "reading": "から",
+                    "english": "from",
+                    "part_of_speech": "particle",
+                    "grammar_notes": "indicates origin",
+                    "additional_notes": null,
+                    "order": 5
+                  },
+                  {
+                    "japanese": "再び",
+                    "reading": "ふたたび",
+                    "english": "again",
+                    "part_of_speech": "adverb",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 6
+                  },
+                  {
+                    "japanese": "ミラ",
+                    "reading": "ミラ",
+                    "english": "Mira",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": "Character name",
+                    "order": 7
+                  },
+                  {
+                    "japanese": "を",
+                    "reading": "を",
+                    "english": "object marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 8
+                  },
+                  {
+                    "japanese": "見つめ",
+                    "reading": "みつめ",
+                    "english": "stare",
+                    "part_of_speech": "verb",
+                    "grammar_notes": "stem of 見つめる",
+                    "additional_notes": null,
+                    "order": 9
+                  },
+                  {
+                    "japanese": "、",
+                    "reading": "、",
+                    "english": ",",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 10
+                  },
+                  {
+                    "japanese": "心",
+                    "reading": "こころ",
+                    "english": "heart",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 11
+                  },
+                  {
+                    "japanese": "が",
+                    "reading": "が",
+                    "english": "subject marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 12
+                  },
+                  {
+                    "japanese": "高鳴りました",
+                    "reading": "たかならりました",
+                    "english": "raced",
+                    "part_of_speech": "verb",
+                    "grammar_notes": "past polite form of 高鳴る",
+                    "additional_notes": null,
+                    "order": 13
+                  },
+                  {
+                    "japanese": "。",
+                    "reading": "。",
+                    "english": ".",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 14
+                  }
+                ]
+              },
+              {
+                "japanese": "「向こう側には何があるのですか？」と彼は椅子から立ち上がりながら尋ねました。",
+                "english": "\"What's on the other side?\" he asks, rising from his chair.",
+                "notes": "Victor inquires about what lies beyond.",
+                "order": 3,
+                "words": [
+                  {
+                    "japanese": "「",
+                    "reading": "",
+                    "english": "\"",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 1
+                  },
+                  {
+                    "japanese": "向こう側",
+                    "reading": "むこうがわ",
+                    "english": "the other side",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 2
+                  },
+                  {
+                    "japanese": "に",
+                    "reading": "に",
+                    "english": "at",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 3
+                  },
+                  {
+                    "japanese": "は",
+                    "reading": "は",
+                    "english": "topic marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 4
+                  },
+                  {
+                    "japanese": "何",
+                    "reading": "なに",
+                    "english": "what",
+                    "part_of_speech": "pronoun",
+                    "grammar_notes": "question word",
+                    "additional_notes": null,
+                    "order": 5
+                  },
+                  {
+                    "japanese": "が",
+                    "reading": "が",
+                    "english": "subject marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 6
+                  },
+                  {
+                    "japanese": "ある",
+                    "reading": "ある",
+                    "english": "exists",
+                    "part_of_speech": "verb",
+                    "grammar_notes": "dictionary form",
+                    "additional_notes": null,
+                    "order": 7
+                  },
+                  {
+                    "japanese": "の",
+                    "reading": "の",
+                    "english": "of",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 8
+                  },
+                  {
+                    "japanese": "です",
+                    "reading": "です",
+                    "english": "is",
+                    "part_of_speech": "copula",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 9
+                  },
+                  {
+                    "japanese": "か",
+                    "reading": "か",
+                    "english": "?",
+                    "part_of_speech": "particle",
+                    "grammar_notes": "question marker",
+                    "additional_notes": null,
+                    "order": 10
+                  },
+                  {
+                    "japanese": "？",
+                    "reading": "",
+                    "english": "?",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 11
+                  },
+                  {
+                    "japanese": "」",
+                    "reading": "",
+                    "english": "\"",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 12
+                  },
+                  {
+                    "japanese": "と",
+                    "reading": "と",
+                    "english": "as",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 13
+                  },
+                  {
+                    "japanese": "彼",
+                    "reading": "かれ",
+                    "english": "he",
+                    "part_of_speech": "pronoun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 14
+                  },
+                  {
+                    "japanese": "は",
+                    "reading": "は",
+                    "english": "topic marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 15
+                  },
+                  {
+                    "japanese": "椅子",
+                    "reading": "いす",
+                    "english": "chair",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 16
+                  },
+                  {
+                    "japanese": "から",
+                    "reading": "から",
+                    "english": "from",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 17
+                  },
+                  {
+                    "japanese": "立ち上がりながら",
+                    "reading": "たちあがりながら",
+                    "english": "while rising",
+                    "part_of_speech": "verb",
+                    "grammar_notes": "ながら form of 立ち上がる",
+                    "additional_notes": null,
+                    "order": 18
+                  },
+                  {
+                    "japanese": "尋ねました",
+                    "reading": "たずねました",
+                    "english": "asked",
+                    "part_of_speech": "verb",
+                    "grammar_notes": "past polite form of 尋ねる",
+                    "additional_notes": null,
+                    "order": 19
+                  },
+                  {
+                    "japanese": "。",
+                    "reading": "。",
+                    "english": ".",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 20
+                  }
+                ]
+              },
+              {
+                "japanese": "「それは」とミラは答え、「あなたが求めるもの次第です。」",
+                "english": "\"That,\" Mira replies, \"depends entirely on what you're seeking.\"",
+                "notes": "Mira hints that the outcome depends on one's desires.",
+                "order": 4,
+                "words": [
+                  {
+                    "japanese": "「",
+                    "reading": "",
+                    "english": "\"",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 1
+                  },
+                  {
+                    "japanese": "それ",
+                    "reading": "それ",
+                    "english": "that",
+                    "part_of_speech": "pronoun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 2
+                  },
+                  {
+                    "japanese": "は",
+                    "reading": "は",
+                    "english": "is",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 3
+                  },
+                  {
+                    "japanese": "」",
+                    "reading": "",
+                    "english": "\"",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 4
+                  },
+                  {
+                    "japanese": "と",
+                    "reading": "と",
+                    "english": "as",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 5
+                  },
+                  {
+                    "japanese": "ミラ",
+                    "reading": "ミラ",
+                    "english": "Mira",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": "Character name",
+                    "order": 6
+                  },
+                  {
+                    "japanese": "は",
+                    "reading": "は",
+                    "english": "topic marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 7
+                  },
+                  {
+                    "japanese": "答え",
+                    "reading": "こたえ",
+                    "english": "replies",
+                    "part_of_speech": "verb",
+                    "grammar_notes": "stem of 答える",
+                    "additional_notes": null,
+                    "order": 8
+                  },
+                  {
+                    "japanese": "、",
+                    "reading": "、",
+                    "english": ",",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 9
+                  },
+                  {
+                    "japanese": "「",
+                    "reading": "",
+                    "english": "\"",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 10
+                  },
+                  {
+                    "japanese": "あなた",
+                    "reading": "あなた",
+                    "english": "you",
+                    "part_of_speech": "pronoun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 11
+                  },
+                  {
+                    "japanese": "が",
+                    "reading": "が",
+                    "english": "subject marker",
+                    "part_of_speech": "particle",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 12
+                  },
+                  {
+                    "japanese": "求める",
+                    "reading": "もとめる",
+                    "english": "seek",
+                    "part_of_speech": "verb",
+                    "grammar_notes": "dictionary form",
+                    "additional_notes": null,
+                    "order": 13
+                  },
+                  {
+                    "japanese": "もの",
+                    "reading": "もの",
+                    "english": "thing",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 14
+                  },
+                  {
+                    "japanese": "次第",
+                    "reading": "しだい",
+                    "english": "depending on",
+                    "part_of_speech": "noun",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 15
+                  },
+                  {
+                    "japanese": "です",
+                    "reading": "です",
+                    "english": "is",
+                    "part_of_speech": "copula",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 16
+                  },
+                  {
+                    "japanese": "。",
+                    "reading": "。",
+                    "english": ".",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 17
+                  },
+                  {
+                    "japanese": "」",
+                    "reading": "",
+                    "english": "\"",
+                    "part_of_speech": "punctuation",
+                    "grammar_notes": null,
+                    "additional_notes": null,
+                    "order": 18
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+  
