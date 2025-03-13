@@ -24,6 +24,7 @@ import {
 
 export default function AdminDashboard() {
   const router = useRouter()
+
   const { user, isAdmin, refreshUser } = useAuth()
   const [stories, setStories] = useState<Story[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -198,6 +199,7 @@ export default function AdminDashboard() {
         }
       }
     }
+
 
     fetchData()
     

@@ -25,11 +25,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [adminChecked, setAdminChecked] = useState(false);
 
   // Function to check if user is admin based on metadata
   const checkAdminStatus = (user: User | null) => {
     if (!user) {
       setIsAdmin(false);
+      setAdminChecked(true);
       return;
     }
     
@@ -41,16 +43,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     console.log('Is admin based on metadata:', isUserAdmin);
     
     setIsAdmin(isUserAdmin);
+    setAdminChecked(true);
   };
   
-  // Function to refresh the user data
-  const refreshUser = async () => {
+  // Function to refresh the user data with retries for more reliability
+  const refreshUser = async (retryCount = 3) => {
     try {
       console.log('Refreshing user data...');
       const { data, error } = await supabase.auth.getUser();
       
       if (error) {
         console.error('Error refreshing user:', error);
+        
+        // If there are retries left and the error is authorization-related, retry
+        if (retryCount > 0 && (error.message.includes('token') || error.message.includes('auth'))) {
+          console.log(`Retrying user refresh... (${retryCount} retries left)`);
+          
+          // Add a small delay before retrying
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          return refreshUser(retryCount - 1);
+        }
+        
         return;
       }
       
@@ -58,23 +72,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.log('User refreshed:', data.user.email);
         setUser(data.user);
         checkAdminStatus(data.user);
+        
+        // Set cookies for middleware - important for consistent authentication
+        if (session?.access_token) {
+          document.cookie = `sb-access-token=${session.access_token}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax; secure`;
+        }
+        if (session?.refresh_token) {
+          document.cookie = `sb-refresh-token=${session.refresh_token}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax; secure`;
+        }
       }
     } catch (error) {
       console.error('Error refreshing user:', error);
     }
   };
   
-  // Function to navigate to the admin dashboard
+  // Function to navigate to the admin dashboard with admin status double-check
   const goToAdmin = async () => {
     if (isAdmin) {
       try {
-        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        // Double-check that we have a valid admin session
+        const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session for admin navigation:', error);
+          return;
+        }
+        
         if (currentSession?.access_token) {
-          // Update both storage locations
-          document.cookie = `sb-access-token=${currentSession.access_token}; path=/; max-age=3600; SameSite=Lax`;
-          localStorage.setItem('sb-access-token', currentSession.access_token);
+          // Update token in cookies to ensure access in admin routes
+          document.cookie = `sb-access-token=${currentSession.access_token}; path=/; max-age=3600; SameSite=Lax; secure`;
           
-          router.push('/admin');
+          if (currentSession.refresh_token) {
+            document.cookie = `sb-refresh-token=${currentSession.refresh_token}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax; secure`;
+          }
+          
+          // Verify admin status in user metadata before navigating
+          const user = currentSession.user;
+          const isActuallyAdmin = user?.user_metadata?.role === 'admin';
+          
+          if (isActuallyAdmin) {
+            router.push('/admin');
+          } else {
+            console.error('User is not an admin according to metadata');
+            setIsAdmin(false);
+          }
         } else {
           console.error('No access token available');
         }
@@ -86,6 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Initial session check
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -93,15 +135,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       
+      // If session exists, set tokens in cookies for middleware
+      if (session) {
+        document.cookie = `sb-access-token=${session.access_token}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax; secure`;
+        document.cookie = `sb-refresh-token=${session.refresh_token}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax; secure`;
+      }
+      
       // Check if user is admin
       checkAdminStatus(session?.user ?? null);
       
-      // Refresh user data to get the latest metadata
+      // Refresh user data to get the latest metadata with retries for reliability
       if (session?.user) {
-        refreshUser();
+        refreshUser(3);
+      } else {
+        setIsLoading(false);
       }
-      
-      setIsLoading(false);
     });
 
     // Listen for auth changes
@@ -109,6 +157,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       async (event, session) => {
         console.log('Auth state changed:', event);
         setSession(session);
+        
+        // Always update cookies whenever session changes
+        if (session) {
+          document.cookie = `sb-access-token=${session.access_token}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax; secure`;
+          document.cookie = `sb-refresh-token=${session.refresh_token}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax; secure`;
+        } else {
+          // Clear cookies on session end
+          document.cookie = `sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT`;
+          document.cookie = `sb-refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT`;
+        }
         
         if (session?.user) {
           console.log('User authenticated, getting latest user data');
@@ -121,6 +179,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           console.log('User not authenticated');
           setUser(null);
           setIsAdmin(false);
+          setAdminChecked(true);
         }
         
         setIsLoading(false);
@@ -131,6 +190,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       subscription.unsubscribe();
     };
   }, []);
+
+  // Complete loading state when admin check is done
+  useEffect(() => {
+    if (adminChecked && user) {
+      setIsLoading(false);
+    }
+  }, [adminChecked, user]);
 
   const signIn = async (email: string, password: string) => {
     try {
