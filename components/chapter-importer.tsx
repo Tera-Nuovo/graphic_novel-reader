@@ -115,36 +115,39 @@ export function ChapterImporter({ storyId, onComplete }: ChapterImporterProps) {
     }
   };
 
-  const validateImportData = (data: any): ImportedChapter | null => {
-    // First check if it's a full story import with chapters
+  const validateImportData = (data: any): ImportedChapter[] => {
+    // Check if it's a full story import with chapters
     if (data.chapters && Array.isArray(data.chapters) && data.chapters.length > 0) {
-      // Take just the first chapter from a full story import
-      return data.chapters[0];
+      // Return all chapters from the story
+      return data.chapters;
     }
     
     // Check if it's a single chapter format (has panels directly)
     if (data.panels && Array.isArray(data.panels)) {
-      return data as ImportedChapter;
+      // Single chapter, wrap in array
+      return [data as ImportedChapter];
     }
     
     // Check if it's a simple chapter object
     if (data.title && data.panels && Array.isArray(data.panels)) {
-      return data as ImportedChapter;
+      // Single chapter, wrap in array
+      return [data as ImportedChapter];
     }
     
     throw new Error('Invalid format: Could not find a valid chapter structure in the import file');
   };
 
-  const importChapter = async (chapterData: ImportedChapter) => {
+  const importChapters = async (chaptersData: ImportedChapter[]) => {
     try {
       setImporting(true);
-      let chapterId = '';
+      let importedChapterIds: string[] = [];
       let shouldUseServiceRole = false;
+      let importError = null;
       
-      // Get the maximum order of existing chapters to add this one at the end
+      // Get the maximum order of existing chapters to add these at the end
       setImportProgress({ 
         current: 0, 
-        total: 3, 
+        total: chaptersData.length + 1, 
         stage: 'Getting chapter order' 
       });
       
@@ -155,135 +158,141 @@ export function ChapterImporter({ storyId, onComplete }: ChapterImporterProps) {
         .order('order', { ascending: false })
         .limit(1);
       
-      const nextOrder = existingChapters && existingChapters.length > 0 
+      let nextOrder = existingChapters && existingChapters.length > 0 
         ? existingChapters[0].order + 1 
         : 1;
       
       // Try normal client import first
       try {
-        setImportProgress({ 
-          current: 1, 
-          total: 3, 
-          stage: 'Creating chapter' 
-        });
-        
-        // Create the chapter
-        const { data: createdChapter, error: chapterError } = await supabase
-          .from('chapters')
-          .insert({
-            story_id: storyId,
-            title: chapterData.title,
-            order: chapterData.order || nextOrder,
-            status: chapterData.status || 'draft'
-          })
-          .select()
-          .single();
-        
-        if (chapterError) {
-          // Check if error is RLS related
-          if (chapterError.message?.includes('row-level security') || 
-              chapterError.message?.includes('policy')) {
-            console.warn('RLS error detected, will try service role import');
-            shouldUseServiceRole = true;
-          } else {
-            throw new Error(`Failed to create chapter: ${chapterError.message}`);
-          }
-        } else if (createdChapter) {
-          chapterId = createdChapter.id;
+        // Loop through all chapters to import
+        for (let chapterIndex = 0; chapterIndex < chaptersData.length; chapterIndex++) {
+          const chapterData = chaptersData[chapterIndex];
           
-          // Create panels
           setImportProgress({ 
-            current: 2, 
-            total: 3, 
-            stage: 'Creating panels' 
+            current: chapterIndex + 1, 
+            total: chaptersData.length + 1, 
+            stage: `Creating chapter ${chapterIndex + 1}/${chaptersData.length}` 
           });
           
-          for (let j = 0; j < chapterData.panels.length; j++) {
-            const panel = chapterData.panels[j];
-            
-            const { data: panelData, error: panelError } = await supabase
-              .from('panels')
-              .insert({
-                chapter_id: chapterId,
-                order: panel.order,
-                image: panel.image || null
-              })
-              .select()
-              .single();
-            
-            if (panelError) {
-              throw new Error(`Failed to create panel: ${panelError.message}`);
+          // Create the chapter with incrementing order
+          const { data: createdChapter, error: chapterError } = await supabase
+            .from('chapters')
+            .insert({
+              story_id: storyId,
+              title: chapterData.title,
+              order: nextOrder, // Always use the calculated nextOrder, not the one from the file
+              status: chapterData.status || 'draft'
+            })
+            .select()
+            .single();
+          
+          if (chapterError) {
+            // Check if error is RLS related
+            if (chapterError.message?.includes('row-level security') || 
+                chapterError.message?.includes('policy')) {
+              console.warn('RLS error detected, will try service role import');
+              shouldUseServiceRole = true;
+              break; // Exit the loop and try service role import
+            } else {
+              throw new Error(`Failed to create chapter: ${chapterError.message}`);
             }
+          } 
+          
+          if (createdChapter) {
+            const chapterId = createdChapter.id;
+            importedChapterIds.push(chapterId);
             
-            const panelId = panelData.id;
-            
-            // Create sentences
-            for (let k = 0; k < panel.sentences.length; k++) {
-              const sentence = panel.sentences[k];
+            // Create panels
+            for (let j = 0; j < chapterData.panels.length; j++) {
+              const panel = chapterData.panels[j];
               
-              // Handle both old and new format
-              const japanese = sentence.japanese || sentence.text;
-              const english = sentence.english || sentence.translation;
-              const notes = sentence.notes || '';
-              const order = sentence.order || k + 1;
-              
-              const { data: sentenceData, error: sentenceError } = await supabase
-                .from('sentences')
+              const { data: panelData, error: panelError } = await supabase
+                .from('panels')
                 .insert({
-                  panel_id: panelId,
-                  japanese,
-                  english,
-                  notes,
-                  order
+                  chapter_id: chapterId,
+                  order: panel.order,
+                  image: panel.image || null
                 })
                 .select()
                 .single();
               
-              if (sentenceError) {
-                throw new Error(`Failed to create sentence: ${sentenceError.message}`);
+              if (panelError) {
+                throw new Error(`Failed to create panel: ${panelError.message}`);
               }
               
-              const sentenceId = sentenceData.id;
+              const panelId = panelData.id;
               
-              // Create words
-              if (sentence.words && sentence.words.length > 0) {
-                const wordsToInsert = sentence.words.map(word => {
-                  if ('text' in word && 'translation' in word) {
-                    // Old format
-                    return {
-                      sentence_id: sentenceId,
-                      japanese: word.text,
-                      reading: '',
-                      english: word.translation,
-                      part_of_speech: null,
-                      grammar_notes: null,
-                      additional_notes: null,
-                      order: word.position || 0
-                    };
-                  } else {
-                    // New format
-                    return {
-                      sentence_id: sentenceId,
-                      japanese: word.japanese,
-                      reading: word.reading || '',
-                      english: word.english,
-                      part_of_speech: word.part_of_speech || null,
-                      grammar_notes: word.grammar_notes || null,
-                      additional_notes: word.additional_notes || null,
-                      order: word.order || 0
-                    };
+              // Create sentences
+              for (let k = 0; k < panel.sentences.length; k++) {
+                const sentence = panel.sentences[k];
+                
+                // Handle both old and new format
+                const japanese = sentence.japanese || sentence.text;
+                const english = sentence.english || sentence.translation;
+                const notes = sentence.notes || '';
+                const order = sentence.order || k + 1;
+                
+                const { data: sentenceData, error: sentenceError } = await supabase
+                  .from('sentences')
+                  .insert({
+                    panel_id: panelId,
+                    japanese,
+                    english,
+                    notes,
+                    order
+                  })
+                  .select()
+                  .single();
+                
+                if (sentenceError) {
+                  throw new Error(`Failed to create sentence: ${sentenceError.message}`);
+                }
+                
+                const sentenceId = sentenceData.id;
+                
+                // Create words
+                if (sentence.words && sentence.words.length > 0) {
+                  const wordsToInsert = sentence.words.map(word => {
+                    if ('text' in word && 'translation' in word) {
+                      // Old format
+                      return {
+                        sentence_id: sentenceId,
+                        japanese: word.text,
+                        reading: '',
+                        english: word.translation,
+                        part_of_speech: null,
+                        grammar_notes: null,
+                        additional_notes: null,
+                        order: word.position || 0
+                      };
+                    } else {
+                      // New format
+                      return {
+                        sentence_id: sentenceId,
+                        japanese: word.japanese,
+                        reading: word.reading || '',
+                        english: word.english,
+                        part_of_speech: word.part_of_speech || null,
+                        grammar_notes: word.grammar_notes || null,
+                        additional_notes: word.additional_notes || null,
+                        order: word.order || 0
+                      };
+                    }
+                  });
+                  
+                  const { error: wordsError } = await supabase
+                    .from('words')
+                    .insert(wordsToInsert);
+                  
+                  if (wordsError) {
+                    throw new Error(`Failed to create words: ${wordsError.message}`);
                   }
-                });
-                
-                const { error: wordsError } = await supabase
-                  .from('words')
-                  .insert(wordsToInsert);
-                
-                if (wordsError) {
-                  throw new Error(`Failed to create words: ${wordsError.message}`);
                 }
               }
             }
+            
+            // Increment the order for the next chapter
+            nextOrder++;
           }
         }
       } catch (clientError) {
@@ -295,7 +304,7 @@ export function ChapterImporter({ storyId, onComplete }: ChapterImporterProps) {
             console.warn('RLS error detected during import, will try service role');
             shouldUseServiceRole = true;
           } else {
-            throw clientError;
+            importError = clientError;
           }
         }
       }
@@ -303,39 +312,72 @@ export function ChapterImporter({ storyId, onComplete }: ChapterImporterProps) {
       // If we need to use service role or client import failed
       if (shouldUseServiceRole) {
         setImportProgress({ 
-          current: 1, 
-          total: 2, 
+          current: 0, 
+          total: 1, 
           stage: 'Importing with admin privileges' 
         });
         
-        // Update the chapter order in case it wasn't specified
-        const chapterToImport = {
-          ...chapterData,
-          order: chapterData.order || nextOrder
-        };
+        // Reset for service role import
+        importedChapterIds = [];
+        nextOrder = existingChapters && existingChapters.length > 0 
+          ? existingChapters[0].order + 1 
+          : 1;
+          
+        // Use service role to import all chapters
+        const chaptersToImport = chaptersData.map((chapter, index) => {
+          return {
+            ...chapter,
+            order: nextOrder + index // Assign sequential order numbers
+          };
+        });
         
-        chapterId = await importChapterWithServiceRole(storyId, chapterToImport);
+        const result = await fetch('/api/import/chapter-service-role', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            storyId,
+            chapters: chaptersToImport
+          }),
+        });
+        
+        if (!result.ok) {
+          const errorData = await result.json();
+          throw new Error(errorData.error || 'Failed to import chapter with service role');
+        }
+        
+        const data = await result.json();
+        importedChapterIds = data.chapterIds;
         
         setImportProgress({ 
-          current: 2, 
-          total: 2, 
+          current: 1, 
+          total: 1, 
           stage: 'Import completed with admin privileges' 
         });
       }
       
-      // Only proceed if we actually got a chapterId
-      if (chapterId) {
+      // Re-throw any error we encountered
+      if (importError) {
+        throw importError;
+      }
+      
+      // Only proceed if we actually got chapter IDs
+      if (importedChapterIds.length > 0) {
         setImportStatus({
           success: true,
-          message: `Successfully imported chapter: ${chapterData.title}`
+          message: `Successfully imported ${importedChapterIds.length} chapter${importedChapterIds.length !== 1 ? 's' : ''}`
         });
         
         // Call onComplete callback if provided
         if (onComplete) {
           onComplete();
         }
+        
+        // Close the dialog on success
+        setDialogOpen(false);
       } else {
-        throw new Error('Failed to create chapter: No chapter ID returned');
+        throw new Error('Failed to create any chapters');
       }
       
     } catch (error) {
@@ -357,9 +399,9 @@ export function ChapterImporter({ storyId, onComplete }: ChapterImporterProps) {
       const fileContent = await file.text();
       const jsonData = JSON.parse(fileContent);
       
-      const chapterData = validateImportData(jsonData);
-      if (chapterData) {
-        await importChapter(chapterData);
+      const chaptersData = validateImportData(jsonData);
+      if (chaptersData && chaptersData.length > 0) {
+        await importChapters(chaptersData);
       }
     } catch (error) {
       console.error("File parsing error:", error);
@@ -382,7 +424,7 @@ export function ChapterImporter({ storyId, onComplete }: ChapterImporterProps) {
         <DialogHeader>
           <DialogTitle>Import Chapter</DialogTitle>
           <DialogDescription>
-            Upload a JSON file containing a chapter to add to this story.
+            Upload a JSON file containing one or more chapters to add to this story.
           </DialogDescription>
         </DialogHeader>
         
@@ -399,7 +441,7 @@ export function ChapterImporter({ storyId, onComplete }: ChapterImporterProps) {
               />
             </div>
             <p className="text-sm text-muted-foreground mt-1">
-              The JSON file can contain a single chapter or a full story (only the first chapter will be imported).
+              The JSON file can contain multiple chapters. All chapters will be added to the end of the story in the order they appear in the file.
             </p>
           </div>
 
