@@ -13,7 +13,7 @@ import { toast } from "@/components/ui/use-toast"
 
 export default function AdminDashboard() {
   const router = useRouter()
-  const { user, isAdmin } = useAuth()
+  const { user, isAdmin, isLoading: authLoading } = useAuth()
   const [stories, setStories] = useState<Story[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [stats, setStats] = useState({
@@ -63,8 +63,20 @@ export default function AdminDashboard() {
       }
     }
 
-    fetchData()
-  }, [user])
+    // Only fetch data when authentication is complete and user is admin
+    if (!authLoading && user && isAdmin) {
+      fetchData()
+    }
+  }, [user, isAdmin, authLoading])
+
+  // Show loading state while auth is being determined
+  if (authLoading) {
+    return (
+      <div className="container py-10 flex justify-center items-center min-h-[50vh]">
+        <p className="text-lg">Loading admin dashboard...</p>
+      </div>
+    )
+  }
 
   // If not admin, show access denied message
   if (!isAdmin) {

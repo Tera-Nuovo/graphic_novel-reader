@@ -66,8 +66,8 @@ export async function middleware(req: NextRequest) {
             }
           },
           auth: {
-            persistSession: false,
-            autoRefreshToken: false
+            persistSession: true,
+            autoRefreshToken: true
           }
         }
       );
@@ -86,8 +86,8 @@ export async function middleware(req: NextRequest) {
             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
             {
               auth: {
-                persistSession: false,
-                autoRefreshToken: false
+                persistSession: true,
+                autoRefreshToken: true
               }
             }
           );
@@ -110,9 +110,14 @@ export async function middleware(req: NextRequest) {
               }
             }
             
-            const redirectUrl = new URL('/login', req.url);
-            redirectUrl.searchParams.set('redirect', req.nextUrl.pathname);
-            return NextResponse.redirect(redirectUrl);
+            // Only redirect if this is a protected route
+            if (isProtectedRoute || isAdminRoute) {
+              const redirectUrl = new URL('/login', req.url);
+              redirectUrl.searchParams.set('redirect', req.nextUrl.pathname);
+              return NextResponse.redirect(redirectUrl);
+            } else {
+              return res;
+            }
           }
           
           // We successfully refreshed the token
@@ -161,9 +166,14 @@ export async function middleware(req: NextRequest) {
               }
             }
             
-            const redirectUrl = new URL('/login', req.url);
-            redirectUrl.searchParams.set('redirect', req.nextUrl.pathname);
-            return NextResponse.redirect(redirectUrl);
+            // Only redirect if this is a protected route
+            if (isProtectedRoute || isAdminRoute) {
+              const redirectUrl = new URL('/login', req.url);
+              redirectUrl.searchParams.set('redirect', req.nextUrl.pathname);
+              return NextResponse.redirect(redirectUrl);
+            } else {
+              return res;
+            }
           }
           
           // Use refreshed user data for the rest of the process
@@ -181,9 +191,14 @@ export async function middleware(req: NextRequest) {
             }
           }
           
-          const redirectUrl = new URL('/login', req.url);
-          redirectUrl.searchParams.set('redirect', req.nextUrl.pathname);
-          return NextResponse.redirect(redirectUrl);
+          // Only redirect if this is a protected route
+          if (isProtectedRoute || isAdminRoute) {
+            const redirectUrl = new URL('/login', req.url);
+            redirectUrl.searchParams.set('redirect', req.nextUrl.pathname);
+            return NextResponse.redirect(redirectUrl);
+          } else {
+            return res;
+          }
         }
       } else if (userError) {
         // If there's no refresh token or another error
@@ -199,9 +214,14 @@ export async function middleware(req: NextRequest) {
           }
         }
         
-        const redirectUrl = new URL('/login', req.url);
-        redirectUrl.searchParams.set('redirect', req.nextUrl.pathname);
-        return NextResponse.redirect(redirectUrl);
+        // Only redirect if this is a protected route
+        if (isProtectedRoute || isAdminRoute) {
+          const redirectUrl = new URL('/login', req.url);
+          redirectUrl.searchParams.set('redirect', req.nextUrl.pathname);
+          return NextResponse.redirect(redirectUrl);
+        } else {
+          return res;
+        }
       }
       
       if (!userData?.user) {
@@ -217,9 +237,14 @@ export async function middleware(req: NextRequest) {
           }
         }
         
-        const redirectUrl = new URL('/login', req.url);
-        redirectUrl.searchParams.set('redirect', req.nextUrl.pathname);
-        return NextResponse.redirect(redirectUrl);
+        // Only redirect if this is a protected route
+        if (isProtectedRoute || isAdminRoute) {
+          const redirectUrl = new URL('/login', req.url);
+          redirectUrl.searchParams.set('redirect', req.nextUrl.pathname);
+          return NextResponse.redirect(redirectUrl);
+        } else {
+          return res;
+        }
       }
       
       // For admin routes, verify admin status
@@ -285,6 +310,13 @@ export async function middleware(req: NextRequest) {
       if (cookie.name.startsWith('sb-')) {
         res.cookies.delete(cookie.name);
       }
+    }
+    
+    // Only redirect if this is a protected route
+    if (isProtectedRoute || isAdminRoute) {
+      const redirectUrl = new URL('/login', req.url);
+      redirectUrl.searchParams.set('redirect', req.nextUrl.pathname);
+      return NextResponse.redirect(redirectUrl);
     }
     
     return res;
