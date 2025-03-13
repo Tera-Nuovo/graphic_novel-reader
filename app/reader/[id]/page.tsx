@@ -81,109 +81,114 @@ function SmartFurigana({
     return <span>{japanese}</span>;
   }
   
-  // For words with a mix of kanji and kana, we need a more sophisticated approach
+  // For words with kanji, we need a more sophisticated approach
   const japaneseChars = [...japanese];
   
-  // Implementation for words that start with kanji
-  if (isKanji(japaneseChars[0])) {
-    // Count consecutive kanji at the beginning
-    let kanjiCount = 0;
-    while (kanjiCount < japaneseChars.length && isKanji(japaneseChars[kanjiCount])) {
-      kanjiCount++;
-    }
-    
-    // Get the reading for the kanji portion
-    const kanjiReading = furigana.substring(0, kanjiCount);
-    
-    // Create output elements
-    const elements: JSX.Element[] = [];
-    
-    // Add kanji with furigana
-    elements.push(
-      <ruby key="kanji-part">
-        {japanese.substring(0, kanjiCount)}
-        <rt className="text-xs text-muted-foreground">{kanjiReading}</rt>
-      </ruby>
-    );
-    
-    // Add the rest of the word without furigana
-    if (kanjiCount < japaneseChars.length) {
-      elements.push(
-        <span key="kana-part">{japanese.substring(kanjiCount)}</span>
-      );
-    }
-    
-    return <>{elements}</>;
-  }
+  // Create mapped segments for rendering
+  const segments: { text: string; isKanji: boolean; reading?: string }[] = [];
+  let currentSegment: typeof segments[0] | null = null;
   
-  // More complex cases - handle words with kanji in the middle
-  const elements: JSX.Element[] = [];
-  let currentKanjiStart = -1;
-  let currentNonKanjiStart = 0;
-  
-  // Process the word character by character
+  // First, divide the text into segments of kanji and non-kanji
   for (let i = 0; i < japaneseChars.length; i++) {
-    const isCurrentCharKanji = isKanji(japaneseChars[i]);
+    const char = japaneseChars[i];
+    const charIsKanji = isKanji(char);
     
-    if (isCurrentCharKanji && currentKanjiStart === -1) {
-      // Found start of a kanji sequence
-      
-      // Add any non-kanji characters before this
-      if (i > currentNonKanjiStart) {
-        elements.push(
-          <span key={`non-kanji-${currentNonKanjiStart}`}>
-            {japanese.substring(currentNonKanjiStart, i)}
-          </span>
-        );
-      }
-      
-      currentKanjiStart = i;
-    } 
-    else if (!isCurrentCharKanji && currentKanjiStart !== -1) {
-      // End of a kanji sequence
-      
-      // The reading for this kanji is estimated based on position
-      // This is a simplified approach and not perfect for all Japanese words
-      const kanjiLength = i - currentKanjiStart;
-      const readingStart = currentKanjiStart; // Estimate reading position
-      const readingEnd = readingStart + kanjiLength;
-      const reading = furigana.substring(readingStart, readingEnd);
-      
-      elements.push(
-        <ruby key={`kanji-${currentKanjiStart}`}>
-          {japanese.substring(currentKanjiStart, i)}
-          <rt className="text-xs text-muted-foreground">{reading}</rt>
-        </ruby>
-      );
-      
-      currentKanjiStart = -1;
-      currentNonKanjiStart = i;
+    if (!currentSegment || currentSegment.isKanji !== charIsKanji) {
+      // Start a new segment
+      currentSegment = {
+        text: char,
+        isKanji: charIsKanji
+      };
+      segments.push(currentSegment);
+    } else {
+      // Extend current segment
+      currentSegment.text += char;
     }
   }
   
-  // Handle any remaining characters
-  if (currentKanjiStart !== -1) {
-    // End with kanji
-    const kanjiLength = japaneseChars.length - currentKanjiStart;
-    const readingStart = currentKanjiStart;
-    const readingEnd = readingStart + kanjiLength;
-    const reading = furigana.substring(readingStart, readingEnd);
+  // Now, try to map readings to kanji segments using a simple heuristic
+  // This approach uses knowledge of how Japanese syllables work
+  let readingIndex = 0;
+  const readingChars = [...furigana];
+  
+  for (let i = 0; i < segments.length; i++) {
+    const segment = segments[i];
     
-    elements.push(
-      <ruby key={`kanji-${currentKanjiStart}`}>
-        {japanese.substring(currentKanjiStart)}
-        <rt className="text-xs text-muted-foreground">{reading}</rt>
+    if (!segment.isKanji) {
+      // For non-kanji segments, we advance the reading index by the number of kana
+      // that would be expected for these characters (approximation)
+      const kanaCount = [...segment.text].filter(char => isKana(char)).length;
+      readingIndex += kanaCount;
+      continue;
+    }
+    
+    // For kanji segments, we need to determine how much of the reading to assign
+    // This is a heuristic - in real Japanese, readings don't always map 1:1 with characters
+    
+    // Check if we still have readings left
+    if (readingIndex >= readingChars.length) {
+      continue; // Skip if we've run out of readings
+    }
+    
+    // For kanji segments, estimate reading length based on the segment length
+    // and available remaining reading characters
+    const estimatedReadingLength = Math.min(
+      // At least the number of kanji characters
+      segment.text.length,
+      // But no more than remaining reading characters
+      readingChars.length - readingIndex,
+      // And add some extra for okurigana if needed
+      segment.text.length + 2
+    );
+    
+    // Assign reading
+    segment.reading = furigana.substring(readingIndex, readingIndex + estimatedReadingLength);
+    
+    // Advance reading index
+    readingIndex += estimatedReadingLength;
+  }
+  
+  // For advanced cases, we need to determine where readings start and end more precisely
+  // Adjust readings for Japanese linguistic patterns (very simplified)
+  if (segments.length > 1) {
+    // Scan for typical verb and adjective patterns
+    // This is a massive simplification and only handles some common cases
+    for (let i = 0; i < segments.length - 1; i++) {
+      const current = segments[i];
+      const next = segments[i + 1];
+      
+      // If we have kanji followed by non-kanji, the reading might extend
+      // beyond just the kanji (e.g., 食べる -> たべる)
+      if (current.isKanji && !next.isKanji && current.reading) {
+        // Check if the next segment starts with certain hiragana that often
+        // follow kanji as part of the same reading unit
+        const commonOkurigana = ["る", "す", "く", "ぐ", "む", "ぶ", "ぬ", "う", "つ", "れ", "せ", "け"];
+        if (next.text.length > 0 && commonOkurigana.some(okurigana => next.text.startsWith(okurigana))) {
+          // Adjust the reading to include part of the next segment
+          if (current.reading && next.text.length > 0) {
+            // Simple heuristic: Take one more character from reading
+            const extendedReading = current.reading + readingChars[readingIndex];
+            current.reading = extendedReading;
+            readingIndex += 1;
+          }
+        }
+      }
+    }
+  }
+  
+  // Now render the segments
+  const elements: JSX.Element[] = segments.map((segment, index) => {
+    if (!segment.isKanji || !segment.reading) {
+      return <span key={`segment-${index}`}>{segment.text}</span>;
+    }
+    
+    return (
+      <ruby key={`segment-${index}`}>
+        {segment.text}
+        <rt className="text-xs text-muted-foreground">{segment.reading}</rt>
       </ruby>
     );
-  } 
-  else if (currentNonKanjiStart < japaneseChars.length) {
-    // End with non-kanji
-    elements.push(
-      <span key={`non-kanji-${currentNonKanjiStart}`}>
-        {japanese.substring(currentNonKanjiStart)}
-      </span>
-    );
-  }
+  });
   
   return <>{elements}</>;
 }
