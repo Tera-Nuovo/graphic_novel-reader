@@ -154,8 +154,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Wait a moment for cookies to be cleared
       await new Promise(resolve => setTimeout(resolve, 300));
       
-      // Sign in with Supabase
-      const { error, data } = await supabase.auth.signInWithPassword({ email, password });
+      // Sign in with Supabase - use a more reliable option
+      const { error, data } = await supabase.auth.signInWithPassword({ 
+        email, 
+        password
+      });
+      
       if (error) throw error;
       
       // Get the latest user data and store the token
@@ -166,6 +170,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const maxAge = 60 * 60 * 24 * 30; // 30 days
         
         // Set the access token with proper cookie attributes
+        // Note: httpOnly MUST be false to allow JavaScript access
         document.cookie = `sb-access-token=${data.session.access_token}; path=/; max-age=${maxAge}; SameSite=Lax; secure`;
         
         // Also store the refresh token in a separate cookie
@@ -219,15 +224,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Update the tokens in cookies
         const maxAge = 60 * 60 * 24 * 30; // 30 days
         
-        // Set the new access token
+        // Set the new access token - must match middleware settings
         document.cookie = `sb-access-token=${data.session.access_token}; path=/; max-age=${maxAge}; SameSite=Lax; secure`;
         
-        // Set the new refresh token
+        // Set the new refresh token - must match middleware settings
         document.cookie = `sb-refresh-token=${data.session.refresh_token}; path=/; max-age=${maxAge}; SameSite=Lax; secure`;
         
         // Update our local state
         setSession(data.session);
         setUser(data.session.user);
+        
+        // Check admin status
+        checkAdminStatus(data.session.user);
       }
     } catch (refreshError) {
       console.error('Error during token refresh:', refreshError);

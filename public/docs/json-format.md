@@ -5,9 +5,12 @@ This document provides a comprehensive guide to the JSON format used for importi
 ## Table of Contents
 
 1. [Introduction](#introduction)
-2. [Story Format](#story-format)
-3. [Chapter Format](#chapter-format)
-4. [Words Format](#words-format)
+2. [Story Import Format](#story-import-format)
+3. [Chapter Import Format](#chapter-import-format)
+4. [Common Elements](#common-elements)
+   - [Panel Format](#panel-format)
+   - [Sentence Format](#sentence-format)
+   - [Word Format](#word-format)
 5. [Examples](#examples)
 6. [Best Practices](#best-practices)
 
@@ -15,14 +18,16 @@ This document provides a comprehensive guide to the JSON format used for importi
 
 The Graphic Novel Reader application supports importing content in a structured JSON format. You can import:
 
-- Complete stories with multiple chapters
-- Individual chapters to add to existing stories
+- Complete stories with multiple chapters (using the Story Import Format)
+- Individual chapters to add to existing stories (using the Chapter Import Format)
 
 All imports provide support for Japanese text with furigana, translations, and detailed word-level annotations.
 
-## Story Format
+## Story Import Format
 
-A complete story JSON file contains the following structure:
+When you want to import a complete story with one or more chapters, use the Story Import Format.
+
+### Structure
 
 ```json
 {
@@ -33,7 +38,7 @@ A complete story JSON file contains the following structure:
       "order": 1,
       "status": "published",
       "panels": [
-        // Panel objects (see Chapter Format)
+        // Panel objects (see Panel Format)
       ]
     },
     // More chapters...
@@ -48,14 +53,22 @@ A complete story JSON file contains the following structure:
 | `title` | String | The title of the story | Yes |
 | `chapters` | Array | Array of chapter objects | Yes |
 
-## Chapter Format
+### Story Import Notes
 
-A chapter can be imported as part of a story or as a standalone file:
+- When importing a complete story, all chapters in the `chapters` array will be created
+- Chapter orders will be preserved as specified in the file
+- The story title will be used for both Japanese and English titles 
+- If you're importing into an existing story, consider using the Chapter Import Format instead
+
+## Chapter Import Format
+
+When you want to add a single chapter or multiple chapters to an existing story, use the Chapter Import Format.
+
+### Structure for Single Chapter Import
 
 ```json
 {
   "title": "Chapter Title",
-  "order": 1,
   "status": "draft",
   "panels": [
     {
@@ -70,6 +83,29 @@ A chapter can be imported as part of a story or as a standalone file:
 }
 ```
 
+### Structure for Multiple Chapters Import
+
+```json
+{
+  "chapters": [
+    {
+      "title": "Chapter 1 Title",
+      "status": "draft",
+      "panels": [
+        // Panel objects
+      ]
+    },
+    {
+      "title": "Chapter 2 Title",
+      "status": "draft",
+      "panels": [
+        // Panel objects
+      ]
+    }
+  ]
+}
+```
+
 ### Chapter Properties
 
 | Property | Type | Description | Required |
@@ -79,7 +115,31 @@ A chapter can be imported as part of a story or as a standalone file:
 | `status` | String | Either "draft" or "published" | No (defaults to "draft") |
 | `panels` | Array | Array of panel objects | Yes |
 
-### Panel Properties
+### Chapter Import Notes
+
+- When using chapter import, the chapters will be added to an existing story
+- All imported chapters will be added to the end of the story, after any existing chapters
+- You can either import a single chapter (using the single chapter format) or multiple chapters (using the multiple chapters format or a full story import file)
+- If `order` is specified, it will be adjusted to follow existing chapters
+- The system will automatically assign an appropriate order value to avoid conflicts with existing chapters
+
+## Common Elements
+
+The following formats are used in both story and chapter imports.
+
+### Panel Format
+
+Panels are used to organize content within chapters:
+
+```json
+{
+  "order": 1,
+  "image": "https://example.com/image.jpg",
+  "sentences": [
+    // Sentence objects
+  ]
+}
+```
 
 | Property | Type | Description | Required |
 |----------|------|-------------|----------|
@@ -87,7 +147,7 @@ A chapter can be imported as part of a story or as a standalone file:
 | `image` | String | URL or data URI of the panel image | No |
 | `sentences` | Array | Array of sentence objects | Yes |
 
-### Sentence Properties
+### Sentence Format
 
 Sentences can use either the modern format or legacy format:
 
@@ -126,11 +186,11 @@ Sentences can use either the modern format or legacy format:
 | `order` | Number | The numerical order of this sentence within the panel | No (defaults to array position + 1) |
 | `words` | Array | Array of word objects | Yes |
 
-## Words Format
+### Word Format
 
 Words can use either the modern format or legacy format:
 
-### Modern Format (Preferred)
+#### Modern Format (Preferred)
 
 ```json
 {
@@ -144,7 +204,7 @@ Words can use either the modern format or legacy format:
 }
 ```
 
-### Legacy Format (Supported but not recommended)
+#### Legacy Format (Supported but not recommended)
 
 ```json
 {
@@ -266,6 +326,119 @@ Words can use either the modern format or legacy format:
 }
 ```
 
+### Multiple Chapters Import Example
+
+```json
+{
+  "chapters": [
+    {
+      "title": "Chapter One",
+      "panels": [
+        {
+          "order": 1,
+          "sentences": [
+            {
+              "japanese": "これは最初の章です。",
+              "english": "This is the first chapter.",
+              "words": [
+                {
+                  "japanese": "これ",
+                  "reading": "これ",
+                  "english": "this",
+                  "part_of_speech": "pronoun"
+                },
+                {
+                  "japanese": "は",
+                  "reading": "は",
+                  "english": "(topic marker)",
+                  "part_of_speech": "particle"
+                },
+                {
+                  "japanese": "最初",
+                  "reading": "さいしょ",
+                  "english": "first",
+                  "part_of_speech": "noun"
+                },
+                {
+                  "japanese": "の",
+                  "reading": "の",
+                  "english": "(possessive)",
+                  "part_of_speech": "particle"
+                },
+                {
+                  "japanese": "章",
+                  "reading": "しょう",
+                  "english": "chapter",
+                  "part_of_speech": "noun"
+                },
+                {
+                  "japanese": "です",
+                  "reading": "です",
+                  "english": "is",
+                  "part_of_speech": "copula"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Chapter Two",
+      "panels": [
+        {
+          "order": 1,
+          "sentences": [
+            {
+              "japanese": "これは二番目の章です。",
+              "english": "This is the second chapter.",
+              "words": [
+                {
+                  "japanese": "これ",
+                  "reading": "これ",
+                  "english": "this",
+                  "part_of_speech": "pronoun"
+                },
+                {
+                  "japanese": "は",
+                  "reading": "は",
+                  "english": "(topic marker)",
+                  "part_of_speech": "particle"
+                },
+                {
+                  "japanese": "二番目",
+                  "reading": "にばんめ",
+                  "english": "second",
+                  "part_of_speech": "noun"
+                },
+                {
+                  "japanese": "の",
+                  "reading": "の",
+                  "english": "(possessive)",
+                  "part_of_speech": "particle"
+                },
+                {
+                  "japanese": "章",
+                  "reading": "しょう",
+                  "english": "chapter",
+                  "part_of_speech": "noun"
+                },
+                {
+                  "japanese": "です",
+                  "reading": "です",
+                  "english": "is",
+                  "part_of_speech": "copula"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
 ## Best Practices
 
 1. **Always use the modern format** over the legacy format when creating new imports
@@ -274,13 +447,4 @@ Words can use either the modern format or legacy format:
 4. **Maintain consistent order values** for chapters, panels, sentences, and words
 5. **Validate your JSON** before importing to ensure no parsing errors
 6. **Use proper UTF-8 encoding** to ensure Japanese characters are displayed correctly
-7. **Keep file sizes reasonable** by optimizing image URLs or using external image hosting
-
-## Importing Multiple Chapters
-
-When importing multiple chapters to an existing story:
-
-- All chapters from the imported file will be added to the end of the story
-- The order specified in the JSON will be maintained, but adjusted to follow existing chapters
-- You can import a full story JSON (only the chapters will be imported)
-- You can import a single chapter JSON 
+7. **Keep file sizes reasonable** by optimizing image URLs or using external image hosting 

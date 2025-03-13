@@ -83,7 +83,13 @@ export async function middleware(req: NextRequest) {
           // Create a new client without the invalid token
           const refreshClient = createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            {
+              auth: {
+                persistSession: false,
+                autoRefreshToken: false
+              }
+            }
           );
           
           // Try to refresh the session
@@ -96,6 +102,14 @@ export async function middleware(req: NextRequest) {
             // Clear invalid tokens
             res.cookies.delete('sb-access-token');
             res.cookies.delete('sb-refresh-token');
+            
+            // Also clear any native Supabase cookies
+            for (const cookie of allCookies) {
+              if (cookie.name.startsWith('sb-')) {
+                res.cookies.delete(cookie.name);
+              }
+            }
+            
             const redirectUrl = new URL('/login', req.url);
             redirectUrl.searchParams.set('redirect', req.nextUrl.pathname);
             return NextResponse.redirect(redirectUrl);
@@ -104,25 +118,28 @@ export async function middleware(req: NextRequest) {
           // We successfully refreshed the token
           console.log('Session refreshed successfully');
           
-          // Update access and refresh tokens in cookies
+          // Update access and refresh tokens in cookies - with CONSISTENT settings
           const maxAge = 60 * 60 * 24 * 30; // 30 days
           
+          // Make sure these cookie settings match the client-side settings
           res.cookies.set({
             name: 'sb-access-token',
             value: refreshData.session.access_token,
-            httpOnly: true,
+            httpOnly: false, // Important: must match client-side setting
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
-            maxAge: maxAge
+            maxAge: maxAge,
+            path: '/'
           });
           
           res.cookies.set({
             name: 'sb-refresh-token',
             value: refreshData.session.refresh_token,
-            httpOnly: true,
+            httpOnly: false, // Important: must match client-side setting
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
-            maxAge: maxAge
+            maxAge: maxAge,
+            path: '/'
           });
           
           // Use the refreshed data for user verification
@@ -136,6 +153,14 @@ export async function middleware(req: NextRequest) {
             // Clear invalid tokens
             res.cookies.delete('sb-access-token');
             res.cookies.delete('sb-refresh-token');
+            
+            // Also clear any native Supabase cookies
+            for (const cookie of allCookies) {
+              if (cookie.name.startsWith('sb-')) {
+                res.cookies.delete(cookie.name);
+              }
+            }
+            
             const redirectUrl = new URL('/login', req.url);
             redirectUrl.searchParams.set('redirect', req.nextUrl.pathname);
             return NextResponse.redirect(redirectUrl);
@@ -148,6 +173,14 @@ export async function middleware(req: NextRequest) {
           // Clear invalid tokens
           res.cookies.delete('sb-access-token');
           res.cookies.delete('sb-refresh-token');
+          
+          // Also clear any native Supabase cookies
+          for (const cookie of allCookies) {
+            if (cookie.name.startsWith('sb-')) {
+              res.cookies.delete(cookie.name);
+            }
+          }
+          
           const redirectUrl = new URL('/login', req.url);
           redirectUrl.searchParams.set('redirect', req.nextUrl.pathname);
           return NextResponse.redirect(redirectUrl);
@@ -158,6 +191,14 @@ export async function middleware(req: NextRequest) {
         // Clear invalid token
         res.cookies.delete('sb-access-token');
         res.cookies.delete('sb-refresh-token');
+        
+        // Also clear any native Supabase cookies
+        for (const cookie of allCookies) {
+          if (cookie.name.startsWith('sb-')) {
+            res.cookies.delete(cookie.name);
+          }
+        }
+        
         const redirectUrl = new URL('/login', req.url);
         redirectUrl.searchParams.set('redirect', req.nextUrl.pathname);
         return NextResponse.redirect(redirectUrl);
@@ -168,6 +209,14 @@ export async function middleware(req: NextRequest) {
         // Clear invalid token
         res.cookies.delete('sb-access-token');
         res.cookies.delete('sb-refresh-token');
+        
+        // Also clear any native Supabase cookies
+        for (const cookie of allCookies) {
+          if (cookie.name.startsWith('sb-')) {
+            res.cookies.delete(cookie.name);
+          }
+        }
+        
         const redirectUrl = new URL('/login', req.url);
         redirectUrl.searchParams.set('redirect', req.nextUrl.pathname);
         return NextResponse.redirect(redirectUrl);
@@ -185,15 +234,28 @@ export async function middleware(req: NextRequest) {
           return NextResponse.redirect(new URL('/', req.url));
         }
         
-        // Update the token in cookies to keep it fresh
+        // Update the token in cookies to keep it fresh (with consistent settings)
         res.cookies.set({
           name: 'sb-access-token',
           value: accessToken,
-          httpOnly: true,
+          httpOnly: false, // Important: must match client-side setting
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'lax',
-          maxAge: 60 * 60 * 24 * 30 // 30 days
+          maxAge: 60 * 60 * 24 * 30, // 30 days
+          path: '/'
         });
+        
+        if (refreshToken) {
+          res.cookies.set({
+            name: 'sb-refresh-token',
+            value: refreshToken,
+            httpOnly: false, // Important: must match client-side setting
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 60 * 60 * 24 * 30, // 30 days
+            path: '/'
+          });
+        }
         
         console.log('User is admin, allowing access');
       }
@@ -217,6 +279,14 @@ export async function middleware(req: NextRequest) {
     // Clear any invalid tokens on error
     res.cookies.delete('sb-access-token');
     res.cookies.delete('sb-refresh-token');
+    
+    // Also clear any native Supabase cookies
+    for (const cookie of req.cookies.getAll()) {
+      if (cookie.name.startsWith('sb-')) {
+        res.cookies.delete(cookie.name);
+      }
+    }
+    
     return res;
   }
 }
