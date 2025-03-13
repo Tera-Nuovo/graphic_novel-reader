@@ -39,34 +39,89 @@ export async function POST(request: NextRequest) {
     
     console.log(`API: Importing ${chaptersToImport.length} chapter(s) with service role`);
     
+    // First get all existing chapters for this story to determine safe order values
+    const { data: existingChapters, error: listError } = await supabase
+      .from('chapters')
+      .select('order')
+      .eq('story_id', storyId)
+      .order('order', { ascending: false });
+      
+    // Find the highest order value to avoid duplicates
+    let nextOrder = 1;
+    if (existingChapters && existingChapters.length > 0) {
+      // Use Math.max with spread to get the highest order value
+      const maxOrder = Math.max(...existingChapters.map(ch => ch.order || 0));
+      nextOrder = maxOrder + 1;
+    }
+    
+    // Add a buffer to avoid conflicts
+    nextOrder += 10;
+    
+    console.log(`API: Starting chapter import with nextOrder: ${nextOrder}`);
+    
     // Track the created chapter IDs
     const chapterIds: string[] = [];
     
     // Process each chapter in sequence
     for (let i = 0; i < chaptersToImport.length; i++) {
       const chapterData = chaptersToImport[i];
+      const currentOrder = nextOrder + i;
       
-      // 1. Create chapter
-      const { data: createdChapter, error: chapterError } = await supabase
-        .from('chapters')
-        .insert({
-          story_id: storyId,
-          title: chapterData.title,
-          order: chapterData.order || (i + 1), // Use provided order or sequential based on position
-          status: chapterData.status || 'draft'
-        })
-        .select()
-        .single();
+      // Try creating the chapter
+      let creationSuccess = false;
+      let chapterId = '';
+      let retryCount = 0;
+      const maxRetries = 3;
+      let orderToUse = currentOrder;
       
-      if (chapterError || !createdChapter) {
-        console.error('API: Chapter creation failed:', chapterError);
+      while (!creationSuccess && retryCount < maxRetries) {
+        try {
+          console.log(`API: Creating chapter ${i+1} with order ${orderToUse}`);
+          
+          // 1. Create chapter
+          const { data: createdChapter, error: chapterError } = await supabase
+            .from('chapters')
+            .insert({
+              story_id: storyId,
+              title: chapterData.title,
+              order: orderToUse,
+              status: chapterData.status || 'draft'
+            })
+            .select()
+            .single();
+          
+          if (chapterError) {
+            // If it's a duplicate key error, try with a higher order
+            if (chapterError.message?.includes('duplicate key') || 
+                chapterError.message?.includes('unique constraint')) {
+              console.log(`API: Duplicate key error for order ${orderToUse}, retrying...`);
+              retryCount++;
+              // Add a larger offset to avoid conflicts
+              orderToUse = nextOrder + i + (retryCount * 50);
+              continue;
+            } else {
+              // If it's not a duplicate key error, return the error
+              throw chapterError;
+            }
+          }
+          
+          if (createdChapter) {
+            chapterId = createdChapter.id;
+            creationSuccess = true;
+          }
+        } catch (error) {
+          console.error(`API: Error creating chapter ${i+1}:`, error);
+          throw error;
+        }
+      }
+      
+      if (!creationSuccess) {
         return NextResponse.json(
-          { success: false, error: chapterError?.message || 'Failed to create chapter' },
+          { success: false, error: `Failed to create chapter ${i+1} after ${maxRetries} retries` },
           { status: 500 }
         );
       }
       
-      const chapterId = createdChapter.id;
       chapterIds.push(chapterId);
       
       // 2. Create panels for this chapter

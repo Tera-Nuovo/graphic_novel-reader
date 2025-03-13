@@ -108,6 +108,17 @@ export function ChapterImporter({ storyId, onComplete }: ChapterImporterProps) {
 
   const supabase = createClientComponentClient();
 
+  // Reset state when dialog opens/closes
+  const handleDialogChange = (open: boolean) => {
+    setDialogOpen(open);
+    if (!open) {
+      // Reset state when dialog is closed
+      setFile(null);
+      setImportStatus(null);
+      setImportProgress(null);
+    }
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setFile(e.target.files[0]);
@@ -144,7 +155,7 @@ export function ChapterImporter({ storyId, onComplete }: ChapterImporterProps) {
       let shouldUseServiceRole = false;
       let importError = null;
       
-      // Get the maximum order of existing chapters to add these at the end
+      // Get ALL existing chapters to ensure we have the correct next order
       setImportProgress({ 
         current: 0, 
         total: chaptersData.length + 1, 
@@ -155,24 +166,31 @@ export function ChapterImporter({ storyId, onComplete }: ChapterImporterProps) {
         .from('chapters')
         .select('order')
         .eq('story_id', storyId)
-        .order('order', { ascending: false })
-        .limit(1);
+        .order('order', { ascending: false });
       
-      let nextOrder = existingChapters && existingChapters.length > 0 
-        ? existingChapters[0].order + 1 
-        : 1;
+      // Find the highest order value
+      let nextOrder = 1;
+      if (existingChapters && existingChapters.length > 0) {
+        const maxOrder = Math.max(...existingChapters.map(ch => ch.order || 0));
+        nextOrder = maxOrder + 1;
+      }
+      
+      console.log(`Starting import with nextOrder: ${nextOrder}`);
       
       // Try normal client import first
       try {
         // Loop through all chapters to import
         for (let chapterIndex = 0; chapterIndex < chaptersData.length; chapterIndex++) {
           const chapterData = chaptersData[chapterIndex];
+          const chapterOrder = nextOrder + chapterIndex;
           
           setImportProgress({ 
             current: chapterIndex + 1, 
             total: chaptersData.length + 1, 
-            stage: `Creating chapter ${chapterIndex + 1}/${chaptersData.length}` 
+            stage: `Creating chapter ${chapterIndex + 1}/${chaptersData.length} (order: ${chapterOrder})` 
           });
+          
+          console.log(`Creating chapter with order: ${chapterOrder}`);
           
           // Create the chapter with incrementing order
           const { data: createdChapter, error: chapterError } = await supabase
@@ -180,19 +198,28 @@ export function ChapterImporter({ storyId, onComplete }: ChapterImporterProps) {
             .insert({
               story_id: storyId,
               title: chapterData.title,
-              order: nextOrder, // Always use the calculated nextOrder, not the one from the file
+              order: chapterOrder, // Use pre-calculated order
               status: chapterData.status || 'draft'
             })
             .select()
             .single();
           
           if (chapterError) {
+            console.error("Chapter creation error:", chapterError);
             // Check if error is RLS related
             if (chapterError.message?.includes('row-level security') || 
                 chapterError.message?.includes('policy')) {
               console.warn('RLS error detected, will try service role import');
               shouldUseServiceRole = true;
               break; // Exit the loop and try service role import
+            } else if (chapterError.message?.includes('duplicate key') || 
+                     chapterError.message?.includes('unique constraint')) {
+              // If we hit a duplicate key constraint, try with a much higher order
+              console.warn(`Duplicate key error for order ${chapterOrder}, retrying with higher order`);
+              nextOrder = nextOrder + chaptersData.length + 10; // Add extra buffer
+              chapterIndex = -1; // Restart the loop (will be incremented to 0)
+              importedChapterIds = []; // Reset imported IDs
+              continue;
             } else {
               throw new Error(`Failed to create chapter: ${chapterError.message}`);
             }
@@ -290,12 +317,10 @@ export function ChapterImporter({ storyId, onComplete }: ChapterImporterProps) {
                 }
               }
             }
-            
-            // Increment the order for the next chapter
-            nextOrder++;
           }
         }
       } catch (clientError) {
+        console.error("Client import error:", clientError);
         if (!shouldUseServiceRole) {
           // If not already marked for service role, check the error
           if (clientError instanceof Error && 
@@ -319,42 +344,56 @@ export function ChapterImporter({ storyId, onComplete }: ChapterImporterProps) {
         
         // Reset for service role import
         importedChapterIds = [];
-        nextOrder = existingChapters && existingChapters.length > 0 
-          ? existingChapters[0].order + 1 
-          : 1;
+        // Recalculate nextOrder to be safe
+        if (existingChapters && existingChapters.length > 0) {
+          const maxOrder = Math.max(...existingChapters.map(ch => ch.order || 0));
+          nextOrder = maxOrder + 1;
+        } else {
+          nextOrder = 1;
+        }
+        
+        // Add extra buffer to avoid conflicts  
+        nextOrder += 10;
+        
+        console.log(`Using service role to import chapters starting at order: ${nextOrder}`);
           
         // Use service role to import all chapters
         const chaptersToImport = chaptersData.map((chapter, index) => {
           return {
             ...chapter,
-            order: nextOrder + index // Assign sequential order numbers
+            order: nextOrder + index // Assign sequential order numbers with buffer
           };
         });
         
-        const result = await fetch('/api/import/chapter-service-role', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            storyId,
-            chapters: chaptersToImport
-          }),
-        });
-        
-        if (!result.ok) {
-          const errorData = await result.json();
-          throw new Error(errorData.error || 'Failed to import chapter with service role');
+        try {
+          const result = await fetch('/api/import/chapter-service-role', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              storyId,
+              chapters: chaptersToImport
+            }),
+          });
+          
+          if (!result.ok) {
+            const errorData = await result.json();
+            throw new Error(errorData.error || 'Failed to import chapter with service role');
+          }
+          
+          const data = await result.json();
+          importedChapterIds = data.chapterIds || [];
+          
+          setImportProgress({ 
+            current: 1, 
+            total: 1, 
+            stage: 'Import completed with admin privileges' 
+          });
+        } catch (serviceRoleError) {
+          console.error("Service role import error:", serviceRoleError);
+          importError = serviceRoleError;
         }
-        
-        const data = await result.json();
-        importedChapterIds = data.chapterIds;
-        
-        setImportProgress({ 
-          current: 1, 
-          total: 1, 
-          stage: 'Import completed with admin privileges' 
-        });
       }
       
       // Re-throw any error we encountered
@@ -374,8 +413,10 @@ export function ChapterImporter({ storyId, onComplete }: ChapterImporterProps) {
           onComplete();
         }
         
-        // Close the dialog on success
-        setDialogOpen(false);
+        // Close the dialog after a short delay to show success message
+        setTimeout(() => {
+          setDialogOpen(false);
+        }, 1500);
       } else {
         throw new Error('Failed to create any chapters');
       }
@@ -413,7 +454,7 @@ export function ChapterImporter({ storyId, onComplete }: ChapterImporterProps) {
   };
 
   return (
-    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+    <Dialog open={dialogOpen} onOpenChange={handleDialogChange}>
       <DialogTrigger asChild>
         <Button variant="outline">
           <Upload className="mr-2 h-4 w-4" />
