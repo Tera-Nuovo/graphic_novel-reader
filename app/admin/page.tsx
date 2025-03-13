@@ -13,7 +13,7 @@ import { toast } from "@/components/ui/use-toast"
 
 export default function AdminDashboard() {
   const router = useRouter()
-  const { user, isAdmin } = useAuth()
+  const { user, isAdmin, refreshUser } = useAuth()
   const [stories, setStories] = useState<Story[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [stats, setStats] = useState({
@@ -22,7 +22,41 @@ export default function AdminDashboard() {
     activeUsers: 0
   })
 
+  // Function to clear cookies and refresh tokens if there's an error
+  const clearAuthCookiesAndRefresh = async () => {
+    console.log('Clearing auth cookies and refreshing tokens...')
+    
+    // Clear all Supabase cookies
+    document.cookie.split(';').forEach(cookie => {
+      const [name] = cookie.trim().split('=')
+      if (name.includes('sb-')) {
+        document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT`
+      }
+    })
+    
+    // Get a fresh session and set cookies
+    try {
+      const { data } = await supabase.auth.getSession()
+      
+      if (data?.session) {
+        const maxAge = 60 * 60 * 24 * 30 // 30 days
+        document.cookie = `sb-access-token=${data.session.access_token}; path=/; max-age=${maxAge}; SameSite=Lax; secure`
+        document.cookie = `sb-refresh-token=${data.session.refresh_token}; path=/; max-age=${maxAge}; SameSite=Lax; secure`
+        
+        // Refresh user data
+        await refreshUser()
+        return true
+      }
+    } catch (e) {
+      console.error('Error refreshing session:', e)
+    }
+    
+    return false
+  }
+
   useEffect(() => {
+    let isMounted = true
+    
     async function fetchData() {
       if (!user) return
 
@@ -30,41 +64,86 @@ export default function AdminDashboard() {
         setIsLoading(true)
         
         // Fetch stories
-        const { data: storiesData, error: storiesError } = await supabase
+        let storiesData: any[] = []
+        let chaptersCount = 0
+        
+        // First attempt to get stories
+        const { data: initialStoriesData, error: storiesError } = await supabase
           .from('stories')
           .select('*')
           .order('created_at', { ascending: false })
         
-        if (storiesError) throw storiesError
+        if (storiesError) {
+          // If we get an error, try to refresh the tokens
+          console.error('Error fetching stories:', storiesError)
+          if (await clearAuthCookiesAndRefresh()) {
+            // Try once more after refreshing tokens
+            const { data: retryData, error: retryError } = await supabase
+              .from('stories')
+              .select('*')
+              .order('created_at', { ascending: false })
+            
+            if (retryError) throw retryError
+            storiesData = retryData || []
+          } else {
+            throw storiesError
+          }
+        } else {
+          storiesData = initialStoriesData || []
+        }
         
         // Fetch chapter count
-        const { count: chaptersCount, error: chaptersError } = await supabase
+        const { count: initialChaptersCount, error: chaptersError } = await supabase
           .from('chapters')
           .select('*', { count: 'exact', head: true })
         
-        if (chaptersError) throw chaptersError
+        if (chaptersError) {
+          // If we get an error, try to refresh the tokens if we haven't already
+          console.error('Error fetching chapter count:', chaptersError)
+          if (await clearAuthCookiesAndRefresh()) {
+            // Try once more after refreshing tokens
+            const { count: retryCount, error: retryError } = await supabase
+              .from('chapters')
+              .select('*', { count: 'exact', head: true })
+            
+            if (retryError) throw retryError
+            chaptersCount = retryCount || 0
+          } else {
+            throw chaptersError
+          }
+        } else {
+          chaptersCount = initialChaptersCount || 0
+        }
         
         // Set the data
-        setStories(storiesData as Story[])
-        setStats({
-          totalStories: storiesData.length,
-          totalChapters: chaptersCount || 0,
-          activeUsers: 256 // This would typically come from a real analytics source
-        })
+        if (isMounted) {
+          setStories(storiesData as Story[])
+          setStats({
+            totalStories: storiesData.length,
+            totalChapters: chaptersCount,
+            activeUsers: 256 // This would typically come from a real analytics source
+          })
+        }
       } catch (error) {
         console.error('Error fetching dashboard data:', error)
         toast({
-          title: "Error",
-          description: "Failed to load dashboard data",
+          title: "Authentication Error",
+          description: "Please refresh the page or sign in again",
           variant: "destructive",
         })
       } finally {
-        setIsLoading(false)
+        if (isMounted) {
+          setIsLoading(false)
+        }
       }
     }
 
     fetchData()
-  }, [user])
+    
+    return () => {
+      isMounted = false
+    }
+  }, [user, refreshUser])
 
   // If not admin, show access denied message
   if (!isAdmin) {
