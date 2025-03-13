@@ -170,13 +170,78 @@ The application now supports direct image URLs for all images (panels, covers, e
 - Use image hosting services or CDNs for reliable access
 - Supported formats include JPG, PNG, GIF, and WebP
 
-Example using a direct image URL:
+##### Image Hosting Options
+
+You can use various image hosting services:
+
+1. **Imgur**: `https://i.imgur.com/AbCdEfG.jpg`
+2. **Cloudinary**: `https://res.cloudinary.com/demo/image/upload/manga/panel1.jpg`
+3. **GitHub**: `https://raw.githubusercontent.com/username/repo/main/images/cover.png`
+4. **ImgBB**: `https://i.ibb.co/AbCdEfG/panel2.jpg`
+5. **Unsplash**: `https://images.unsplash.com/photo-1234567890`
+6. **Your own hosted images**: `https://yourdomain.com/images/manga/chapter1/page1.jpg`
+
+##### Example Using Various Image Sources
+
+```json
+{
+  "title": "Forest Adventure",
+  "japanese_title": "森の冒険",
+  "english_title": "Forest Adventure",
+  "description": "A journey through an enchanted forest",
+  "difficulty_level": "intermediate",
+  "tags": ["fantasy", "adventure"],
+  "cover_image": "https://images.unsplash.com/photo-1502082553048-f009c37129b9",
+  "chapters": [
+    {
+      "title": "Chapter 1: The Beginning",
+      "panels": [
+        {
+          "order": 1,
+          "image": "https://i.imgur.com/t72dg3s.jpg",
+          "sentences": [
+            {
+              "japanese": "森の入り口に立っていた。",
+              "english": "I was standing at the entrance to the forest.",
+              "words": []
+            }
+          ]
+        },
+        {
+          "order": 2,
+          "image": "https://res.cloudinary.com/demo/image/upload/v1583835382/manga/panel2.jpg",
+          "sentences": [
+            {
+              "japanese": "鳥のさえずりが聞こえた。",
+              "english": "I could hear birds chirping.",
+              "words": []
+            }
+          ]
+        },
+        {
+          "order": 3,
+          "image": "https://raw.githubusercontent.com/manga-samples/forest-adventure/main/chapter1/panel3.png",
+          "sentences": [
+            {
+              "japanese": "深い森の中で道に迷った。",
+              "english": "I got lost in the deep forest.",
+              "words": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+Example using a direct image URL for a panel:
 ```json
 {
   "panels": [
     {
       "order": 1,
-      "image": "https://example.com/my-panel-image.jpg",
+      "image": "https://images.pexels.com/photos/1761279/pexels-photo-1761279.jpeg",
       "sentences": [
         // Sentence objects
       ]

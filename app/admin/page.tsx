@@ -5,17 +5,30 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Plus, Book, BookOpen, Settings, Users, AlertTriangle, Download, Upload } from "lucide-react"
+import { Plus, Book, BookOpen, Settings, Users, AlertTriangle, Download, Upload, Trash2 } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { Story } from "@/lib/types"
 import { useAuth } from "@/lib/auth"
 import { toast } from "@/components/ui/use-toast"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 export default function AdminDashboard() {
   const router = useRouter()
   const { user, isAdmin, refreshUser } = useAuth()
   const [stories, setStories] = useState<Story[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isDeletingStory, setIsDeletingStory] = useState(false)
+  const [storyToDelete, setStoryToDelete] = useState<Story | null>(null)
   const [stats, setStats] = useState({
     totalStories: 0,
     totalChapters: 0,
@@ -52,6 +65,54 @@ export default function AdminDashboard() {
     }
     
     return false
+  }
+
+  // Handle story deletion
+  const handleDeleteStory = async (story: Story) => {
+    try {
+      setIsDeletingStory(true)
+      
+      // Delete the story from the database
+      const { error } = await supabase
+        .from('stories')
+        .delete()
+        .eq('id', story.id)
+      
+      if (error) {
+        console.error('Error deleting story:', error)
+        toast({
+          title: "Delete Failed",
+          description: `Failed to delete "${story.english_title}". ${error.message}`,
+          variant: "destructive",
+        })
+        return
+      }
+      
+      // Update the stories list
+      setStories(stories.filter(s => s.id !== story.id))
+      
+      // Update stats
+      setStats(prev => ({
+        ...prev,
+        totalStories: prev.totalStories - 1
+      }))
+      
+      toast({
+        title: "Story Deleted",
+        description: `"${story.english_title}" has been deleted successfully.`
+      })
+      
+    } catch (error) {
+      console.error('Error in delete process:', error)
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsDeletingStory(false)
+      setStoryToDelete(null)
+    }
   }
 
   useEffect(() => {
@@ -300,6 +361,38 @@ export default function AdminDashboard() {
                           <Button variant="outline" size="sm" asChild>
                             <Link href={`/admin/stories/${story.id}/chapters`}>Chapters</Link>
                           </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="text-red-500 border-red-200 hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-950"
+                                onClick={() => setStoryToDelete(story)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Story</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete "{story.english_title}"? 
+                                  This action will permanently delete the story and all its chapters, panels, sentences, and words.
+                                  This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel onClick={() => setStoryToDelete(null)}>Cancel</AlertDialogCancel>
+                                <AlertDialogAction 
+                                  onClick={() => handleDeleteStory(story)}
+                                  className="bg-red-600 hover:bg-red-700"
+                                  disabled={isDeletingStory}
+                                >
+                                  {isDeletingStory ? "Deleting..." : "Delete Story"}
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       </td>
                     </tr>
