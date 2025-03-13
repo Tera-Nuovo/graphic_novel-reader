@@ -2,10 +2,12 @@
 
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Upload, X, Loader2 } from "lucide-react"
+import { Upload, X, Loader2, Link as LinkIcon } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { useToast } from "@/components/ui/use-toast"
 import { useEnsureBuckets } from "@/lib/hooks/use-ensure-buckets"
+import { Input } from "@/components/ui/input"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 /**
  * Helper function to upload files using the service role API
@@ -56,7 +58,7 @@ interface ImageUploadProps {
 
 /**
  * A reusable image upload component that handles file validation,
- * image preview, and upload to Supabase storage
+ * image preview, and upload to Supabase storage. Now supports URL input.
  */
 export function ImageUpload({
   initialImage,
@@ -71,6 +73,8 @@ export function ImageUpload({
   const [file, setFile] = useState<File | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [imageUrl, setImageUrl] = useState<string>("")
+  const [inputMode, setInputMode] = useState<"upload" | "url">("upload")
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
   const { ensureBuckets, isEnsuring, bucketStatus } = useEnsureBuckets()
@@ -121,6 +125,65 @@ export function ImageUpload({
     } catch (error) {
       console.error("Error auto-uploading image:", error)
     }
+  }
+
+  // Handle URL input
+  const handleUrlSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!imageUrl.trim()) {
+      setError("Please enter a valid URL")
+      return
+    }
+
+    try {
+      setIsUploading(true)
+      setError(null)
+
+      // Validate URL
+      if (!imageUrl.match(/^https?:\/\/.+/i)) {
+        setError("URL must start with http:// or https://")
+        setIsUploading(false)
+        return
+      }
+
+      // Test if the URL is a valid image
+      const isValidImage = await testImageUrl(imageUrl)
+      if (!isValidImage) {
+        setError("The URL does not point to a valid image")
+        setIsUploading(false)
+        return
+      }
+
+      // Set image and pass URL back to parent
+      setImage(imageUrl)
+      onImageUploaded(imageUrl)
+      
+      toast({
+        title: "Image URL set",
+        description: "The image URL has been set successfully",
+      })
+      
+    } catch (error) {
+      console.error("Error setting image URL:", error)
+      setError("Failed to set image URL")
+      toast({
+        title: "Error",
+        description: "Failed to set image URL. Please try a different URL.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  // Test if a URL points to a valid image
+  const testImageUrl = (url: string): Promise<boolean> => {
+    return new Promise((resolve) => {
+      const img = new Image()
+      img.onload = () => resolve(true)
+      img.onerror = () => resolve(false)
+      img.src = url
+    })
   }
 
   // Upload image to Supabase storage
@@ -219,7 +282,7 @@ export function ImageUpload({
     try {
       setIsUploading(true)
       
-      // If there's an image URL, try to delete the file from storage
+      // If there's an image URL, try to delete the file from storage only if it's from our bucket
       if (image && image.includes(bucketName)) {
         // Extract the path from the URL
         const path = image.split(`${bucketName}/`)[1]
@@ -230,6 +293,7 @@ export function ImageUpload({
       
       setImage(null)
       setFile(null)
+      setImageUrl("")
       onImageUploaded("")
       
       if (fileInputRef.current) {
@@ -314,6 +378,29 @@ export function ImageUpload({
 
   return (
     <div>
+      <Tabs defaultValue={inputMode} onValueChange={(val) => setInputMode(val as "upload" | "url")} className="mb-2">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="upload">Upload Image</TabsTrigger>
+          <TabsTrigger value="url">Use URL</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="url" className="mt-2">
+          <form onSubmit={handleUrlSubmit} className="flex space-x-2">
+            <Input 
+              placeholder="Enter image URL" 
+              value={imageUrl} 
+              onChange={(e) => setImageUrl(e.target.value)}
+              disabled={isUploading}
+              className="flex-1"
+            />
+            <Button type="submit" size="sm" disabled={isUploading}>
+              {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <LinkIcon className="h-4 w-4 mr-1" />}
+              {isUploading ? "Setting..." : "Set URL"}
+            </Button>
+          </form>
+        </TabsContent>
+      </Tabs>
+
       <div
         className="relative mt-2 overflow-hidden rounded-md border border-input bg-background"
         style={{ aspectRatio: aspectRatio }}
@@ -341,20 +428,29 @@ export function ImageUpload({
         ) : (
           // Upload Placeholder
           <div
-            className="flex h-full w-full cursor-pointer flex-col items-center justify-center border-2 border-dashed"
-            onClick={handleUploadClick}
+            className={`flex h-full w-full ${inputMode === "upload" ? "cursor-pointer" : ""} flex-col items-center justify-center border-2 border-dashed`}
+            onClick={inputMode === "upload" ? handleUploadClick : undefined}
           >
             {isUploading || isEnsuring ? (
               <div className="flex flex-col items-center justify-center space-y-2">
                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                 <p className="text-sm text-muted-foreground">
-                  {isEnsuring ? "Preparing storage..." : "Uploading..."}
+                  {isEnsuring ? "Preparing storage..." : "Processing..."}
                 </p>
               </div>
             ) : (
               <>
-                <Upload className="mb-2 h-8 w-8 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Click to upload</p>
+                {inputMode === "upload" ? (
+                  <>
+                    <Upload className="mb-2 h-8 w-8 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">Click to upload</p>
+                  </>
+                ) : (
+                  <>
+                    <LinkIcon className="mb-2 h-8 w-8 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">Enter URL above</p>
+                  </>
+                )}
               </>
             )}
           </div>

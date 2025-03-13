@@ -32,6 +32,13 @@ When you want to import a complete story with one or more chapters, use the Stor
 ```json
 {
   "title": "Story Title",
+  "japanese_title": "Story Title in Japanese",
+  "english_title": "Story Title in English",
+  "description": "A description of the story",
+  "difficulty_level": "beginner",
+  "tags": ["tag1", "tag2"],
+  "cover_image": "https://example.com/cover.jpg",
+  "status": "published",
   "chapters": [
     {
       "title": "Chapter Title",
@@ -50,7 +57,14 @@ When you want to import a complete story with one or more chapters, use the Stor
 
 | Property | Type | Description | Required |
 |----------|------|-------------|----------|
-| `title` | String | The title of the story | Yes |
+| `title` | String | The title of the story (for backward compatibility) | No |
+| `japanese_title` | String | The Japanese title of the story | Yes (if `title` not provided) |
+| `english_title` | String | The English title of the story | Yes (if `title` not provided) |
+| `description` | String | A description of the story | No |
+| `difficulty_level` | String | The difficulty level (beginner, intermediate, advanced) | Yes |
+| `tags` | Array | Array of tag strings | No |
+| `cover_image` | String | URL to a cover image. This can be any publicly accessible image URL. | No |
+| `status` | String | Either "draft" or "published" | No (defaults to "draft") |
 | `chapters` | Array | Array of chapter objects | Yes |
 
 ### Story Import Notes
@@ -144,8 +158,32 @@ Panels are used to organize content within chapters:
 | Property | Type | Description | Required |
 |----------|------|-------------|----------|
 | `order` | Number | The numerical order of this panel within the chapter | Yes |
-| `image` | String | URL or data URI of the panel image | No |
+| `image` | String | URL to an image (e.g., "https://example.com/image.jpg"). This can be any publicly accessible image URL. | No |
 | `sentences` | Array | Array of sentence objects | Yes |
+
+#### Image URLs
+
+The application now supports direct image URLs for all images (panels, covers, etc.). When providing an image URL:
+
+- Use full URLs including the protocol (http:// or https://)
+- Ensure the image is publicly accessible
+- Use image hosting services or CDNs for reliable access
+- Supported formats include JPG, PNG, GIF, and WebP
+
+Example using a direct image URL:
+```json
+{
+  "panels": [
+    {
+      "order": 1,
+      "image": "https://example.com/my-panel-image.jpg",
+      "sentences": [
+        // Sentence objects
+      ]
+    }
+  ]
+}
+```
 
 ### Sentence Format
 
