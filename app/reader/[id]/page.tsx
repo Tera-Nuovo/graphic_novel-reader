@@ -37,6 +37,7 @@ interface ReaderSentence {
 
 interface ReaderPanel {
   id: number
+  originalId: string
   sentences: ReaderSentence[]
   image: string
 }
@@ -172,6 +173,7 @@ export default function ReaderPage() {
           
           readerPanels.push({
             id: parseInt(panel.id.substring(0, 8), 16), // Generate numeric ID from UUID
+            originalId: panel.id, // Store the original UUID
             sentences: readerSentences,
             image: panel.image || "/placeholder.svg?height=400&width=600",
           });
@@ -197,9 +199,10 @@ export default function ReaderPage() {
   // Get user progress when story loads
   useEffect(() => {
     async function loadUserProgress() {
-      if (!user || !storyId || !currentChapter || panels.length === 0 || restoringProgress) return;
+      if (!user || !storyId || !chapters.length) return;
       
       try {
+        console.log("Loading user progress for:", user.id, storyId);
         const progress = await getUserProgress(user.id, storyId);
         
         if (progress) {
@@ -207,27 +210,26 @@ export default function ReaderPage() {
           
           // Find chapter index
           const chapterIndex = chapters.findIndex(ch => ch.id === progress.chapter_id);
+          console.log('Chapter index:', chapterIndex, 'Current index:', currentChapterIndex);
           
           if (chapterIndex !== -1 && chapterIndex !== currentChapterIndex) {
             // If found chapter is different than current, load it
+            console.log('Switching to saved chapter:', chapters[chapterIndex].title);
             setRestoringProgress(true);
             setCurrentChapter(chapters[chapterIndex]);
             setCurrentChapterIndex(chapterIndex);
-          } else if (progress.panel_id) {
-            // Convert UUID to numeric ID (same conversion used when creating panel IDs)
-            const panelIdString = progress.panel_id.substring(0, 8);
-            const numericPanelId = parseInt(panelIdString, 16);
+          } else if (progress.panel_id && panels.length > 0) {
+            // Try to find the panel in current panels by UUID first
+            let foundPanel = panels.find(p => p.originalId === progress.panel_id);
             
-            // Find panel in current chapter
-            const panelIndex = panels.findIndex(p => p.id === numericPanelId);
-            
-            if (panelIndex !== -1) {
-              setCurrentPanelId(numericPanelId);
+            if (foundPanel) {
+              console.log('Found panel by original ID:', foundPanel.id);
+              setCurrentPanelId(foundPanel.id);
               
               // Small delay to ensure DOM is ready
               setTimeout(() => {
-                if (panelRefs.current[numericPanelId]) {
-                  panelRefs.current[numericPanelId]?.scrollIntoView({ 
+                if (panelRefs.current[foundPanel!.id]) {
+                  panelRefs.current[foundPanel!.id]?.scrollIntoView({ 
                     behavior: 'smooth', 
                     block: 'start' 
                   });
@@ -239,11 +241,52 @@ export default function ReaderPage() {
                 }
                 setRestoringProgress(false);
               }, 500);
+            } else {
+              console.log('Panel not found by UUID, trying numeric ID');
+              // Fallback: Convert UUID to numeric ID (for backward compatibility)
+              const panelIdString = progress.panel_id.substring(0, 8);
+              const numericPanelId = parseInt(panelIdString, 16);
+              
+              // Find panel in current chapter
+              const panelIndex = panels.findIndex(p => p.id === numericPanelId);
+              
+              if (panelIndex !== -1) {
+                console.log('Found panel by numeric ID:', numericPanelId);
+                setCurrentPanelId(numericPanelId);
+                
+                // Small delay to ensure DOM is ready
+                setTimeout(() => {
+                  if (panelRefs.current[numericPanelId]) {
+                    panelRefs.current[numericPanelId]?.scrollIntoView({ 
+                      behavior: 'smooth', 
+                      block: 'start' 
+                    });
+                    
+                    toast({
+                      title: "Reading Progress Restored",
+                      description: "Continuing from where you left off",
+                    });
+                  }
+                  setRestoringProgress(false);
+                }, 500);
+              } else {
+                console.log('Panel not found, starting at beginning');
+                setCurrentPanelId(panels[0]?.id || null);
+                setRestoringProgress(false);
+              }
             }
+          } else {
+            console.log('No panel_id in progress or no panels loaded, starting at beginning');
+            if (panels.length > 0) {
+              setCurrentPanelId(panels[0]?.id || null);
+            }
+            setRestoringProgress(false);
           }
         } else {
-          // No progress found, start at beginning
-          setCurrentPanelId(panels[0]?.id || null);
+          console.log('No progress found, starting at beginning');
+          if (panels.length > 0) {
+            setCurrentPanelId(panels[0]?.id || null);
+          }
           setRestoringProgress(false);
         }
       } catch (err) {
@@ -253,7 +296,7 @@ export default function ReaderPage() {
     }
     
     loadUserProgress();
-  }, [user, storyId, currentChapter, panels, restoringProgress]);
+  }, [user, storyId, chapters, panels, currentChapterIndex]);
   
   // Save user progress when panel changes
   useEffect(() => {
@@ -261,25 +304,24 @@ export default function ReaderPage() {
       if (!user || !storyId || !currentChapter || !currentPanelId || restoringProgress) return;
       
       try {
-        // Find the original panel UUID
+        // Find the panel with its original UUID
         const panel = panels.find(p => p.id === currentPanelId);
         if (!panel) return;
         
-        // Convert panel ID back to UUID format - this is a simple approach and may not match exactly
-        // In a production app, you'd want to store the original UUID in the panel object
-        const originalPanelId = panel.id.toString(16).padStart(8, '0') + '-0000-0000-0000-000000000000';
+        console.log('Saving progress for panel:', panel.id, 'UUID:', panel.originalId);
         
         await updateUserProgress({
           user_id: user.id,
           story_id: storyId,
           chapter_id: currentChapter.id,
-          panel_id: originalPanelId,
+          panel_id: panel.originalId, // Use the original UUID
           completed: false
         });
         
         console.log('Progress saved:', {
           chapter: currentChapter.title,
-          panel: currentPanelId
+          panel: currentPanelId,
+          panelUUID: panel.originalId
         });
       } catch (err) {
         console.error("Error saving user progress:", err);
@@ -491,14 +533,6 @@ export default function ReaderPage() {
             <ChevronRight className="h-4 w-4 ml-2" />
           </Button>
         </div>
-
-        {/* User Progress Indicator */}
-        {user && currentPanelId && (
-          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-            <BookmarkIcon className="h-4 w-4" />
-            <span>Progress is saved automatically</span>
-          </div>
-        )}
 
         {/* Story content */}
         <div className="space-y-12">
