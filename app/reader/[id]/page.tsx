@@ -343,7 +343,7 @@ export default function ReaderPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 ml-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="h-6 w-6 ml-1 opacity-0 group-hover:opacity-100 transition-opacity self-end"
                         onClick={(e) => handleSentenceClick(sentence.translation, panel.id, e)}
                       >
                         <MessageCircle className="h-4 w-4" />

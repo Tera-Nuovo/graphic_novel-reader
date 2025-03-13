@@ -37,6 +37,23 @@ export function SentencePopover({ translation, position, onClose }: SentencePopo
     }
   }, [position]);
 
+  // Add click outside handler
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+    
+    // Add event listener
+    document.addEventListener("mousedown", handleClickOutside);
+    
+    // Clean up event listener
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [onClose]);
+
   return (
     <div
       ref={popoverRef}

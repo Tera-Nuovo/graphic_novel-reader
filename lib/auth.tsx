@@ -162,9 +162,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (data?.session) {
         console.log('Sign in successful, storing token');
         
-        // Store token in cookie with proper attributes - using session cookie approach
-        const maxAge = 60 * 60 * 24 * 7; // 7 days
-        document.cookie = `sb-access-token=${data.session.access_token}; path=/; max-age=${maxAge}; SameSite=Lax`;
+        // Store token in cookie with proper attributes
+        const maxAge = 60 * 60 * 24 * 30; // 30 days
+        
+        // Set the access token with proper cookie attributes
+        document.cookie = `sb-access-token=${data.session.access_token}; path=/; max-age=${maxAge}; SameSite=Lax; secure`;
+        
+        // Also store the refresh token in a separate cookie
+        document.cookie = `sb-refresh-token=${data.session.refresh_token}; path=/; max-age=${maxAge}; SameSite=Lax; secure`;
         
         // Refresh user data to ensure we have the latest metadata
         await refreshUser();
@@ -182,6 +187,82 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Add a function to refresh the auth token
+  const refreshAuthToken = async () => {
+    try {
+      console.log('Refreshing auth token...');
+      
+      // Get the refresh token from cookies
+      const refreshToken = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('sb-refresh-token='))
+        ?.split('=')[1];
+      
+      if (!refreshToken) {
+        console.warn('No refresh token found in cookies');
+        return;
+      }
+      
+      // Refresh the session using the refresh token
+      const { data, error } = await supabase.auth.refreshSession({
+        refresh_token: refreshToken,
+      });
+      
+      if (error) {
+        console.error('Error refreshing token:', error);
+        return;
+      }
+      
+      if (data?.session) {
+        console.log('Token refreshed successfully');
+        
+        // Update the tokens in cookies
+        const maxAge = 60 * 60 * 24 * 30; // 30 days
+        
+        // Set the new access token
+        document.cookie = `sb-access-token=${data.session.access_token}; path=/; max-age=${maxAge}; SameSite=Lax; secure`;
+        
+        // Set the new refresh token
+        document.cookie = `sb-refresh-token=${data.session.refresh_token}; path=/; max-age=${maxAge}; SameSite=Lax; secure`;
+        
+        // Update our local state
+        setSession(data.session);
+        setUser(data.session.user);
+      }
+    } catch (refreshError) {
+      console.error('Error during token refresh:', refreshError);
+    }
+  };
+
+  // Set up a periodic token refresh
+  useEffect(() => {
+    if (!session) return;
+    
+    // Set up an interval to refresh the token every 50 minutes
+    // (Supabase tokens typically expire after 1 hour)
+    const refreshInterval = setInterval(refreshAuthToken, 50 * 60 * 1000);
+    
+    // Also refresh immediately if we have a session
+    refreshAuthToken();
+    
+    return () => clearInterval(refreshInterval);
+  }, [session]);
+
+  // Add event listener for visibility changes to refresh token when tab becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && session) {
+        refreshAuthToken();
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [session]);
+
   const signUp = async (email: string, password: string) => {
     const { error } = await supabase.auth.signUp({ email, password });
     if (error) throw error;
@@ -198,6 +279,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT; domain=${window.location.hostname}`;
         }
       });
+      
+      // Explicitly clear our custom token cookies
+      document.cookie = `sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT; domain=${window.location.hostname}`;
+      document.cookie = `sb-refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT; domain=${window.location.hostname}`;
       
       // Clear any Supabase-specific items from localStorage
       Object.keys(localStorage).forEach(key => {

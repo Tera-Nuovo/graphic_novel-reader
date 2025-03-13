@@ -29,6 +29,7 @@ export async function middleware(req: NextRequest) {
   try {
     let supabase;
     let accessToken = null;
+    let refreshToken = null;
     
     // Check for token in authorization header
     if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -41,8 +42,15 @@ export async function middleware(req: NextRequest) {
       const tokenCookie = req.cookies.get('sb-access-token');
       if (tokenCookie) {
         accessToken = tokenCookie.value;
-        console.log('Found token in cookies');
+        console.log('Found access token in cookies');
       }
+    }
+    
+    // Get refresh token from cookies
+    const refreshTokenCookie = req.cookies.get('sb-refresh-token');
+    if (refreshTokenCookie) {
+      refreshToken = refreshTokenCookie.value;
+      console.log('Found refresh token in cookies');
     }
     
     // If we have a token, verify it
@@ -65,12 +73,91 @@ export async function middleware(req: NextRequest) {
       );
       
       // Verify the token by getting user data
-      const { data: userData, error: userError } = await supabase.auth.getUser();
+      let { data: userData, error: userError } = await supabase.auth.getUser();
       
-      if (userError) {
+      // If token verification failed but we have a refresh token, try to refresh the session
+      if (userError && refreshToken) {
+        console.log('Access token invalid, trying to refresh...');
+        
+        try {
+          // Create a new client without the invalid token
+          const refreshClient = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+          );
+          
+          // Try to refresh the session
+          const { data: refreshData, error: refreshError } = await refreshClient.auth.refreshSession({
+            refresh_token: refreshToken
+          });
+          
+          if (refreshError || !refreshData.session) {
+            console.error('Token refresh failed:', refreshError);
+            // Clear invalid tokens
+            res.cookies.delete('sb-access-token');
+            res.cookies.delete('sb-refresh-token');
+            const redirectUrl = new URL('/login', req.url);
+            redirectUrl.searchParams.set('redirect', req.nextUrl.pathname);
+            return NextResponse.redirect(redirectUrl);
+          }
+          
+          // We successfully refreshed the token
+          console.log('Session refreshed successfully');
+          
+          // Update access and refresh tokens in cookies
+          const maxAge = 60 * 60 * 24 * 30; // 30 days
+          
+          res.cookies.set({
+            name: 'sb-access-token',
+            value: refreshData.session.access_token,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: maxAge
+          });
+          
+          res.cookies.set({
+            name: 'sb-refresh-token',
+            value: refreshData.session.refresh_token,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: maxAge
+          });
+          
+          // Use the refreshed data for user verification
+          accessToken = refreshData.session.access_token;
+          
+          // Update the user data with the refreshed token
+          const { data: refreshedUserData, error: refreshedUserError } = await supabase.auth.getUser(accessToken);
+          
+          if (refreshedUserError || !refreshedUserData.user) {
+            console.error('Failed to verify user with refreshed token:', refreshedUserError);
+            // Clear invalid tokens
+            res.cookies.delete('sb-access-token');
+            res.cookies.delete('sb-refresh-token');
+            const redirectUrl = new URL('/login', req.url);
+            redirectUrl.searchParams.set('redirect', req.nextUrl.pathname);
+            return NextResponse.redirect(redirectUrl);
+          }
+          
+          // Use refreshed user data for the rest of the process
+          userData = refreshedUserData;
+        } catch (refreshException) {
+          console.error('Error during token refresh:', refreshException);
+          // Clear invalid tokens
+          res.cookies.delete('sb-access-token');
+          res.cookies.delete('sb-refresh-token');
+          const redirectUrl = new URL('/login', req.url);
+          redirectUrl.searchParams.set('redirect', req.nextUrl.pathname);
+          return NextResponse.redirect(redirectUrl);
+        }
+      } else if (userError) {
+        // If there's no refresh token or another error
         console.error('Token verification failed:', userError);
         // Clear invalid token
         res.cookies.delete('sb-access-token');
+        res.cookies.delete('sb-refresh-token');
         const redirectUrl = new URL('/login', req.url);
         redirectUrl.searchParams.set('redirect', req.nextUrl.pathname);
         return NextResponse.redirect(redirectUrl);
@@ -80,6 +167,7 @@ export async function middleware(req: NextRequest) {
         console.log('No valid user found for token');
         // Clear invalid token
         res.cookies.delete('sb-access-token');
+        res.cookies.delete('sb-refresh-token');
         const redirectUrl = new URL('/login', req.url);
         redirectUrl.searchParams.set('redirect', req.nextUrl.pathname);
         return NextResponse.redirect(redirectUrl);
@@ -104,7 +192,7 @@ export async function middleware(req: NextRequest) {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'lax',
-          maxAge: 60 * 60 // 1 hour
+          maxAge: 60 * 60 * 24 * 30 // 30 days
         });
         
         console.log('User is admin, allowing access');
@@ -128,6 +216,7 @@ export async function middleware(req: NextRequest) {
     console.error('Middleware error:', error);
     // Clear any invalid tokens on error
     res.cookies.delete('sb-access-token');
+    res.cookies.delete('sb-refresh-token');
     return res;
   }
 }

@@ -13,6 +13,7 @@ import { CopyIcon, CheckIcon, Download } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SampleGenerator } from "./sample-generator";
+import Link from "next/link";
 
 export default function ImportPage() {
   const router = useRouter();
@@ -177,23 +178,24 @@ export default function ImportPage() {
                   </div>
                   <div className="mt-6 pt-4 border-t">
                     <h3 className="text-lg font-semibold mb-2">Download Test Files</h3>
-                    <div className="flex flex-col gap-2">
-                      <a 
-                        href="/test-story-import.json" 
-                        download
-                        className="flex items-center text-primary hover:underline"
-                      >
-                        <Download className="mr-2 h-4 w-4" />
-                        Comprehensive Test Story (3 chapters with furigana)
-                      </a>
-                      <a 
-                        href="/sample-chapter-import.json" 
-                        download
-                        className="flex items-center text-primary hover:underline"
-                      >
-                        <Download className="mr-2 h-4 w-4" />
-                        Simple Sample Chapter
-                      </a>
+                    <div className="flex gap-4">
+                      <Button variant="outline" className="flex items-center gap-2" asChild>
+                        <Link href="/test-story-import.json" target="_blank" download>
+                          <Download className="h-4 w-4" />
+                          Comprehensive Test Story (3 chapters with furigana)
+                        </Link>
+                      </Button>
+                      <Button variant="outline" className="flex items-center gap-2" asChild>
+                        <Link href="/sample-chapter-import.json" target="_blank" download>
+                          <Download className="h-4 w-4" />
+                          Simple Sample Chapter
+                        </Link>
+                      </Button>
+                    </div>
+                    <div className="mt-2">
+                      <Link href="/docs/json-format.md" target="_blank" className="text-sm text-primary hover:underline">
+                        View JSON Format Documentation
+                      </Link>
                     </div>
                   </div>
                 </div>
